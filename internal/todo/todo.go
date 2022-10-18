@@ -73,7 +73,7 @@ func List() {
 		if td.Status == statusDeleted {
 			continue
 		}
-		fmt.Printf("%d|%s|%s|%s\n", td.Id, td.CreateTime, td.Status, td.Content)
+		fmt.Printf("%d|%s|%s: %s\n", td.Id, td.CreateTime, td.Status, td.Content)
 	}
 }
 
