@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"zodo/internal/errs"
 	"zodo/internal/orders"
 	"zodo/internal/stdin"
 	"zodo/internal/todo"
@@ -20,16 +18,21 @@ func main() {
 		fmt.Print("$ ")
 		input := stdin.ReadString()
 
-		if err := orders.IsExit(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		// todo help
+
+		if orders.IsExit(input) {
 			return
 		}
 
-		if err := orders.IsList(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		if orders.IsList(input) {
 			todo.List()
 			continue
 		}
 
-		if content, err := orders.IsAdd(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		// todo detail
+
+		if orders.IsAdd(input) {
+			content, err := orders.ParseAdd(input)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -38,7 +41,8 @@ func main() {
 			continue
 		}
 
-		if id, content, err := orders.IsModify(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		if orders.IsModify(input) {
+			id, content, err := orders.ParseModify(input)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -47,7 +51,8 @@ func main() {
 			continue
 		}
 
-		if id, err := orders.IsPending(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		if orders.IsPending(input) {
+			id, err := orders.ParsePending(input)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -56,7 +61,8 @@ func main() {
 			continue
 		}
 
-		if id, err := orders.IsDone(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		if orders.IsDone(input) {
+			id, err := orders.ParseDone(input)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -65,7 +71,8 @@ func main() {
 			continue
 		}
 
-		if id, err := orders.IsAbandon(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		if orders.IsAbandon(input) {
+			id, err := orders.ParseAbandon(input)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -74,7 +81,8 @@ func main() {
 			continue
 		}
 
-		if id, err := orders.IsDelete(input); !errors.Is(err, &errs.WrongOrderError{}) {
+		if orders.IsDelete(input) {
+			id, err := orders.ParseDelete(input)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
@@ -83,5 +91,6 @@ func main() {
 			continue
 		}
 
+		// todo hint
 	}
 }

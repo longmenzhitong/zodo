@@ -20,75 +20,81 @@ const (
 	prefixDelete  = "del "
 )
 
-func IsExit(input string) error {
-	if input != exit {
-		return &errs.WrongOrderError{}
-	}
-	return nil
+func IsExit(input string) bool {
+	return strings.TrimSpace(input) == exit
 }
 
-func IsList(input string) error {
-	if input != list {
-		return &errs.WrongOrderError{}
-	}
-	return nil
+func IsList(input string) bool {
+	return strings.TrimSpace(input) == list
 }
 
-func IsAdd(input string) (string, error) {
-	if !strings.HasPrefix(input, prefixAdd) {
-		return "", &errs.WrongOrderError{}
-	}
-	content := strings.TrimSpace(strings.TrimPrefix(input, prefixAdd))
+func IsAdd(input string) bool {
+	return strings.HasPrefix(input, prefixAdd)
+}
+
+func ParseAdd(input string) (content string, err error) {
+	content = strings.TrimSpace(strings.TrimPrefix(input, prefixAdd))
 	if content == "" {
-		return "", &errs.InvalidInputError{Input: ""}
+		err = &errs.InvalidInputError{Input: ""}
 	}
-	return content, nil
+	return
 }
 
-func IsModify(input string) (int, string, error) {
-	if !strings.HasPrefix(input, prefixModify) {
-		return 0, "", &errs.WrongOrderError{}
-	}
+func IsModify(input string) bool {
+	return strings.HasPrefix(input, prefixModify)
+}
+
+func ParseModify(input string) (id int, content string, err error) {
 	order := strings.TrimSpace(strings.TrimPrefix(input, prefixModify))
-	items := strings.Split(order, " ")
-	if len(items) != 2 {
-		return 0, "", &errs.InvalidInputError{Input: input}
+	i := strings.Index(order, " ")
+	if i == -1 {
+		err = &errs.InvalidInputError{Input: input}
+		return
 	}
-	id, err := strconv.Atoi(items[0])
+	id, err = strconv.Atoi(order[:i])
 	if err != nil {
-		return 0, "", err
+		return
 	}
-	content := items[1]
+	content = strings.TrimSpace(order[i+1:])
 	if content == "" {
-		return 0, "", &errs.InvalidInputError{Input: input}
+		err = &errs.InvalidInputError{Input: input}
 	}
-	return id, content, nil
+	return
 }
 
-func IsPending(input string) (int, error) {
-	return isModifyStatus(input, prefixPending)
+func IsPending(input string) bool {
+	return strings.HasPrefix(input, prefixPending)
 }
 
-func IsDone(input string) (int, error) {
-	return isModifyStatus(input, prefixDone)
+func ParsePending(input string) (id int, err error) {
+	return parseSingleId(input, prefixPending)
 }
 
-func IsAbandon(input string) (int, error) {
-	return isModifyStatus(input, prefixAbandon)
+func IsDone(input string) bool {
+	return strings.HasPrefix(input, prefixDone)
 }
 
-func IsDelete(input string) (int, error) {
-	return isModifyStatus(input, prefixDelete)
+func ParseDone(input string) (id int, err error) {
+	return parseSingleId(input, prefixDone)
 }
 
-func isModifyStatus(input, prefix string) (int, error) {
-	if !strings.HasPrefix(input, prefix) {
-		return 0, &errs.WrongOrderError{}
-	}
+func IsAbandon(input string) bool {
+	return strings.HasPrefix(input, prefixAbandon)
+}
+
+func ParseAbandon(input string) (id int, err error) {
+	return parseSingleId(input, prefixAbandon)
+}
+
+func IsDelete(input string) bool {
+	return strings.HasPrefix(input, prefixDelete)
+}
+
+func ParseDelete(input string) (id int, err error) {
+	return parseSingleId(input, prefixDelete)
+}
+
+func parseSingleId(input, prefix string) (id int, err error) {
 	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
-	id, err := strconv.Atoi(order)
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
+	return strconv.Atoi(order)
 }
