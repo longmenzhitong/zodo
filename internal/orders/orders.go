@@ -3,6 +3,8 @@ package orders
 import (
 	"strconv"
 	"strings"
+	"time"
+	"zodo/internal/cst"
 	"zodo/internal/errs"
 )
 
@@ -12,12 +14,13 @@ const (
 )
 
 const (
-	prefixAdd     = "add "
-	prefixModify  = "mod "
-	prefixDone    = "done "
-	prefixPending = "pending "
-	prefixAbandon = "abandon "
-	prefixDelete  = "del "
+	prefixAdd      = "add "
+	prefixModify   = "mod "
+	prefixDeadline = "ddl "
+	prefixDone     = "done "
+	prefixPending  = "hang "
+	prefixAbandon  = "abd "
+	prefixDelete   = "del "
 )
 
 func IsExit(input string) bool {
@@ -45,20 +48,19 @@ func IsModify(input string) bool {
 }
 
 func ParseModify(input string) (id int, content string, err error) {
-	order := strings.TrimSpace(strings.TrimPrefix(input, prefixModify))
-	i := strings.Index(order, " ")
-	if i == -1 {
-		err = &errs.InvalidInputError{Input: input}
-		return
-	}
-	id, err = strconv.Atoi(order[:i])
+	return parseIdAndStr(input, prefixModify)
+}
+
+func IsDeadline(input string) bool {
+	return strings.HasPrefix(input, prefixDeadline)
+}
+
+func ParseDeadline(input string) (id int, deadline string, err error) {
+	id, deadline, err = parseIdAndStr(input, prefixDeadline)
 	if err != nil {
 		return
 	}
-	content = strings.TrimSpace(order[i+1:])
-	if content == "" {
-		err = &errs.InvalidInputError{Input: input}
-	}
+	_, err = time.Parse(cst.LayoutDate, deadline)
 	return
 }
 
@@ -97,4 +99,22 @@ func ParseDelete(input string) (id int, err error) {
 func parseSingleId(input, prefix string) (id int, err error) {
 	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
 	return strconv.Atoi(order)
+}
+
+func parseIdAndStr(input, prefix string) (id int, str string, err error) {
+	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
+	i := strings.Index(order, " ")
+	if i == -1 {
+		err = &errs.InvalidInputError{Input: input}
+		return
+	}
+	id, err = strconv.Atoi(order[:i])
+	if err != nil {
+		return
+	}
+	str = strings.TrimSpace(order[i+1:])
+	if str == "" {
+		err = &errs.InvalidInputError{Input: input}
+	}
+	return
 }

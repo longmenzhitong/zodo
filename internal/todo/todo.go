@@ -2,6 +2,7 @@ package todo
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
 	"zodo/internal/cst"
@@ -25,6 +26,7 @@ type Todo struct {
 	Id         int
 	Content    string
 	Status     string
+	Deadline   string
 	CreateTime string
 }
 
@@ -60,24 +62,30 @@ func Save() {
 	file.RewriteLinesToPath(Path, lines)
 }
 
-func FindById(id int) *Todo {
-	for i := range Todos {
-		if Todos[i].Id == id {
-			return &Todos[i]
-		}
-	}
-	return nil
-}
-
 func List() {
 	rows := make([]table.Row, 0)
 	for _, td := range Todos {
 		if td.Status == statusDeleted {
 			continue
 		}
-		rows = append(rows, table.Row{td.Id, td.Content, td.Status, td.CreateTime})
+
+		var deadline string
+		if td.Deadline != "" {
+			remainDays := calcRemainDays(time.Now(), td.Deadline)
+			deadline = fmt.Sprintf("%s(%dd)", td.Deadline, remainDays)
+		} else {
+			deadline = cst.Placeholder
+		}
+
+		rows = append(rows, table.Row{
+			td.Id,
+			td.Content,
+			td.Status,
+			deadline,
+			td.CreateTime,
+		})
 	}
-	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Create"}, rows)
+	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Create"}, rows)
 }
 
 func Add(content string) {
@@ -90,30 +98,58 @@ func Add(content string) {
 	Todos = append(Todos, td)
 }
 
-func Modify(id int, content string, status string) {
-	td := FindById(id)
+func Modify(id int, content string) {
+	td := findById(id)
 	if td == nil {
 		return
 	}
-	if content != "" {
-		td.Content = content
+	td.Content = content
+}
+
+func Deadline(id int, deadline string) {
+	td := findById(id)
+	if td == nil {
+		return
 	}
-	if status != "" {
-		td.Status = status
-	}
+	td.Deadline = deadline
 }
 
 func Pending(id int) {
-	Modify(id, "", statusPending)
+	modifyStatus(id, statusPending)
 }
 
 func Done(id int) {
-	Modify(id, "", statusDone)
+	modifyStatus(id, statusDone)
 }
 func Abandon(id int) {
-	Modify(id, "", statusAbandoned)
+	modifyStatus(id, statusAbandoned)
 }
 
 func Delete(id int) {
-	Modify(id, "", statusDeleted)
+	modifyStatus(id, statusDeleted)
+}
+
+func modifyStatus(id int, status string) {
+	td := findById(id)
+	if td == nil {
+		return
+	}
+	td.Status = status
+}
+
+func findById(id int) *Todo {
+	for i := range Todos {
+		if Todos[i].Id == id {
+			return &Todos[i]
+		}
+	}
+	return nil
+}
+
+func calcRemainDays(calcTime time.Time, deadline string) int {
+	ddlTime, err := time.Parse(cst.LayoutDate, deadline)
+	if err != nil {
+		panic(err)
+	}
+	return int(ddlTime.Sub(calcTime).Hours() / 24)
 }

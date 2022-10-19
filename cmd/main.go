@@ -47,7 +47,17 @@ func main() {
 				fmt.Println(err.Error())
 				continue
 			}
-			todo.Modify(id, content, "")
+			todo.Modify(id, content)
+			continue
+		}
+
+		if orders.IsDeadline(input) {
+			id, deadline, err := orders.ParseDeadline(input)
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+			todo.Deadline(id, deadline)
 			continue
 		}
 

@@ -156,6 +156,12 @@ func TestParsePending(t *testing.T) {
 			wantId:  1,
 			wantErr: false,
 		},
+		{
+			name:    "ParsePending_5",
+			args:    args{input: "pending  1 a"},
+			wantId:  0,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -166,6 +172,84 @@ func TestParsePending(t *testing.T) {
 			}
 			if gotId != tt.wantId {
 				t.Errorf("ParsePending() gotId = %v, want %v", gotId, tt.wantId)
+			}
+		})
+	}
+}
+
+func TestParseDeadline(t *testing.T) {
+	type args struct {
+		input string
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantId       int
+		wantDeadline string
+		wantErr      bool
+	}{
+		{
+			name:         "ParseDeadline_1",
+			args:         args{input: "ddl "},
+			wantId:       0,
+			wantDeadline: "",
+			wantErr:      true,
+		},
+		{
+			name:         "ParseDeadline_2",
+			args:         args{input: "ddl 1"},
+			wantId:       0,
+			wantDeadline: "",
+			wantErr:      true,
+		},
+		{
+			name:         "ParseDeadline_3",
+			args:         args{input: "ddl 2022-10-19"},
+			wantId:       0,
+			wantDeadline: "",
+			wantErr:      true,
+		},
+		{
+			name:         "ParseDeadline_4",
+			args:         args{input: "ddl 1 2022-10"},
+			wantId:       1,
+			wantDeadline: "2022-10",
+			wantErr:      true,
+		},
+		{
+			name:         "ParseDeadline_5",
+			args:         args{input: "ddl 1 2022-10-19"},
+			wantId:       1,
+			wantDeadline: "2022-10-19",
+			wantErr:      false,
+		},
+		{
+			name:         "ParseDeadline_6",
+			args:         args{input: "ddl  1  2022-10-19 "},
+			wantId:       1,
+			wantDeadline: "2022-10-19",
+			wantErr:      false,
+		},
+		{
+			name:         "ParseDeadline_6",
+			args:         args{input: "ddl  1  2022-10-19 a"},
+			wantId:       1,
+			wantDeadline: "2022-10-19 a",
+			wantErr:      true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotId, gotDeadline, err := ParseDeadline(tt.args.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseDeadline() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotId != tt.wantId {
+				t.Errorf("ParseDeadline() gotId = %v, want %v", gotId, tt.wantId)
+			}
+			if gotDeadline != tt.wantDeadline {
+				t.Errorf("ParseDeadline() gotDeadline = %v, want %v", gotDeadline, tt.wantDeadline)
 			}
 		})
 	}
