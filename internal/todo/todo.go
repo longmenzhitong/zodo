@@ -2,11 +2,12 @@ package todo
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
 	"zodo/internal/cst"
 	"zodo/internal/file"
 	"zodo/internal/ids"
+	"zodo/internal/stdout"
 )
 
 const (
@@ -69,12 +70,14 @@ func FindById(id int) *Todo {
 }
 
 func List() {
+	rows := make([]table.Row, 0)
 	for _, td := range Todos {
 		if td.Status == statusDeleted {
 			continue
 		}
-		fmt.Printf("%d|%s|%s: %s\n", td.Id, td.CreateTime, td.Status, td.Content)
+		rows = append(rows, table.Row{td.Id, td.Content, td.Status, td.CreateTime})
 	}
+	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Create"}, rows)
 }
 
 func Add(content string) {
