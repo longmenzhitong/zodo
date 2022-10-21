@@ -1,11 +1,13 @@
 package orders
 
 import (
+	"os"
 	"strconv"
 	"strings"
 	"time"
 	"zodo/internal/cst"
 	"zodo/internal/errs"
+	"zodo/internal/todo"
 )
 
 const (
@@ -23,16 +25,88 @@ const (
 	prefixDelete   = "del "
 )
 
-func IsExit(input string) bool {
-	return strings.TrimSpace(input) == exit
-}
+func Handle(input string) error {
+	defer todo.Save()
+	
+	if strings.TrimSpace(input) == exit {
+		todo.Save()
+		os.Exit(0)
+	}
 
-func IsList(input string) bool {
-	return strings.TrimSpace(input) == list
-}
+	if strings.TrimSpace(input) == list {
+		todo.List()
+		return nil
+	}
 
-func IsAdd(input string) bool {
-	return strings.HasPrefix(input, prefixAdd)
+	if strings.HasPrefix(input, prefixAdd) {
+		content, err := ParseAdd(input)
+		if err != nil {
+			return err
+		}
+		todo.Add(content)
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixModify) {
+		id, content, err := ParseModify(input)
+		if err != nil {
+			return err
+		}
+		todo.Modify(id, content)
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixDeadline) {
+		id, deadline, err := ParseDeadline(input)
+		if err != nil {
+			return err
+		}
+		todo.Deadline(id, deadline)
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixPending) {
+		id, err := ParsePending(input)
+		if err != nil {
+			return err
+		}
+		todo.Pending(id)
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixDone) {
+		id, err := ParseDone(input)
+		if err != nil {
+			return err
+		}
+		todo.Done(id)
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixAbandon) {
+		id, err := ParseAbandon(input)
+		if err != nil {
+			return err
+		}
+		todo.Abandon(id)
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixDelete) {
+		id, err := ParseDelete(input)
+		if err != nil {
+			return err
+		}
+		todo.Delete(id)
+		return nil
+	}
+
+	// todo help
+	// todo detail
+	// todo hint
+
+	todo.List()
+	return nil
 }
 
 func ParseAdd(input string) (content string, err error) {
@@ -43,16 +117,8 @@ func ParseAdd(input string) (content string, err error) {
 	return
 }
 
-func IsModify(input string) bool {
-	return strings.HasPrefix(input, prefixModify)
-}
-
 func ParseModify(input string) (id int, content string, err error) {
 	return parseIdAndStr(input, prefixModify)
-}
-
-func IsDeadline(input string) bool {
-	return strings.HasPrefix(input, prefixDeadline)
 }
 
 func ParseDeadline(input string) (id int, deadline string, err error) {
@@ -64,39 +130,23 @@ func ParseDeadline(input string) (id int, deadline string, err error) {
 	return
 }
 
-func IsPending(input string) bool {
-	return strings.HasPrefix(input, prefixPending)
-}
-
 func ParsePending(input string) (id int, err error) {
-	return parseSingleId(input, prefixPending)
-}
-
-func IsDone(input string) bool {
-	return strings.HasPrefix(input, prefixDone)
+	return parseId(input, prefixPending)
 }
 
 func ParseDone(input string) (id int, err error) {
-	return parseSingleId(input, prefixDone)
-}
-
-func IsAbandon(input string) bool {
-	return strings.HasPrefix(input, prefixAbandon)
+	return parseId(input, prefixDone)
 }
 
 func ParseAbandon(input string) (id int, err error) {
-	return parseSingleId(input, prefixAbandon)
-}
-
-func IsDelete(input string) bool {
-	return strings.HasPrefix(input, prefixDelete)
+	return parseId(input, prefixAbandon)
 }
 
 func ParseDelete(input string) (id int, err error) {
-	return parseSingleId(input, prefixDelete)
+	return parseId(input, prefixDelete)
 }
 
-func parseSingleId(input, prefix string) (id int, err error) {
+func parseId(input, prefix string) (id int, err error) {
 	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
 	return strconv.Atoi(order)
 }
