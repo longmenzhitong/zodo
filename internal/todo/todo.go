@@ -18,10 +18,9 @@ const (
 )
 
 const (
-	statusPending   = "Pending"
-	statusDone      = "Done"
-	statusAbandoned = "Abandoned"
-	statusDeleted   = "Deleted"
+	statusPending = "Pending"
+	statusDone    = "Done"
+	statusDeleted = "Deleted"
 )
 
 type Todo struct {
@@ -30,6 +29,32 @@ type Todo struct {
 	Status     string
 	Deadline   string
 	CreateTime string
+}
+
+func (t *Todo) GetStatus() string {
+	if t.Status == statusPending {
+		return color.Purple(t.Status)
+	}
+	if t.Status == statusDone {
+		return color.Blue(t.Status)
+	}
+	return t.Status
+}
+
+func (t *Todo) GetDeadLine() string {
+	if t.Deadline == "" {
+		return ""
+	}
+	nd, wd := calcRemainDays(t.Deadline)
+	ddl := fmt.Sprintf("%s (%dnd/%dwd)", t.Deadline, nd, wd)
+	ddl = times.Simplify(ddl)
+	if wd == 0 {
+		ddl = color.Red(ddl)
+	}
+	if wd == 1 {
+		ddl = color.Yellow(ddl)
+	}
+	return color.Green(ddl)
 }
 
 var (
@@ -71,21 +96,11 @@ func List() {
 			continue
 		}
 
-		var deadline string
-		if td.Deadline != "" {
-			nd, wd := calcRemainDays(td.Deadline)
-			deadline = fmt.Sprintf("%s (%dnd/%dwd)", td.Deadline, nd, wd)
-			deadline = times.Simplify(deadline)
-			if nd == 0 || wd == 0 {
-				deadline = color.Red(deadline)
-			}
-		}
-
 		rows = append(rows, table.Row{
 			td.Id,
 			td.Content,
-			td.Status,
-			deadline,
+			td.GetStatus(),
+			td.GetDeadLine(),
 			times.Simplify(td.CreateTime),
 		})
 	}
@@ -124,9 +139,6 @@ func Pending(id int) {
 
 func Done(id int) {
 	modifyStatus(id, statusDone)
-}
-func Abandon(id int) {
-	modifyStatus(id, statusAbandoned)
 }
 
 func Delete(id int) {

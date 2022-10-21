@@ -21,7 +21,6 @@ const (
 	prefixDeadline = "ddl "
 	prefixDone     = "done "
 	prefixPending  = "hang "
-	prefixAbandon  = "abd "
 	prefixDelete   = "del "
 )
 
@@ -83,15 +82,6 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixAbandon) {
-		id, err := ParseAbandon(input)
-		if err != nil {
-			return err
-		}
-		todo.Abandon(id)
-		return nil
-	}
-
 	if strings.HasPrefix(input, prefixDelete) {
 		id, err := ParseDelete(input)
 		if err != nil {
@@ -148,10 +138,6 @@ func ParsePending(input string) (id int, err error) {
 
 func ParseDone(input string) (id int, err error) {
 	return parseId(input, prefixDone)
-}
-
-func ParseAbandon(input string) (id int, err error) {
-	return parseId(input, prefixAbandon)
 }
 
 func ParseDelete(input string) (id int, err error) {
