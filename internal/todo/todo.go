@@ -8,8 +8,8 @@ import (
 	"zodo/internal/cst"
 	"zodo/internal/file"
 	"zodo/internal/ids"
-	"zodo/internal/misc"
 	"zodo/internal/stdout"
+	"zodo/internal/times"
 )
 
 const (
@@ -73,17 +73,15 @@ func List() {
 		var deadline string
 		if td.Deadline != "" {
 			nd, wd := calcRemainDays(td.Deadline)
-			deadline = fmt.Sprintf("%s(%dnd/%dwd)", td.Deadline, nd, wd)
-		} else {
-			deadline = cst.Placeholder
+			deadline = fmt.Sprintf("%s (%dnd/%dwd)", td.Deadline, nd, wd)
 		}
 
 		rows = append(rows, table.Row{
 			td.Id,
 			td.Content,
 			td.Status,
-			deadline,
-			td.CreateTime,
+			times.Simplify(deadline),
+			times.Simplify(td.CreateTime),
 		})
 	}
 	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Create"}, rows)
@@ -153,5 +151,5 @@ func calcRemainDays(deadline string) (natureDays int, workDays int) {
 		panic(err)
 	}
 
-	return misc.CalcBetweenDays(time.Now(), ddlTime)
+	return times.CalcBetweenDays(time.Now(), ddlTime)
 }

@@ -27,7 +27,7 @@ const (
 
 func Handle(input string) error {
 	defer todo.Save()
-	
+
 	if strings.TrimSpace(input) == exit {
 		todo.Save()
 		os.Exit(0)

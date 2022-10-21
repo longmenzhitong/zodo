@@ -1,4 +1,4 @@
-package misc
+package times
 
 import (
 	"testing"
@@ -100,4 +100,43 @@ func parseTime(layout, val string) time.Time {
 		panic(err)
 	}
 	return res
+}
+
+func TestSimplify(t *testing.T) {
+	type args struct {
+		t string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "Simplify_1",
+			args: args{t: ""},
+			want: "",
+		},
+		{
+			name: "Simplify_2",
+			args: args{t: "2022-11-01(11nd/7wd)"},
+			want: "11-01(11nd/7wd)",
+		},
+		{
+			name: "Simplify_3",
+			args: args{t: "2022-10-21 14:42:40"},
+			want: "10-21 14:42:40",
+		},
+		{
+			name: "Simplify_4",
+			args: args{t: "2023-10-21 14:42:40"},
+			want: "2023-10-21 14:42:40",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Simplify(tt.args.t); got != tt.want {
+				t.Errorf("Simplify() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
