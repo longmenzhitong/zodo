@@ -8,6 +8,7 @@ import (
 	"zodo/internal/cst"
 	"zodo/internal/file"
 	"zodo/internal/ids"
+	"zodo/internal/misc"
 	"zodo/internal/stdout"
 )
 
@@ -71,8 +72,8 @@ func List() {
 
 		var deadline string
 		if td.Deadline != "" {
-			remainDays := calcRemainDays(time.Now(), td.Deadline)
-			deadline = fmt.Sprintf("%s(%dd)", td.Deadline, remainDays)
+			nd, wd := calcRemainDays(td.Deadline)
+			deadline = fmt.Sprintf("%s(%dnd/%dwd)", td.Deadline, nd, wd)
 		} else {
 			deadline = cst.Placeholder
 		}
@@ -146,10 +147,11 @@ func findById(id int) *Todo {
 	return nil
 }
 
-func calcRemainDays(calcTime time.Time, deadline string) int {
+func calcRemainDays(deadline string) (natureDays int, workDays int) {
 	ddlTime, err := time.Parse(cst.LayoutDate, deadline)
 	if err != nil {
 		panic(err)
 	}
-	return int(ddlTime.Sub(calcTime).Hours() / 24)
+
+	return misc.CalcBetweenDays(time.Now(), ddlTime)
 }
