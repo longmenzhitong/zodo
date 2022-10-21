@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	dirName = ".zodo"
+	dirName = "zodo-data"
 )
 
 var (
