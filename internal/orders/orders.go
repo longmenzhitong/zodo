@@ -126,7 +126,19 @@ func ParseDeadline(input string) (id int, deadline string, err error) {
 	if err != nil {
 		return
 	}
-	_, err = time.Parse(cst.LayoutDate, deadline)
+
+	_, err = time.Parse(cst.LayoutYearMonthDay, deadline)
+	if err == nil {
+		return
+	}
+
+	t, err := time.Parse(cst.LayoutMonthDay, deadline)
+	if err == nil {
+		d := time.Date(time.Now().Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
+		deadline = d.Format(cst.LayoutYearMonthDay)
+		return
+	}
+
 	return
 }
 

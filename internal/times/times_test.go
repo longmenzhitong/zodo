@@ -20,8 +20,8 @@ func TestCalcBetweenDays(t *testing.T) {
 		{
 			name: "CalcBetweenDays_1",
 			args: args{
-				t1: parseTime(cst.LayoutDate, "2022-10-21"),
-				t2: parseTime(cst.LayoutDate, "2022-10-21"),
+				t1: parseTime(cst.LayoutYearMonthDay, "2022-10-21"),
+				t2: parseTime(cst.LayoutYearMonthDay, "2022-10-21"),
 			},
 			wantNatureDays: 0,
 			wantWorkDays:   0,
@@ -29,8 +29,8 @@ func TestCalcBetweenDays(t *testing.T) {
 		{
 			name: "CalcBetweenDays_2",
 			args: args{
-				t1: parseTime(cst.LayoutDate, "2022-10-21"),
-				t2: parseTime(cst.LayoutDate, "2022-10-22"),
+				t1: parseTime(cst.LayoutYearMonthDay, "2022-10-21"),
+				t2: parseTime(cst.LayoutYearMonthDay, "2022-10-22"),
 			},
 			wantNatureDays: 1,
 			wantWorkDays:   1,
@@ -38,8 +38,8 @@ func TestCalcBetweenDays(t *testing.T) {
 		{
 			name: "CalcBetweenDays_3",
 			args: args{
-				t1: parseTime(cst.LayoutDate, "2022-10-21"),
-				t2: parseTime(cst.LayoutDate, "2022-10-27"),
+				t1: parseTime(cst.LayoutYearMonthDay, "2022-10-21"),
+				t2: parseTime(cst.LayoutYearMonthDay, "2022-10-27"),
 			},
 			wantNatureDays: 6,
 			wantWorkDays:   4,
@@ -47,8 +47,8 @@ func TestCalcBetweenDays(t *testing.T) {
 		{
 			name: "CalcBetweenDays_4",
 			args: args{
-				t1: parseTime(cst.LayoutDate, "2022-10-22"),
-				t2: parseTime(cst.LayoutDate, "2022-10-21"),
+				t1: parseTime(cst.LayoutYearMonthDay, "2022-10-22"),
+				t2: parseTime(cst.LayoutYearMonthDay, "2022-10-21"),
 			},
 			wantNatureDays: -1,
 			wantWorkDays:   -1,
@@ -56,8 +56,8 @@ func TestCalcBetweenDays(t *testing.T) {
 		{
 			name: "CalcBetweenDays_5",
 			args: args{
-				t1: parseTime(cst.LayoutDate, "2022-10-27"),
-				t2: parseTime(cst.LayoutDate, "2022-10-21"),
+				t1: parseTime(cst.LayoutYearMonthDay, "2022-10-27"),
+				t2: parseTime(cst.LayoutYearMonthDay, "2022-10-21"),
 			},
 			wantNatureDays: -6,
 			wantWorkDays:   -4,
@@ -66,7 +66,7 @@ func TestCalcBetweenDays(t *testing.T) {
 			name: "CalcBetweenDays_6",
 			args: args{
 				t1: parseTime(cst.LayoutDateTime, "2022-10-21 11:18:00"),
-				t2: parseTime(cst.LayoutDate, "2022-10-27"),
+				t2: parseTime(cst.LayoutYearMonthDay, "2022-10-27"),
 			},
 			wantNatureDays: 6,
 			wantWorkDays:   4,
@@ -74,7 +74,7 @@ func TestCalcBetweenDays(t *testing.T) {
 		{
 			name: "CalcBetweenDays_7",
 			args: args{
-				t1: parseTime(cst.LayoutDate, "2022-10-21"),
+				t1: parseTime(cst.LayoutYearMonthDay, "2022-10-21"),
 				t2: parseTime(cst.LayoutDateTime, "2022-10-27 11:18:00"),
 			},
 			wantNatureDays: 6,

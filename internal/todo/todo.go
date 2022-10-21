@@ -146,7 +146,7 @@ func findById(id int) *Todo {
 }
 
 func calcRemainDays(deadline string) (natureDays int, workDays int) {
-	ddlTime, err := time.Parse(cst.LayoutDate, deadline)
+	ddlTime, err := time.Parse(cst.LayoutYearMonthDay, deadline)
 	if err != nil {
 		panic(err)
 	}

@@ -231,11 +231,18 @@ func TestParseDeadline(t *testing.T) {
 			wantErr:      false,
 		},
 		{
-			name:         "ParseDeadline_6",
+			name:         "ParseDeadline_7",
 			args:         args{input: "ddl  1  2022-10-19 a"},
 			wantId:       1,
 			wantDeadline: "2022-10-19 a",
 			wantErr:      true,
+		},
+		{
+			name:         "ParseDeadline_8",
+			args:         args{input: "ddl 1 10-19"},
+			wantId:       1,
+			wantDeadline: "2022-10-19",
+			wantErr:      false,
 		},
 	}
 	for _, tt := range tests {
