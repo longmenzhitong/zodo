@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
+	"zodo/internal/color"
 	"zodo/internal/cst"
 	"zodo/internal/file"
 	"zodo/internal/ids"
@@ -74,13 +75,17 @@ func List() {
 		if td.Deadline != "" {
 			nd, wd := calcRemainDays(td.Deadline)
 			deadline = fmt.Sprintf("%s (%dnd/%dwd)", td.Deadline, nd, wd)
+			deadline = times.Simplify(deadline)
+			if nd == 0 || wd == 0 {
+				deadline = color.Red(deadline)
+			}
 		}
 
 		rows = append(rows, table.Row{
 			td.Id,
 			td.Content,
 			td.Status,
-			times.Simplify(deadline),
+			deadline,
 			times.Simplify(td.CreateTime),
 		})
 	}
