@@ -11,17 +11,17 @@ const (
 )
 
 var (
-	Path string
+	path string
 )
 
 func init() {
-	Path = file.Dir + cst.PathSep + fileName
-	file.EnsureExist(Path)
+	path = file.Dir + cst.PathSep + fileName
+	file.EnsureExist(path)
 }
 
 func Get() int {
 	var id int
-	lines := file.ReadLinesFromPath(Path)
+	lines := file.ReadLinesFromPath(path)
 	if len(lines) == 0 {
 		id = 1
 	} else {
@@ -32,7 +32,7 @@ func Get() int {
 		id = n
 	}
 
-	file.RewriteLinesToPath(Path, []string{strconv.Itoa(id + 1)})
+	file.RewriteLinesToPath(path, []string{strconv.Itoa(id + 1)})
 
 	return id
 }

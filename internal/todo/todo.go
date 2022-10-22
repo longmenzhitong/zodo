@@ -9,6 +9,7 @@ import (
 	"zodo/internal/cst"
 	"zodo/internal/file"
 	"zodo/internal/ids"
+	"zodo/internal/param"
 	"zodo/internal/stdout"
 	"zodo/internal/times"
 )
@@ -24,7 +25,7 @@ const (
 	statusDeleted    = "Deleted"
 )
 
-type Todo struct {
+type todo struct {
 	Id         int
 	Content    string
 	Status     string
@@ -33,7 +34,7 @@ type Todo struct {
 	CreateTime string
 }
 
-func (td *Todo) GetStatus() string {
+func (td *todo) GetStatus() string {
 	switch td.Status {
 	case statusPending:
 		return color.Purple(td.Status)
@@ -44,7 +45,7 @@ func (td *Todo) GetStatus() string {
 	}
 }
 
-func (td *Todo) GetDeadLine() string {
+func (td *todo) GetDeadLine() string {
 	if td.Deadline == "" {
 		return ""
 	}
@@ -69,46 +70,50 @@ func (td *Todo) GetDeadLine() string {
 	return ddl
 }
 
-func (td *Todo) GetCreateTime() string {
+func (td *todo) GetCreateTime() string {
 	return times.Simplify(td.CreateTime)
 }
 
 var (
-	Path  string
-	Todos []Todo
+	path  string
+	todos []todo
 )
 
 func init() {
-	Path = file.Dir + cst.PathSep + fileName
-	file.EnsureExist(Path)
+	path = file.Dir + cst.PathSep + fileName
+	file.EnsureExist(path)
 
-	Todos = make([]Todo, 0)
-	for _, line := range file.ReadLinesFromPath(Path) {
-		var td Todo
+	todos = make([]todo, 0)
+	for _, line := range file.ReadLinesFromPath(path) {
+		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
 			panic(err)
 		}
-		Todos = append(Todos, td)
+		todos = append(todos, td)
 	}
 }
 
 func Save() {
 	lines := make([]string, 0)
-	for _, td := range Todos {
+	for _, td := range todos {
 		js, err := json.Marshal(td)
 		if err != nil {
 			panic(err)
 		}
 		lines = append(lines, string(js))
 	}
-	file.RewriteLinesToPath(Path, lines)
+	file.RewriteLinesToPath(path, lines)
 }
 
 func List() {
 	rows := make([]table.Row, 0)
-	for _, td := range Todos {
+	for _, td := range todos {
 		if td.Status == statusDeleted {
+			continue
+		}
+
+		if !param.All && td.Status == statusDone {
 			continue
 		}
 
@@ -136,17 +141,17 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Deadline", td.GetDeadLine()})
 	rows = append(rows, table.Row{"Remark", td.Remark})
 	rows = append(rows, table.Row{"Create", td.GetCreateTime()})
-	stdout.PrintTable(table.Row{"Item", "Value"}, rows)
+	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
 }
 
 func Add(content string) {
-	td := Todo{
+	td := todo{
 		Id:         ids.Get(),
 		Content:    content,
 		Status:     statusPending,
 		CreateTime: time.Now().Format(cst.LayoutDateTime),
 	}
-	Todos = append(Todos, td)
+	todos = append(todos, td)
 }
 
 func Modify(id int, content string) {
@@ -193,10 +198,10 @@ func modifyStatus(id int, status string) {
 	}
 }
 
-func findById(id int) *Todo {
-	for i := range Todos {
-		if Todos[i].Id == id {
-			return &Todos[i]
+func findById(id int) *todo {
+	for i := range todos {
+		if todos[i].Id == id {
+			return &todos[i]
 		}
 	}
 	return nil
