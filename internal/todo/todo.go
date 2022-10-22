@@ -48,6 +48,11 @@ func (td *Todo) GetDeadLine() string {
 	if td.Deadline == "" {
 		return ""
 	}
+
+	if td.Status == statusDone {
+		return times.Simplify(td.Deadline)
+	}
+
 	nd, wd := calcRemainDays(td.Deadline)
 	ddl := fmt.Sprintf("%s (%dnd/%dwd)", td.Deadline, nd, wd)
 	ddl = times.Simplify(ddl)
