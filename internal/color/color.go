@@ -35,3 +35,7 @@ func Purple(s string) string {
 func Gray(s string) string {
 	return gray + s + reset
 }
+
+func Cyan(s string) string {
+	return cyan + s + reset
+}

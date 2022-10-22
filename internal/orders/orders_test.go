@@ -122,61 +122,6 @@ func TestParseModify(t *testing.T) {
 	}
 }
 
-func TestParsePending(t *testing.T) {
-	type args struct {
-		input string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantId  int
-		wantErr bool
-	}{
-		{
-			name:    "ParsePending_1",
-			args:    args{input: "pending "},
-			wantId:  0,
-			wantErr: true,
-		},
-		{
-			name:    "ParsePending_2",
-			args:    args{input: "pending a"},
-			wantId:  0,
-			wantErr: true,
-		},
-		{
-			name:    "ParsePending_3",
-			args:    args{input: "pending 1"},
-			wantId:  1,
-			wantErr: false,
-		},
-		{
-			name:    "ParsePending_4",
-			args:    args{input: "pending  1 "},
-			wantId:  1,
-			wantErr: false,
-		},
-		{
-			name:    "ParsePending_5",
-			args:    args{input: "pending  1 a"},
-			wantId:  0,
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotId, err := ParsePending(tt.args.input)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ParsePending() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if gotId != tt.wantId {
-				t.Errorf("ParsePending() gotId = %v, want %v", gotId, tt.wantId)
-			}
-		})
-	}
-}
-
 func TestParseDeadline(t *testing.T) {
 	type args struct {
 		input string

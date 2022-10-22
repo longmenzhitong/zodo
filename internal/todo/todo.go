@@ -18,9 +18,10 @@ const (
 )
 
 const (
-	statusPending = "Pending"
-	statusDone    = "Done"
-	statusDeleted = "Deleted"
+	statusPending    = "Pending"
+	statusProcessing = "Processing"
+	statusDone       = "Done"
+	statusDeleted    = "Deleted"
 )
 
 type Todo struct {
@@ -32,13 +33,14 @@ type Todo struct {
 }
 
 func (t *Todo) GetStatus() string {
-	if t.Status == statusPending {
+	switch t.Status {
+	case statusPending:
 		return color.Purple(t.Status)
+	case statusProcessing:
+		return color.Cyan(t.Status)
+	default:
+		return t.Status
 	}
-	if t.Status == statusDone {
-		return color.Blue(t.Status)
-	}
-	return t.Status
 }
 
 func (t *Todo) GetDeadLine() string {
@@ -49,17 +51,16 @@ func (t *Todo) GetDeadLine() string {
 	ddl := fmt.Sprintf("%s (%dnd/%dwd)", t.Deadline, nd, wd)
 	ddl = times.Simplify(ddl)
 
-	if t.Status != statusPending {
-		return ddl
+	if t.Status == statusPending || t.Status == statusProcessing {
+		if wd == 0 {
+			ddl = color.Red(ddl)
+		} else if wd == 1 {
+			ddl = color.Yellow(ddl)
+		} else {
+			ddl = color.Green(ddl)
+		}
 	}
-
-	if wd == 0 {
-		return color.Red(ddl)
-	}
-	if wd == 1 {
-		return color.Yellow(ddl)
-	}
-	return color.Green(ddl)
+	return ddl
 }
 
 var (
@@ -97,7 +98,7 @@ func Save() {
 func List() {
 	rows := make([]table.Row, 0)
 	for _, td := range Todos {
-		if td.Status == statusDeleted {
+		if td.Status == statusDeleted || td.Status == statusDone {
 			continue
 		}
 
@@ -140,6 +141,10 @@ func Deadline(id int, deadline string) {
 
 func Pending(id int) {
 	modifyStatus(id, statusPending)
+}
+
+func Processing(id int) {
+	modifyStatus(id, statusProcessing)
 }
 
 func Done(id int) {

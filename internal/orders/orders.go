@@ -17,12 +17,13 @@ const (
 )
 
 const (
-	prefixAdd      = "add "
-	prefixModify   = "mod "
-	prefixDeadline = "ddl "
-	prefixDone     = "done "
-	prefixPending  = "hang "
-	prefixDelete   = "del "
+	prefixAdd        = "add "
+	prefixModify     = "mod "
+	prefixDeadline   = "ddl "
+	prefixPending    = "pend "
+	prefixProcessing = "proc "
+	prefixDone       = "done "
+	prefixDelete     = "del "
 )
 
 func Handle(input string) error {
@@ -67,7 +68,7 @@ func Handle(input string) error {
 	}
 
 	if strings.HasPrefix(input, prefixPending) {
-		id, err := ParsePending(input)
+		id, err := parseId(input, prefixPending)
 		if err != nil {
 			return err
 		}
@@ -75,8 +76,17 @@ func Handle(input string) error {
 		return nil
 	}
 
+	if strings.HasPrefix(input, prefixProcessing) {
+		id, err := parseId(input, prefixProcessing)
+		if err != nil {
+			return err
+		}
+		todo.Processing(id)
+		return nil
+	}
+
 	if strings.HasPrefix(input, prefixDone) {
-		id, err := ParseDone(input)
+		id, err := parseId(input, prefixDone)
 		if err != nil {
 			return err
 		}
@@ -85,7 +95,7 @@ func Handle(input string) error {
 	}
 
 	if strings.HasPrefix(input, prefixDelete) {
-		id, err := ParseDelete(input)
+		id, err := parseId(input, prefixDelete)
 		if err != nil {
 			return err
 		}
@@ -132,18 +142,6 @@ func ParseDeadline(input string) (id int, deadline string, err error) {
 	}
 
 	return
-}
-
-func ParsePending(input string) (id int, err error) {
-	return parseId(input, prefixPending)
-}
-
-func ParseDone(input string) (id int, err error) {
-	return parseId(input, prefixDone)
-}
-
-func ParseDelete(input string) (id int, err error) {
-	return parseId(input, prefixDelete)
 }
 
 func parseId(input, prefix string) (id int, err error) {
