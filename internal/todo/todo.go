@@ -48,11 +48,16 @@ func (t *Todo) GetDeadLine() string {
 	nd, wd := calcRemainDays(t.Deadline)
 	ddl := fmt.Sprintf("%s (%dnd/%dwd)", t.Deadline, nd, wd)
 	ddl = times.Simplify(ddl)
+
+	if t.Status != statusPending {
+		return ddl
+	}
+
 	if wd == 0 {
-		ddl = color.Red(ddl)
+		return color.Red(ddl)
 	}
 	if wd == 1 {
-		ddl = color.Yellow(ddl)
+		return color.Yellow(ddl)
 	}
 	return color.Green(ddl)
 }

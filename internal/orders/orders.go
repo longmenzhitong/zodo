@@ -1,6 +1,7 @@
 package orders
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -29,6 +30,7 @@ func Handle(input string) error {
 
 	if strings.TrimSpace(input) == exit {
 		todo.Save()
+		fmt.Println("Bye.")
 		os.Exit(0)
 	}
 
