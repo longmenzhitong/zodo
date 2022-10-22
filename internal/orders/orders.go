@@ -13,17 +13,27 @@ import (
 
 const (
 	exit = "exit"
-	list = "ll"
 )
 
 const (
-	prefixAdd        = "add "
-	prefixModify     = "mod "
-	prefixDeadline   = "ddl "
+	// 查询指令
+	list         = "ll"
+	prefixDetail = "cat "
+)
+
+const (
+	// 修改值的指令
+	prefixAdd      = "add "
+	prefixModify   = "mod "
+	prefixDeadline = "ddl "
+)
+
+const (
+	// 修改状态的指令
 	prefixPending    = "pend "
 	prefixProcessing = "proc "
 	prefixDone       = "done "
-	prefixDelete     = "del "
+	prefixDelete     = "rm "
 )
 
 func Handle(input string) error {
@@ -37,6 +47,15 @@ func Handle(input string) error {
 
 	if strings.TrimSpace(input) == list {
 		todo.List()
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixDetail) {
+		id, err := parseId(input, prefixDetail)
+		if err != nil {
+			return err
+		}
+		todo.Detail(id)
 		return nil
 	}
 

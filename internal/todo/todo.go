@@ -32,26 +32,26 @@ type Todo struct {
 	CreateTime string
 }
 
-func (t *Todo) GetStatus() string {
-	switch t.Status {
+func (td *Todo) GetStatus() string {
+	switch td.Status {
 	case statusPending:
-		return color.Purple(t.Status)
+		return color.Purple(td.Status)
 	case statusProcessing:
-		return color.Cyan(t.Status)
+		return color.Cyan(td.Status)
 	default:
-		return t.Status
+		return td.Status
 	}
 }
 
-func (t *Todo) GetDeadLine() string {
-	if t.Deadline == "" {
+func (td *Todo) GetDeadLine() string {
+	if td.Deadline == "" {
 		return ""
 	}
-	nd, wd := calcRemainDays(t.Deadline)
-	ddl := fmt.Sprintf("%s (%dnd/%dwd)", t.Deadline, nd, wd)
+	nd, wd := calcRemainDays(td.Deadline)
+	ddl := fmt.Sprintf("%s (%dnd/%dwd)", td.Deadline, nd, wd)
 	ddl = times.Simplify(ddl)
 
-	if t.Status == statusPending || t.Status == statusProcessing {
+	if td.Status == statusPending || td.Status == statusProcessing {
 		if wd == 0 {
 			ddl = color.Red(ddl)
 		} else if wd == 1 {
@@ -61,6 +61,10 @@ func (t *Todo) GetDeadLine() string {
 		}
 	}
 	return ddl
+}
+
+func (td *Todo) GetCreateTime() string {
+	return times.Simplify(td.CreateTime)
 }
 
 var (
@@ -107,10 +111,25 @@ func List() {
 			td.Content,
 			td.GetStatus(),
 			td.GetDeadLine(),
-			times.Simplify(td.CreateTime),
+			td.GetCreateTime(),
 		})
 	}
 	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Create"}, rows)
+}
+
+func Detail(id int) {
+	td := findById(id)
+	if td == nil {
+		return
+	}
+
+	rows := make([]table.Row, 0)
+	rows = append(rows, table.Row{"Id", td.Id})
+	rows = append(rows, table.Row{"Content", td.Content})
+	rows = append(rows, table.Row{"Status", td.GetStatus()})
+	rows = append(rows, table.Row{"Deadline", td.GetDeadLine()})
+	rows = append(rows, table.Row{"Create", td.GetCreateTime()})
+	stdout.PrintTable(table.Row{"Item", "Value"}, rows)
 }
 
 func Add(content string) {
