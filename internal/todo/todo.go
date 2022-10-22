@@ -3,9 +3,9 @@ package todo
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
-	"zodo/internal/color"
 	"zodo/internal/cst"
 	"zodo/internal/file"
 	"zodo/internal/ids"
@@ -37,9 +37,11 @@ type todo struct {
 func (td *todo) GetStatus() string {
 	switch td.Status {
 	case statusPending:
-		return color.Purple(td.Status)
+		return color.HiMagentaString(td.Status)
 	case statusProcessing:
-		return color.Cyan(td.Status)
+		return color.HiBlueString(td.Status)
+	case statusDone:
+		return color.CyanString(td.Status)
 	default:
 		return td.Status
 	}
@@ -60,11 +62,11 @@ func (td *todo) GetDeadLine() string {
 
 	if td.Status == statusPending || td.Status == statusProcessing {
 		if wd == 0 {
-			ddl = color.Red(ddl)
+			ddl = color.HiRedString(ddl)
 		} else if wd == 1 {
-			ddl = color.Yellow(ddl)
+			ddl = color.HiYellowString(ddl)
 		} else {
-			ddl = color.Green(ddl)
+			ddl = color.GreenString(ddl)
 		}
 	}
 	return ddl

@@ -34,7 +34,7 @@ const (
 	prefixPending    = "pend "
 	prefixProcessing = "proc "
 	prefixDone       = "done "
-	prefixDelete     = "rm "
+	prefixDelete     = "del "
 )
 
 func Handle(input string) error {
