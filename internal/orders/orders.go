@@ -26,6 +26,7 @@ const (
 	prefixAdd      = "add "
 	prefixModify   = "mod "
 	prefixDeadline = "ddl "
+	prefixRemark   = "rmk "
 )
 
 const (
@@ -60,7 +61,7 @@ func Handle(input string) error {
 	}
 
 	if strings.HasPrefix(input, prefixAdd) {
-		content, err := ParseAdd(input)
+		content, err := parseStr(input, prefixAdd)
 		if err != nil {
 			return err
 		}
@@ -69,7 +70,7 @@ func Handle(input string) error {
 	}
 
 	if strings.HasPrefix(input, prefixModify) {
-		id, content, err := ParseModify(input)
+		id, content, err := parseIdAndStr(input, prefixModify)
 		if err != nil {
 			return err
 		}
@@ -78,11 +79,20 @@ func Handle(input string) error {
 	}
 
 	if strings.HasPrefix(input, prefixDeadline) {
-		id, deadline, err := ParseDeadline(input)
+		id, deadline, err := parseDeadline(input)
 		if err != nil {
 			return err
 		}
 		todo.Deadline(id, deadline)
+		return nil
+	}
+
+	if strings.HasPrefix(input, prefixRemark) {
+		id, remark, err := parseIdAndStr(input, prefixRemark)
+		if err != nil {
+			return err
+		}
+		todo.Remark(id, remark)
 		return nil
 	}
 
@@ -130,19 +140,7 @@ func Handle(input string) error {
 	return nil
 }
 
-func ParseAdd(input string) (content string, err error) {
-	content = strings.TrimSpace(strings.TrimPrefix(input, prefixAdd))
-	if content == "" {
-		err = &errs.InvalidInputError{Input: ""}
-	}
-	return
-}
-
-func ParseModify(input string) (id int, content string, err error) {
-	return parseIdAndStr(input, prefixModify)
-}
-
-func ParseDeadline(input string) (id int, deadline string, err error) {
+func parseDeadline(input string) (id int, deadline string, err error) {
 	id, deadline, err = parseIdAndStr(input, prefixDeadline)
 	if err != nil {
 		return
@@ -166,6 +164,14 @@ func ParseDeadline(input string) (id int, deadline string, err error) {
 func parseId(input, prefix string) (id int, err error) {
 	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
 	return strconv.Atoi(order)
+}
+
+func parseStr(input, prefix string) (str string, err error) {
+	str = strings.TrimSpace(strings.TrimPrefix(input, prefix))
+	if str == "" {
+		err = &errs.InvalidInputError{Input: ""}
+	}
+	return
 }
 
 func parseIdAndStr(input, prefix string) (id int, str string, err error) {

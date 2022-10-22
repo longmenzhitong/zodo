@@ -29,6 +29,7 @@ type Todo struct {
 	Content    string
 	Status     string
 	Deadline   string
+	Remark     string
 	CreateTime string
 }
 
@@ -102,7 +103,7 @@ func Save() {
 func List() {
 	rows := make([]table.Row, 0)
 	for _, td := range Todos {
-		if td.Status == statusDeleted || td.Status == statusDone {
+		if td.Status == statusDeleted {
 			continue
 		}
 
@@ -128,6 +129,7 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Content", td.Content})
 	rows = append(rows, table.Row{"Status", td.GetStatus()})
 	rows = append(rows, table.Row{"Deadline", td.GetDeadLine()})
+	rows = append(rows, table.Row{"Remark", td.Remark})
 	rows = append(rows, table.Row{"Create", td.GetCreateTime()})
 	stdout.PrintTable(table.Row{"Item", "Value"}, rows)
 }
@@ -144,18 +146,23 @@ func Add(content string) {
 
 func Modify(id int, content string) {
 	td := findById(id)
-	if td == nil {
-		return
+	if td != nil {
+		td.Content = content
 	}
-	td.Content = content
 }
 
 func Deadline(id int, deadline string) {
 	td := findById(id)
-	if td == nil {
-		return
+	if td != nil {
+		td.Deadline = deadline
 	}
-	td.Deadline = deadline
+}
+
+func Remark(id int, remark string) {
+	td := findById(id)
+	if td != nil {
+		td.Remark = remark
+	}
 }
 
 func Pending(id int) {
@@ -176,10 +183,9 @@ func Delete(id int) {
 
 func modifyStatus(id int, status string) {
 	td := findById(id)
-	if td == nil {
-		return
+	if td != nil {
+		td.Status = status
 	}
-	td.Status = status
 }
 
 func findById(id int) *Todo {
