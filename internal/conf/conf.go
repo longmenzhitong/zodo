@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"zodo/internal/cst"
-	"zodo/internal/file"
+	"zodo/internal/files"
 )
 
 type config struct {
@@ -25,7 +25,7 @@ var (
 )
 
 func init() {
-	path = file.Dir + cst.PathSep + fileName
+	path = files.Dir + cst.PathSep + fileName
 
 	if _, err := os.Stat(path); err != nil {
 		initYaml(path)
@@ -36,8 +36,8 @@ func init() {
 }
 
 func initYaml(path string) {
-	file.EnsureExist(path)
-	file.RewriteLinesToPath(path, []string{
+	files.EnsureExist(path)
+	files.RewriteLinesToPath(path, []string{
 		"git:",
 		"  username: ",
 		"  password: ",

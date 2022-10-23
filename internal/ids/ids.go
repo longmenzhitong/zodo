@@ -3,7 +3,7 @@ package ids
 import (
 	"strconv"
 	"zodo/internal/cst"
-	"zodo/internal/file"
+	"zodo/internal/files"
 )
 
 const (
@@ -15,13 +15,13 @@ var (
 )
 
 func init() {
-	path = file.Dir + cst.PathSep + fileName
-	file.EnsureExist(path)
+	path = files.Dir + cst.PathSep + fileName
+	files.EnsureExist(path)
 }
 
 func Get() int {
 	var id int
-	lines := file.ReadLinesFromPath(path)
+	lines := files.ReadLinesFromPath(path)
 	if len(lines) == 0 {
 		id = 1
 	} else {
@@ -32,7 +32,7 @@ func Get() int {
 		id = n
 	}
 
-	file.RewriteLinesToPath(path, []string{strconv.Itoa(id + 1)})
+	files.RewriteLinesToPath(path, []string{strconv.Itoa(id + 1)})
 
 	return id
 }

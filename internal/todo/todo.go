@@ -7,7 +7,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
 	"zodo/internal/cst"
-	"zodo/internal/file"
+	"zodo/internal/files"
 	"zodo/internal/ids"
 	"zodo/internal/param"
 	"zodo/internal/stdout"
@@ -82,11 +82,11 @@ var (
 )
 
 func init() {
-	path = file.Dir + cst.PathSep + fileName
-	file.EnsureExist(path)
+	path = files.Dir + cst.PathSep + fileName
+	files.EnsureExist(path)
 
 	todos = make([]todo, 0)
-	for _, line := range file.ReadLinesFromPath(path) {
+	for _, line := range files.ReadLinesFromPath(path) {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
@@ -105,7 +105,7 @@ func Save() {
 		}
 		lines = append(lines, string(js))
 	}
-	file.RewriteLinesToPath(path, lines)
+	files.RewriteLinesToPath(path, lines)
 }
 
 func List() {
