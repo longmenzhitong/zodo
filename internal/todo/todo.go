@@ -14,17 +14,6 @@ import (
 	"zodo/internal/times"
 )
 
-const (
-	fileName = "todo"
-)
-
-const (
-	statusPending    = "Pending"
-	statusProcessing = "Processing"
-	statusDone       = "Done"
-	statusDeleted    = "Deleted"
-)
-
 type todo struct {
 	Id         int
 	Content    string
@@ -75,6 +64,17 @@ func (td *todo) GetDeadLine() string {
 func (td *todo) GetCreateTime() string {
 	return times.Simplify(td.CreateTime)
 }
+
+const (
+	fileName = "todo"
+)
+
+const (
+	statusPending    = "Pending"
+	statusProcessing = "Processing"
+	statusDone       = "Done"
+	statusDeleted    = "Deleted"
+)
 
 var (
 	path  string
