@@ -7,6 +7,10 @@ import (
 	"zodo/internal/stdin"
 )
 
+func init() {
+	param.Parse()
+}
+
 func main() {
 	if param.Interactive {
 		fmt.Println("================")

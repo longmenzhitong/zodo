@@ -20,8 +20,10 @@ func init() {
 	flag.BoolVar(&Interactive, "i", false, "enter interactive mode")
 	flag.BoolVar(&Server, "s", false, "enter server mode")
 	flag.BoolVar(&All, "a", false, "all")
-	flag.Parse()
+}
 
+func Parse() {
+	flag.Parse()
 	if len(flag.Args()) > 0 {
 		Input = strings.Join(flag.Args(), " ")
 	}

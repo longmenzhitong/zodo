@@ -97,38 +97,46 @@ func Handle(input string) error {
 	}
 
 	if strings.HasPrefix(input, prefixPending) {
-		id, err := parseId(input, prefixPending)
+		ids, err := parseIds(input, prefixPending)
 		if err != nil {
 			return err
 		}
-		todo.Pending(id)
+		for _, id := range ids {
+			todo.Pending(id)
+		}
 		return nil
 	}
 
 	if strings.HasPrefix(input, prefixProcessing) {
-		id, err := parseId(input, prefixProcessing)
+		ids, err := parseIds(input, prefixProcessing)
 		if err != nil {
 			return err
 		}
-		todo.Processing(id)
+		for _, id := range ids {
+			todo.Processing(id)
+		}
 		return nil
 	}
 
 	if strings.HasPrefix(input, prefixDone) {
-		id, err := parseId(input, prefixDone)
+		ids, err := parseIds(input, prefixDone)
 		if err != nil {
 			return err
 		}
-		todo.Done(id)
+		for _, id := range ids {
+			todo.Done(id)
+		}
 		return nil
 	}
 
 	if strings.HasPrefix(input, prefixDelete) {
-		id, err := parseId(input, prefixDelete)
+		ids, err := parseIds(input, prefixDelete)
 		if err != nil {
 			return err
 		}
-		todo.Delete(id)
+		for _, id := range ids {
+			todo.Delete(id)
+		}
 		return nil
 	}
 
@@ -145,30 +153,27 @@ func Handle(input string) error {
 	return nil
 }
 
-func parseDeadline(input string) (id int, deadline string, err error) {
-	id, deadline, err = parseIdAndStr(input, prefixDeadline)
-	if err != nil {
-		return
-	}
-
-	_, err = time.Parse(cst.LayoutYearMonthDay, deadline)
-	if err == nil {
-		return
-	}
-
-	t, err := time.Parse(cst.LayoutMonthDay, deadline)
-	if err == nil {
-		d := time.Date(time.Now().Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
-		deadline = d.Format(cst.LayoutYearMonthDay)
-		return
-	}
-
-	return
-}
-
 func parseId(input, prefix string) (id int, err error) {
 	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
 	return strconv.Atoi(order)
+}
+
+func parseIds(input, prefix string) (ids []int, err error) {
+	order := strings.TrimPrefix(input, prefix)
+	items := strings.Split(order, " ")
+	ids = make([]int, 0)
+	for _, item := range items {
+		item = strings.TrimSpace(item)
+		if item == "" {
+			continue
+		}
+		id, err := strconv.Atoi(item)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return
 }
 
 func parseStr(input, prefix string) (str string, err error) {
@@ -194,5 +199,26 @@ func parseIdAndStr(input, prefix string) (id int, str string, err error) {
 	if str == "" {
 		err = &errs.InvalidInputError{Input: input}
 	}
+	return
+}
+
+func parseDeadline(input string) (id int, deadline string, err error) {
+	id, deadline, err = parseIdAndStr(input, prefixDeadline)
+	if err != nil {
+		return
+	}
+
+	_, err = time.Parse(cst.LayoutYearMonthDay, deadline)
+	if err == nil {
+		return
+	}
+
+	t, err := time.Parse(cst.LayoutMonthDay, deadline)
+	if err == nil {
+		d := time.Date(time.Now().Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
+		deadline = d.Format(cst.LayoutYearMonthDay)
+		return
+	}
+
 	return
 }
