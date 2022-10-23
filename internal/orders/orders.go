@@ -133,8 +133,13 @@ func Handle(input string) error {
 	}
 
 	// todo help
-	// todo detail
 	// todo hint
+
+	id, err := parseId(input, "")
+	if err == nil {
+		todo.Detail(id)
+		return nil
+	}
 
 	todo.List()
 	return nil
