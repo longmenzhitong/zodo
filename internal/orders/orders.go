@@ -6,8 +6,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"zodo/internal/backup"
 	"zodo/internal/cst"
 	"zodo/internal/errs"
+	"zodo/internal/param"
 	"zodo/internal/todo"
 )
 
@@ -138,6 +140,10 @@ func Handle(input string) error {
 
 	// todo help
 	// todo hint
+
+	if param.Pull {
+		return backup.Pull()
+	}
 
 	id, err := parseId(input, "")
 	if err == nil {

@@ -12,7 +12,11 @@ var (
 )
 
 var (
-	All   bool
+	All  bool
+	Pull bool
+)
+
+var (
 	Input string
 )
 
@@ -20,6 +24,7 @@ func init() {
 	flag.BoolVar(&Interactive, "i", false, "enter interactive mode")
 	flag.BoolVar(&Server, "s", false, "enter server mode")
 	flag.BoolVar(&All, "a", false, "all")
+	flag.BoolVar(&Pull, "p", false, "git pull")
 }
 
 func Parse() {
