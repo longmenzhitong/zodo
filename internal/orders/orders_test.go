@@ -49,7 +49,7 @@ func Test_parseIds(t *testing.T) {
 				input:  "pend  1  a ",
 				prefix: "pend ",
 			},
-			wantIds: nil,
+			wantIds: []int{1},
 			wantErr: true,
 		},
 		{
@@ -85,40 +85,31 @@ func Test_parseStr(t *testing.T) {
 		name        string
 		args        args
 		wantContent string
-		wantErr     bool
 	}{
 		{
 			name:        "parseStr_1",
 			args:        args{input: "add ", prefix: "add "},
 			wantContent: "",
-			wantErr:     true,
 		},
 		{
 			name:        "parseStr_2",
 			args:        args{input: "add a", prefix: "add "},
 			wantContent: "a",
-			wantErr:     false,
 		},
 		{
 			name:        "parseStr_3",
 			args:        args{input: "add a b", prefix: "add "},
 			wantContent: "a b",
-			wantErr:     false,
 		},
 		{
 			name:        "parseStr_4",
 			args:        args{input: "add  a b ", prefix: "add "},
 			wantContent: "a b",
-			wantErr:     false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotContent, err := parseStr(tt.args.input, tt.args.prefix)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("parseStr() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			gotContent := parseStr(tt.args.input, tt.args.prefix)
 			if gotContent != tt.wantContent {
 				t.Errorf("parseStr() gotContent = %v, want %v", gotContent, tt.wantContent)
 			}

@@ -147,6 +147,9 @@ func Detail(id int) {
 }
 
 func Add(content string) {
+	if content == "" {
+		return
+	}
 	td := todo{
 		Id:         ids.Get(),
 		Content:    content,
@@ -157,6 +160,9 @@ func Add(content string) {
 }
 
 func Modify(id int, content string) {
+	if content == "" {
+		return
+	}
 	td := findById(id)
 	if td != nil {
 		td.Content = content

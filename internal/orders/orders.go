@@ -61,11 +61,7 @@ func Handle(input string) error {
 	}
 
 	if strings.HasPrefix(input, prefixAdd) {
-		content, err := parseStr(input, prefixAdd)
-		if err != nil {
-			return err
-		}
-		todo.Add(content)
+		todo.Add(parseStr(input, prefixAdd))
 		return nil
 	}
 
@@ -154,34 +150,30 @@ func Handle(input string) error {
 }
 
 func parseId(input, prefix string) (id int, err error) {
-	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
-	return strconv.Atoi(order)
+	return strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(input, prefix)))
 }
 
 func parseIds(input, prefix string) (ids []int, err error) {
 	order := strings.TrimPrefix(input, prefix)
 	items := strings.Split(order, " ")
 	ids = make([]int, 0)
+	var id int
 	for _, item := range items {
 		item = strings.TrimSpace(item)
 		if item == "" {
 			continue
 		}
-		id, err := strconv.Atoi(item)
+		id, err = strconv.Atoi(item)
 		if err != nil {
-			return nil, err
+			return
 		}
 		ids = append(ids, id)
 	}
 	return
 }
 
-func parseStr(input, prefix string) (str string, err error) {
-	str = strings.TrimSpace(strings.TrimPrefix(input, prefix))
-	if str == "" {
-		err = &errs.InvalidInputError{Input: ""}
-	}
-	return
+func parseStr(input, prefix string) string {
+	return strings.TrimSpace(strings.TrimPrefix(input, prefix))
 }
 
 func parseIdAndStr(input, prefix string) (id int, str string, err error) {
@@ -196,9 +188,6 @@ func parseIdAndStr(input, prefix string) (id int, str string, err error) {
 		return
 	}
 	str = strings.TrimSpace(order[i+1:])
-	if str == "" {
-		err = &errs.InvalidInputError{Input: input}
-	}
 	return
 }
 
