@@ -96,18 +96,6 @@ func init() {
 	}
 }
 
-func Save() {
-	lines := make([]string, 0)
-	for _, td := range todos {
-		js, err := json.Marshal(td)
-		if err != nil {
-			panic(err)
-		}
-		lines = append(lines, string(js))
-	}
-	files.RewriteLinesToPath(path, lines)
-}
-
 func List() {
 	rows := make([]table.Row, 0)
 	for _, td := range todos {
@@ -157,6 +145,7 @@ func Add(content string) {
 		CreateTime: time.Now().Format(cst.LayoutDateTime),
 	}
 	todos = append(todos, td)
+	save()
 }
 
 func Modify(id int, content string) {
@@ -167,6 +156,7 @@ func Modify(id int, content string) {
 	if td != nil {
 		td.Content = content
 	}
+	save()
 }
 
 func Deadline(id int, deadline string) {
@@ -174,6 +164,7 @@ func Deadline(id int, deadline string) {
 	if td != nil {
 		td.Deadline = deadline
 	}
+	save()
 }
 
 func Remark(id int, remark string) {
@@ -181,6 +172,7 @@ func Remark(id int, remark string) {
 	if td != nil {
 		td.Remark = remark
 	}
+	save()
 }
 
 func Pending(id int) {
@@ -204,6 +196,19 @@ func modifyStatus(id int, status string) {
 	if td != nil {
 		td.Status = status
 	}
+	save()
+}
+
+func save() {
+	lines := make([]string, 0)
+	for _, td := range todos {
+		js, err := json.Marshal(td)
+		if err != nil {
+			panic(err)
+		}
+		lines = append(lines, string(js))
+	}
+	files.RewriteLinesToPath(path, lines)
 }
 
 func findById(id int) *todo {

@@ -40,10 +40,7 @@ const (
 )
 
 func Handle(input string) error {
-	defer todo.Save()
-
 	if strings.TrimSpace(input) == exit {
-		todo.Save()
 		fmt.Println("Bye.")
 		os.Exit(0)
 	}
