@@ -112,10 +112,9 @@ func List() {
 			td.Content,
 			td.GetStatus(),
 			td.GetDeadLine(),
-			td.GetCreateTime(),
 		})
 	}
-	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Create"}, rows)
+	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline"}, rows)
 }
 
 func Detail(id int) {
