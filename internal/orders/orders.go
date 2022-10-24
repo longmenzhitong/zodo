@@ -15,47 +15,54 @@ import (
 const (
 	exit = "exit"
 	pull = "pull"
+	push = "push"
 )
 
 const (
 	// 查询指令
-	list         = "ll"
-	prefixDetail = "cat "
+	list   = "ll"
+	detail = "cat"
 )
 
 const (
 	// 修改值的指令
-	prefixAdd      = "add "
-	prefixModify   = "mod "
-	prefixDeadline = "ddl "
-	prefixRemark   = "rmk "
+	add         = "add"
+	modify      = "mod"
+	setDeadline = "ddl"
+	setRemark   = "rmk"
 )
 
 const (
 	// 修改状态的指令
-	prefixPending    = "pend "
-	prefixProcessing = "proc "
-	prefixDone       = "done "
-	prefixDelete     = "del "
+	setPending    = "pend"
+	setProcessing = "proc"
+	setDone       = "done"
+	setDeleted    = "del"
 )
 
 func Handle(input string) error {
-	if strings.TrimSpace(input) == exit {
+	order, val := parseInput(input)
+
+	if order == exit {
 		fmt.Println("Bye.")
 		os.Exit(0)
 	}
 
-	if strings.TrimSpace(input) == pull {
+	if order == pull {
 		return backup.Pull()
 	}
 
-	if strings.TrimSpace(input) == list {
+	if order == push {
+		return backup.Push()
+	}
+
+	if order == list {
 		todo.List()
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixDetail) {
-		id, err := parseId(input, prefixDetail)
+	if order == detail {
+		id, err := strconv.Atoi(val)
 		if err != nil {
 			return err
 		}
@@ -63,13 +70,13 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixAdd) {
-		todo.Add(parseStr(input, prefixAdd))
+	if order == add {
+		todo.Add(val)
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixModify) {
-		id, content, err := parseIdAndStr(input, prefixModify)
+	if order == modify {
+		id, content, err := parseIdAndStr(val)
 		if err != nil {
 			return err
 		}
@@ -77,8 +84,8 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixDeadline) {
-		id, deadline, err := parseDeadline(input)
+	if order == setDeadline {
+		id, deadline, err := parseDeadline(val)
 		if err != nil {
 			return err
 		}
@@ -86,8 +93,8 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixRemark) {
-		id, remark, err := parseIdAndStr(input, prefixRemark)
+	if order == setRemark {
+		id, remark, err := parseIdAndStr(val)
 		if err != nil {
 			return err
 		}
@@ -95,8 +102,8 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixPending) {
-		ids, err := parseIds(input, prefixPending)
+	if order == setPending {
+		ids, err := parseIds(val)
 		if err != nil {
 			return err
 		}
@@ -106,8 +113,8 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixProcessing) {
-		ids, err := parseIds(input, prefixProcessing)
+	if order == setProcessing {
+		ids, err := parseIds(val)
 		if err != nil {
 			return err
 		}
@@ -117,8 +124,8 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixDone) {
-		ids, err := parseIds(input, prefixDone)
+	if order == setDone {
+		ids, err := parseIds(val)
 		if err != nil {
 			return err
 		}
@@ -128,8 +135,8 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if strings.HasPrefix(input, prefixDelete) {
-		ids, err := parseIds(input, prefixDelete)
+	if order == setDeleted {
+		ids, err := parseIds(val)
 		if err != nil {
 			return err
 		}
@@ -142,7 +149,7 @@ func Handle(input string) error {
 	// todo help
 	// todo hint
 
-	id, err := parseId(input, "")
+	id, err := strconv.Atoi(val)
 	if err == nil {
 		todo.Detail(id)
 		return nil
@@ -152,13 +159,23 @@ func Handle(input string) error {
 	return nil
 }
 
-func parseId(input, prefix string) (id int, err error) {
-	return strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(input, prefix)))
+func parseInput(input string) (order string, val string) {
+	if input == "" {
+		return
+	}
+	input = strings.TrimSpace(input)
+	i := strings.Index(input, " ")
+	if i == -1 {
+		order = input
+	} else {
+		order = input[:i]
+		val = input[i+1:]
+	}
+	return strings.TrimSpace(order), strings.TrimSpace(val)
 }
 
-func parseIds(input, prefix string) (ids []int, err error) {
-	order := strings.TrimPrefix(input, prefix)
-	items := strings.Split(order, " ")
+func parseIds(val string) (ids []int, err error) {
+	items := strings.Split(val, " ")
 	ids = make([]int, 0)
 	var id int
 	for _, item := range items {
@@ -175,27 +192,22 @@ func parseIds(input, prefix string) (ids []int, err error) {
 	return
 }
 
-func parseStr(input, prefix string) string {
-	return strings.TrimSpace(strings.TrimPrefix(input, prefix))
-}
-
-func parseIdAndStr(input, prefix string) (id int, str string, err error) {
-	order := strings.TrimSpace(strings.TrimPrefix(input, prefix))
-	i := strings.Index(order, " ")
+func parseIdAndStr(val string) (id int, str string, err error) {
+	i := strings.Index(val, " ")
 	if i == -1 {
-		err = &errs.InvalidInputError{Input: input}
+		err = &errs.InvalidInputError{Input: val}
 		return
 	}
-	id, err = strconv.Atoi(order[:i])
+	id, err = strconv.Atoi(val[:i])
 	if err != nil {
 		return
 	}
-	str = strings.TrimSpace(order[i+1:])
+	str = strings.TrimSpace(val[i+1:])
 	return
 }
 
-func parseDeadline(input string) (id int, deadline string, err error) {
-	id, deadline, err = parseIdAndStr(input, prefixDeadline)
+func parseDeadline(val string) (id int, deadline string, err error) {
+	id, deadline, err = parseIdAndStr(val)
 	if err != nil {
 		return
 	}

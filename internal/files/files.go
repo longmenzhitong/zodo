@@ -90,7 +90,7 @@ func EnsureExist(path string) {
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		_, err = os.Create(path)
 		if err != nil {
-			panic(fmt.Errorf("create %s error: %v", path, err))
+			panic(err)
 		}
 	}
 }

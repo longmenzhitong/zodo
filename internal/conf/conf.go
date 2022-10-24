@@ -12,6 +12,7 @@ type config struct {
 	Git struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
+		Email    string `yaml:"email"`
 	}
 }
 
@@ -41,6 +42,7 @@ func initYaml(path string) {
 		"git:",
 		"  username: ",
 		"  password: ",
+		"  email: ",
 	})
 }
 
