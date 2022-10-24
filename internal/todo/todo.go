@@ -28,9 +28,9 @@ func (td *todo) GetStatus() string {
 	case statusPending:
 		return color.HiMagentaString(td.Status)
 	case statusProcessing:
-		return color.HiBlueString(td.Status)
+		return color.HiCyanString(td.Status)
 	case statusDone:
-		return color.CyanString(td.Status)
+		return color.HiBlueString(td.Status)
 	default:
 		return td.Status
 	}
