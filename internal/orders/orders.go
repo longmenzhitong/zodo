@@ -9,12 +9,12 @@ import (
 	"zodo/internal/backup"
 	"zodo/internal/cst"
 	"zodo/internal/errs"
-	"zodo/internal/param"
 	"zodo/internal/todo"
 )
 
 const (
 	exit = "exit"
+	pull = "pull"
 )
 
 const (
@@ -46,6 +46,10 @@ func Handle(input string) error {
 		todo.Save()
 		fmt.Println("Bye.")
 		os.Exit(0)
+	}
+
+	if strings.TrimSpace(input) == pull {
+		return backup.Pull()
 	}
 
 	if strings.TrimSpace(input) == list {
@@ -140,10 +144,6 @@ func Handle(input string) error {
 
 	// todo help
 	// todo hint
-
-	if param.Pull {
-		return backup.Pull()
-	}
 
 	id, err := parseId(input, "")
 	if err == nil {

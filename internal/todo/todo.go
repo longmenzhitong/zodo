@@ -51,7 +51,7 @@ func (td *todo) GetDeadLine() string {
 
 	if td.Status == statusPending || td.Status == statusProcessing {
 		if wd == 0 {
-			ddl = color.HiRedString(ddl)
+			ddl = color.RedString(ddl)
 		} else if wd == 1 {
 			ddl = color.HiYellowString(ddl)
 		} else {
