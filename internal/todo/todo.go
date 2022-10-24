@@ -82,7 +82,7 @@ var (
 )
 
 func init() {
-	path = files.Dir + cst.PathSep + fileName
+	path = files.GetPath(fileName)
 	files.EnsureExist(path)
 
 	todos = make([]todo, 0)

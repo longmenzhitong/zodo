@@ -1,10 +1,10 @@
 package conf
 
 import (
+	"errors"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
-	"zodo/internal/cst"
 	"zodo/internal/files"
 )
 
@@ -25,9 +25,9 @@ var (
 )
 
 func init() {
-	path = files.Dir + cst.PathSep + fileName
+	path = files.GetPath(fileName)
 
-	if _, err := os.Stat(path); err != nil {
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		initYaml(path)
 		return
 	}

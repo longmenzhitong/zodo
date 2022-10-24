@@ -21,9 +21,13 @@ func init() {
 	if _, err := os.Stat(Dir); errors.Is(err, os.ErrNotExist) {
 		err = os.Mkdir(Dir, os.ModePerm)
 		if err != nil {
-			panic(fmt.Errorf("mkdir %s error: %v", Dir, err))
+			panic(err)
 		}
 	}
+}
+
+func GetPath(name string) string {
+	return Dir + cst.PathSep + name
 }
 
 func ReadLinesFromPath(path string) []string {

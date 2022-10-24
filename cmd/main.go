@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"zodo/internal/backup"
 	"zodo/internal/orders"
 	"zodo/internal/param"
 	"zodo/internal/stdin"
@@ -9,6 +10,10 @@ import (
 
 func init() {
 	param.Parse()
+	err := backup.CheckPull()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func main() {

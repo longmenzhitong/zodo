@@ -2,7 +2,6 @@ package ids
 
 import (
 	"strconv"
-	"zodo/internal/cst"
 	"zodo/internal/files"
 )
 
@@ -15,7 +14,7 @@ var (
 )
 
 func init() {
-	path = files.Dir + cst.PathSep + fileName
+	path = files.GetPath(fileName)
 	files.EnsureExist(path)
 }
 
