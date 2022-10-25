@@ -137,6 +137,30 @@ func Detail(id int) {
 	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
 }
 
+func DailyReport() string {
+	var res string
+	for _, td := range todos {
+		if td.Status == statusDeleted {
+			continue
+		}
+
+		if !param.All && td.Status == statusDone {
+			continue
+		}
+
+		res += fmt.Sprintf("%s [%s]\n", td.Content, td.Status)
+		if td.Deadline != "" {
+			res += fmt.Sprintf("%s is the deadline.\n", times.Simplify(td.Deadline))
+		}
+		if td.Remark != "" {
+			res += fmt.Sprintf("%s\n", td.Remark)
+		}
+		res += fmt.Sprintf("Created on %s.\n", times.Simplify(td.CreateTime))
+		res += fmt.Sprintf("====================\n")
+	}
+	return res
+}
+
 func Add(content string) {
 	if content == "" {
 		return

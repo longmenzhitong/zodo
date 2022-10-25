@@ -13,7 +13,19 @@ type config struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 		Email    string `yaml:"email"`
-	}
+	} `yaml:"git"`
+	Reminder struct {
+		DailyReport struct {
+			Enabled bool   `yaml:"enabled"`
+			Cron    string `yaml:"cron"`
+		} `yaml:"dailyReport"`
+		Email struct {
+			Server string   `yaml:"server"`
+			Auth   string   `yaml:"auth"`
+			From   string   `yaml:"from"`
+			To     []string `yaml:"to"`
+		} `yaml:"email"`
+	} `yaml:"reminder"`
 }
 
 const (
@@ -40,9 +52,18 @@ func initYaml(path string) {
 	files.EnsureExist(path)
 	files.RewriteLinesToPath(path, []string{
 		"git:",
-		"  username: ",
-		"  password: ",
-		"  email: ",
+		"  username:",
+		"  password:",
+		"  email:",
+		"reminder:",
+		"  dailyReport:",
+		"    enabled: false",
+		"    cron:",
+		"  email:",
+		"    server:",
+		"    auth:",
+		"    from:",
+		"    to:",
 	})
 }
 
