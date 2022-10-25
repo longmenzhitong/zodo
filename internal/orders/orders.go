@@ -41,6 +41,7 @@ const (
 )
 
 func Handle(input string) error {
+	input = strings.TrimSpace(input)
 	order, val := parseInput(input)
 
 	if order == exit {
@@ -149,7 +150,7 @@ func Handle(input string) error {
 	// todo help
 	// todo hint
 
-	id, err := strconv.Atoi(val)
+	id, err := strconv.Atoi(input)
 	if err == nil {
 		todo.Detail(id)
 		return nil
@@ -163,7 +164,6 @@ func parseInput(input string) (order string, val string) {
 	if input == "" {
 		return
 	}
-	input = strings.TrimSpace(input)
 	i := strings.Index(input, " ")
 	if i == -1 {
 		order = input
