@@ -14,18 +14,23 @@ import (
 
 const (
 	exit = "exit"
+)
+
+const (
+	// 备份指令
 	pull = "pull"
 	push = "push"
 )
 
 const (
 	// 查询指令
-	list   = "ll"
-	detail = "cat"
+	list        = "ll"
+	detail      = "cat"
+	dailyReport = "dr"
 )
 
 const (
-	// 修改值的指令
+	// 修改属性的指令
 	add         = "add"
 	modify      = "mod"
 	setDeadline = "ddl"
@@ -68,6 +73,11 @@ func Handle(input string) error {
 			return err
 		}
 		todo.Detail(id)
+		return nil
+	}
+
+	if order == dailyReport {
+		todo.DailyReport()
 		return nil
 	}
 
