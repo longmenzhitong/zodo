@@ -19,7 +19,6 @@ const (
 const (
 	// 备份指令
 	pull = "pull"
-	push = "push"
 )
 
 const (
@@ -56,10 +55,6 @@ func Handle(input string) error {
 
 	if order == pull {
 		return backup.Pull()
-	}
-
-	if order == push {
-		return backup.Push()
 	}
 
 	if order == list {
