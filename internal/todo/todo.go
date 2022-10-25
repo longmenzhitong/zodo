@@ -85,6 +85,10 @@ func init() {
 	path = files.GetPath(fileName)
 	files.EnsureExist(path)
 
+	Load()
+}
+
+func Load() {
 	todos = make([]todo, 0)
 	for _, line := range files.ReadLinesFromPath(path) {
 		var td todo

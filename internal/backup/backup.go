@@ -11,6 +11,7 @@ import (
 	"zodo/internal/conf"
 	"zodo/internal/cst"
 	"zodo/internal/files"
+	"zodo/internal/todo"
 )
 
 func CheckPull() error {
@@ -59,6 +60,9 @@ func Pull() error {
 			Password: conf.All.Git.Password,
 		},
 	})
+	if errors.Is(err, git.NoErrAlreadyUpToDate) {
+		return err
+	}
 	if err != nil {
 		return fmt.Errorf("pull error: %v", err)
 	}
@@ -75,6 +79,8 @@ func Pull() error {
 	}
 
 	fmt.Println(commit)
+
+	todo.Load()
 
 	return nil
 }
