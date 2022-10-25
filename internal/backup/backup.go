@@ -9,7 +9,7 @@ import (
 	"time"
 	"zodo/internal/conf"
 	"zodo/internal/files"
-	"zodo/internal/todo"
+	"zodo/internal/todos"
 )
 
 const (
@@ -88,7 +88,7 @@ func Pull() error {
 
 	fmt.Println(commit)
 
-	todo.Load()
+	todos.Load()
 
 	return nil
 }

@@ -9,7 +9,7 @@ import (
 	"zodo/internal/backup"
 	"zodo/internal/cst"
 	"zodo/internal/errs"
-	"zodo/internal/todo"
+	"zodo/internal/todos"
 )
 
 const (
@@ -58,7 +58,7 @@ func Handle(input string) error {
 	}
 
 	if order == list {
-		todo.List()
+		todos.List()
 		return nil
 	}
 
@@ -67,17 +67,17 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		todo.Detail(id)
+		todos.Detail(id)
 		return nil
 	}
 
 	if order == dailyReport {
-		todo.DailyReport()
+		todos.DailyReport()
 		return nil
 	}
 
 	if order == add {
-		todo.Add(val)
+		todos.Add(val)
 		return nil
 	}
 
@@ -86,7 +86,7 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		todo.Modify(id, content)
+		todos.Modify(id, content)
 		return nil
 	}
 
@@ -95,7 +95,7 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		todo.Deadline(id, deadline)
+		todos.Deadline(id, deadline)
 		return nil
 	}
 
@@ -104,7 +104,7 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		todo.Remark(id, remark)
+		todos.Remark(id, remark)
 		return nil
 	}
 
@@ -114,7 +114,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todo.Pending(id)
+			todos.Pending(id)
 		}
 		return nil
 	}
@@ -125,7 +125,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todo.Processing(id)
+			todos.Processing(id)
 		}
 		return nil
 	}
@@ -136,7 +136,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todo.Done(id)
+			todos.Done(id)
 		}
 		return nil
 	}
@@ -147,7 +147,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todo.Delete(id)
+			todos.Delete(id)
 		}
 		return nil
 	}
@@ -157,11 +157,11 @@ func Handle(input string) error {
 
 	id, err := strconv.Atoi(input)
 	if err == nil {
-		todo.Detail(id)
+		todos.Detail(id)
 		return nil
 	}
 
-	todo.List()
+	todos.List()
 	return nil
 }
 

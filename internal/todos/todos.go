@@ -1,4 +1,4 @@
-package todo
+package todos
 
 import (
 	"encoding/json"
@@ -79,7 +79,8 @@ const (
 
 var (
 	path  string
-	todos []todo
+	tds   []*todo
+	tdMap map[int]*todo
 )
 
 func init() {
@@ -90,20 +91,22 @@ func init() {
 }
 
 func Load() {
-	todos = make([]todo, 0)
+	tds = make([]*todo, 0)
+	tdMap = make(map[int]*todo, 0)
 	for _, line := range files.ReadLinesFromPath(path) {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
 			panic(err)
 		}
-		todos = append(todos, td)
+		tds = append(tds, &td)
+		tdMap[td.Id] = &td
 	}
 }
 
 func List() {
 	rows := make([]table.Row, 0)
-	for _, td := range todos {
+	for _, td := range tds {
 		if td.Status == statusDeleted {
 			continue
 		}
@@ -123,7 +126,7 @@ func List() {
 }
 
 func Detail(id int) {
-	td := findById(id)
+	td := tdMap[id]
 	if td == nil {
 		return
 	}
@@ -140,7 +143,7 @@ func Detail(id int) {
 
 func DailyReport() {
 	var text string
-	for _, td := range todos {
+	for _, td := range tds {
 		if td.Status == statusDeleted {
 			continue
 		}
@@ -172,7 +175,7 @@ func Add(content string) {
 		Status:     statusPending,
 		CreateTime: time.Now().Format(cst.LayoutDateTime),
 	}
-	todos = append(todos, td)
+	tds = append(tds, &td)
 	save()
 }
 
@@ -180,7 +183,7 @@ func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
-	td := findById(id)
+	td := tdMap[id]
 	if td != nil {
 		td.Content = content
 	}
@@ -188,7 +191,7 @@ func Modify(id int, content string) {
 }
 
 func Deadline(id int, deadline string) {
-	td := findById(id)
+	td := tdMap[id]
 	if td != nil {
 		td.Deadline = deadline
 	}
@@ -196,7 +199,7 @@ func Deadline(id int, deadline string) {
 }
 
 func Remark(id int, remark string) {
-	td := findById(id)
+	td := tdMap[id]
 	if td != nil {
 		td.Remark = remark
 	}
@@ -220,7 +223,7 @@ func Delete(id int) {
 }
 
 func modifyStatus(id int, status string) {
-	td := findById(id)
+	td := tdMap[id]
 	if td != nil {
 		td.Status = status
 	}
@@ -229,7 +232,7 @@ func modifyStatus(id int, status string) {
 
 func save() {
 	lines := make([]string, 0)
-	for _, td := range todos {
+	for _, td := range tds {
 		js, err := json.Marshal(td)
 		if err != nil {
 			panic(err)
@@ -237,15 +240,6 @@ func save() {
 		lines = append(lines, string(js))
 	}
 	files.RewriteLinesToPath(path, lines)
-}
-
-func findById(id int) *todo {
-	for i := range todos {
-		if todos[i].Id == id {
-			return &todos[i]
-		}
-	}
-	return nil
 }
 
 func calcRemainDays(deadline string) (natureDays int, workDays int) {

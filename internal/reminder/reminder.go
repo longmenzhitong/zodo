@@ -5,7 +5,7 @@ import (
 	"github.com/robfig/cron"
 	"zodo/internal/backup"
 	"zodo/internal/conf"
-	"zodo/internal/todo"
+	"zodo/internal/todos"
 )
 
 func StartDailyReport() {
@@ -15,7 +15,7 @@ func StartDailyReport() {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		todo.DailyReport()
+		todos.DailyReport()
 	})
 	if err != nil {
 		panic(err)
