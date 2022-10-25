@@ -6,37 +6,43 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
-	"os"
+	"strconv"
 	"time"
 	"zodo/internal/conf"
-	"zodo/internal/cst"
 	"zodo/internal/files"
 	"zodo/internal/todo"
 )
 
-func CheckPull() error {
-	todayPulled := getPulledPath(time.Now())
-	if _, err := os.Stat(todayPulled); err == nil {
-		return nil
-	}
-	err := Pull()
-	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
-		return err
-	}
-	files.EnsureExist(todayPulled)
+const (
+	pulledFileName = "pulled"
+)
 
-	yesterdayPulled := getPulledPath(time.Now().AddDate(0, 0, -1))
-	if _, err = os.Stat(yesterdayPulled); err == nil {
-		err = os.Remove(yesterdayPulled)
+var (
+	pulledPath string
+)
+
+func init() {
+	pulledPath = files.GetPath(pulledFileName)
+	files.EnsureExist(pulledPath)
+}
+
+func CheckPull() error {
+	lines := files.ReadLinesFromPath(pulledPath)
+	if len(lines) == 0 {
+		return Pull()
+	} else if len(lines) == 1 {
+		ut, err := strconv.ParseInt(lines[0], 10, 64)
 		if err != nil {
 			return err
 		}
+		if time.Unix(ut, 0).Day() < time.Now().Day() {
+			return Pull()
+		} else {
+			return nil
+		}
+	} else {
+		return fmt.Errorf("too many pulled timestamps: %v", lines)
 	}
-	return nil
-}
-
-func getPulledPath(t time.Time) string {
-	return files.GetPath(fmt.Sprintf("%s.pulled", t.Format(cst.LayoutMonthDay)))
 }
 
 func Pull() error {
@@ -60,11 +66,14 @@ func Pull() error {
 			Password: conf.All.Git.Password,
 		},
 	})
+	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
+		return fmt.Errorf("pull error: %v", err)
+	}
+
+	files.RewriteLinesToPath(pulledPath, []string{strconv.FormatInt(time.Now().Unix(), 10)})
+
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return err
-	}
-	if err != nil {
-		return fmt.Errorf("pull error: %v", err)
 	}
 
 	// Print the latest commit that was just pulled
