@@ -34,6 +34,7 @@ const (
 	modify      = "mod"
 	setDeadline = "ddl"
 	setRemark   = "rmk"
+	setChild    = "scd"
 )
 
 const (
@@ -95,7 +96,7 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		todos.Deadline(id, deadline)
+		todos.SetDeadline(id, deadline)
 		return nil
 	}
 
@@ -104,8 +105,22 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		todos.Remark(id, remark)
+		todos.SetRemark(id, remark)
 		return nil
+	}
+
+	if order == setChild {
+		ids, err := parseIds(val)
+		if err != nil {
+			return err
+		}
+		if len(ids) < 2 {
+			return &errs.InvalidInputError{
+				Input:   input,
+				Message: fmt.Sprintf("expect: %s [parentId] [childId]", setChild),
+			}
+		}
+		return todos.SetChild(ids[0], ids[1:])
 	}
 
 	if order == setPending {
@@ -114,7 +129,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todos.Pending(id)
+			todos.SetPending(id)
 		}
 		return nil
 	}
@@ -125,7 +140,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todos.Processing(id)
+			todos.SetProcessing(id)
 		}
 		return nil
 	}
@@ -136,7 +151,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todos.Done(id)
+			todos.SetDone(id)
 		}
 		return nil
 	}
@@ -147,7 +162,7 @@ func Handle(input string) error {
 			return err
 		}
 		for _, id := range ids {
-			todos.Delete(id)
+			todos.SetDeleted(id)
 		}
 		return nil
 	}
@@ -200,7 +215,10 @@ func parseIds(val string) (ids []int, err error) {
 func parseIdAndStr(val string) (id int, str string, err error) {
 	i := strings.Index(val, " ")
 	if i == -1 {
-		err = &errs.InvalidInputError{Input: val}
+		err = &errs.InvalidInputError{
+			Input:   val,
+			Message: "expect: [id] [str]",
+		}
 		return
 	}
 	id, err = strconv.Atoi(val[:i])

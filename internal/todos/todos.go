@@ -5,14 +5,22 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"strconv"
+	"strings"
 	"time"
 	"zodo/internal/cst"
 	"zodo/internal/emails"
+	"zodo/internal/errs"
 	"zodo/internal/files"
 	"zodo/internal/ids"
 	"zodo/internal/param"
 	"zodo/internal/stdout"
 	"zodo/internal/times"
+)
+
+const (
+	typeChild  = "Child"
+	typeParent = "Parent"
 )
 
 type todo struct {
@@ -22,6 +30,9 @@ type todo struct {
 	Deadline   string
 	Remark     string
 	CreateTime string
+	Type       string
+	Parent     map[int]bool
+	Child      map[int]bool
 }
 
 func (td *todo) GetStatus() string {
@@ -64,6 +75,28 @@ func (td *todo) GetDeadLine() string {
 
 func (td *todo) GetCreateTime() string {
 	return times.Simplify(td.CreateTime)
+}
+
+func (td *todo) GetParent() string {
+	if td.Parent == nil {
+		return ""
+	}
+	parentIds := make([]string, 0)
+	for id := range td.Parent {
+		parentIds = append(parentIds, strconv.Itoa(id))
+	}
+	return strings.Join(parentIds, ",")
+}
+
+func (td *todo) GetChild() string {
+	if td.Child == nil {
+		return ""
+	}
+	childIds := make([]string, 0)
+	for id := range td.Child {
+		childIds = append(childIds, strconv.Itoa(id))
+	}
+	return strings.Join(childIds, ",")
 }
 
 const (
@@ -115,12 +148,36 @@ func List() {
 			continue
 		}
 
-		rows = append(rows, table.Row{
-			td.Id,
-			td.Content,
-			td.GetStatus(),
-			td.GetDeadLine(),
-		})
+		if td.Type == typeChild {
+			continue
+		}
+
+		if td.Child == nil || len(td.Child) == 0 {
+			rows = append(rows, table.Row{
+				td.Id,
+				td.Content,
+				td.GetStatus(),
+				td.GetDeadLine(),
+			})
+		} else {
+			rows = append(rows, table.Row{
+				td.Id,
+				td.Content,
+				"",
+				"",
+			})
+			for childId := range td.Child {
+				child := tdMap[childId]
+				if child != nil {
+					rows = append(rows, table.Row{
+						child.Id,
+						fmt.Sprintf("  * %s", child.Content),
+						child.GetStatus(),
+						child.GetDeadLine(),
+					})
+				}
+			}
+		}
 	}
 	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline"}, rows)
 }
@@ -138,6 +195,9 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Deadline", td.GetDeadLine()})
 	rows = append(rows, table.Row{"Remark", td.Remark})
 	rows = append(rows, table.Row{"Create", td.GetCreateTime()})
+	rows = append(rows, table.Row{"Type", td.Type})
+	rows = append(rows, table.Row{"Parent", td.GetParent()})
+	rows = append(rows, table.Row{"Child", td.GetChild()})
 	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
 }
 
@@ -174,6 +234,7 @@ func Add(content string) {
 		Content:    content,
 		Status:     statusPending,
 		CreateTime: time.Now().Format(cst.LayoutDateTime),
+		Type:       typeParent,
 	}
 	tds = append(tds, &td)
 	save()
@@ -190,7 +251,7 @@ func Modify(id int, content string) {
 	save()
 }
 
-func Deadline(id int, deadline string) {
+func SetDeadline(id int, deadline string) {
 	td := tdMap[id]
 	if td != nil {
 		td.Deadline = deadline
@@ -198,7 +259,7 @@ func Deadline(id int, deadline string) {
 	save()
 }
 
-func Remark(id int, remark string) {
+func SetRemark(id int, remark string) {
 	td := tdMap[id]
 	if td != nil {
 		td.Remark = remark
@@ -206,19 +267,50 @@ func Remark(id int, remark string) {
 	save()
 }
 
-func Pending(id int) {
+func SetChild(parentId int, childIds []int) error {
+	parent := tdMap[parentId]
+	if parent == nil {
+		return &errs.NotFoundError{
+			Target:  "parent",
+			Message: fmt.Sprintf("parentId: %d", parentId),
+		}
+	}
+	if parent.Child == nil {
+		parent.Child = make(map[int]bool, 0)
+	}
+	for _, childId := range childIds {
+		child := tdMap[childId]
+		if child == nil {
+			return &errs.NotFoundError{
+				Target:  "child",
+				Message: fmt.Sprintf("childId: %d", childId),
+			}
+		}
+		child.Type = typeChild
+		if child.Parent == nil {
+			child.Parent = make(map[int]bool, 0)
+		}
+		child.Parent[parentId] = true
+		parent.Child[childId] = true
+	}
+	save()
+	return nil
+}
+
+// TODO 子任务状态的变更可能会影响父任务
+func SetPending(id int) {
 	modifyStatus(id, statusPending)
 }
 
-func Processing(id int) {
+func SetProcessing(id int) {
 	modifyStatus(id, statusProcessing)
 }
 
-func Done(id int) {
+func SetDone(id int) {
 	modifyStatus(id, statusDone)
 }
 
-func Delete(id int) {
+func SetDeleted(id int) {
 	modifyStatus(id, statusDeleted)
 }
 
