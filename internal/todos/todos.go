@@ -18,11 +18,6 @@ import (
 	"zodo/internal/times"
 )
 
-const (
-	typeChild  = "Child"
-	typeParent = "Parent"
-)
-
 type todo struct {
 	Id         int
 	Content    string
@@ -30,9 +25,8 @@ type todo struct {
 	Deadline   string
 	Remark     string
 	CreateTime string
-	Type       string
-	Parent     map[int]bool
-	Child      map[int]bool
+	ParentId   int
+	Childs     map[int]bool
 }
 
 func (td *todo) GetStatus() string {
@@ -77,23 +71,16 @@ func (td *todo) GetCreateTime() string {
 	return times.Simplify(td.CreateTime)
 }
 
-func (td *todo) GetParent() string {
-	if td.Parent == nil {
-		return ""
-	}
-	parentIds := make([]string, 0)
-	for id := range td.Parent {
-		parentIds = append(parentIds, strconv.Itoa(id))
-	}
-	return strings.Join(parentIds, ",")
+func (td *todo) GetParentId() string {
+	return strconv.Itoa(td.ParentId)
 }
 
 func (td *todo) GetChild() string {
-	if td.Child == nil {
+	if td.Childs == nil {
 		return ""
 	}
 	childIds := make([]string, 0)
-	for id := range td.Child {
+	for id := range td.Childs {
 		childIds = append(childIds, strconv.Itoa(id))
 	}
 	return strings.Join(childIds, ",")
@@ -148,11 +135,11 @@ func List() {
 			continue
 		}
 
-		if td.Type == typeChild {
+		if td.ParentId != 0 {
 			continue
 		}
 
-		if td.Child == nil || len(td.Child) == 0 {
+		if td.Childs == nil || len(td.Childs) == 0 {
 			rows = append(rows, table.Row{
 				td.Id,
 				td.Content,
@@ -166,7 +153,7 @@ func List() {
 				"",
 				"",
 			})
-			for childId := range td.Child {
+			for childId := range td.Childs {
 				child := tdMap[childId]
 				if child != nil {
 					rows = append(rows, table.Row{
@@ -195,8 +182,7 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Deadline", td.GetDeadLine()})
 	rows = append(rows, table.Row{"Remark", td.Remark})
 	rows = append(rows, table.Row{"Create", td.GetCreateTime()})
-	rows = append(rows, table.Row{"Type", td.Type})
-	rows = append(rows, table.Row{"Parent", td.GetParent()})
+	rows = append(rows, table.Row{"Parent", td.GetParentId()})
 	rows = append(rows, table.Row{"Child", td.GetChild()})
 	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
 }
@@ -234,7 +220,6 @@ func Add(content string) {
 		Content:    content,
 		Status:     statusPending,
 		CreateTime: time.Now().Format(cst.LayoutDateTime),
-		Type:       typeParent,
 	}
 	tds = append(tds, &td)
 	save()
@@ -275,8 +260,8 @@ func SetChild(parentId int, childIds []int) error {
 			Message: fmt.Sprintf("parentId: %d", parentId),
 		}
 	}
-	if parent.Child == nil {
-		parent.Child = make(map[int]bool, 0)
+	if parent.Childs == nil {
+		parent.Childs = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
 		child := tdMap[childId]
@@ -286,12 +271,8 @@ func SetChild(parentId int, childIds []int) error {
 				Message: fmt.Sprintf("childId: %d", childId),
 			}
 		}
-		child.Type = typeChild
-		if child.Parent == nil {
-			child.Parent = make(map[int]bool, 0)
-		}
-		child.Parent[parentId] = true
-		parent.Child[childId] = true
+		child.ParentId = parentId
+		parent.Childs[childId] = true
 	}
 	save()
 	return nil
