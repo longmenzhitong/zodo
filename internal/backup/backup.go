@@ -12,13 +12,9 @@ import (
 	"zodo/internal/todos"
 )
 
-const (
-	pulledFileName = "pulled"
-)
+const pulledFileName = "pulled"
 
-var (
-	pulledPath string
-)
+var pulledPath string
 
 func init() {
 	pulledPath = files.GetPath(pulledFileName)
@@ -61,8 +57,8 @@ func Pull() error {
 	err = w.Pull(&git.PullOptions{
 		RemoteName: "origin",
 		Auth: &http.BasicAuth{
-			Username: conf.All.Git.Username,
-			Password: conf.All.Git.Password,
+			Username: conf.Data.Git.Username,
+			Password: conf.Data.Git.Password,
 		},
 	})
 	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
@@ -88,7 +84,7 @@ func Pull() error {
 
 	fmt.Println(commit)
 
-	todos.Load()
+	todos.Data.Refresh()
 
 	return nil
 }

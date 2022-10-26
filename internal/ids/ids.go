@@ -5,13 +5,9 @@ import (
 	"zodo/internal/files"
 )
 
-const (
-	fileName = "id"
-)
+const fileName = "id"
 
-var (
-	path string
-)
+var path string
 
 func init() {
 	path = files.GetPath(fileName)

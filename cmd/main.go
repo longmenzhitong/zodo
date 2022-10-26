@@ -21,7 +21,7 @@ func init() {
 
 func main() {
 	if param.Server {
-		if conf.All.Reminder.DailyReport.Enabled {
+		if conf.Data.Reminder.DailyReport.Enabled {
 			reminder.StartDailyReport()
 		}
 		select {}

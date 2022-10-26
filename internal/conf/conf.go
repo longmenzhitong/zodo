@@ -8,7 +8,7 @@ import (
 	"zodo/internal/files"
 )
 
-type config struct {
+type data struct {
 	Git struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
@@ -28,14 +28,11 @@ type config struct {
 	} `yaml:"reminder"`
 }
 
-const (
-	fileName = "conf"
-)
+const fileName = "conf"
 
-var (
-	All  config
-	path string
-)
+var Data data
+
+var path string
 
 func init() {
 	path = files.GetPath(fileName)
@@ -72,7 +69,7 @@ func parseYaml(path string) {
 	if err != nil {
 		panic(err)
 	}
-	err = yaml.Unmarshal(f, &All)
+	err = yaml.Unmarshal(f, &Data)
 	if err != nil {
 		panic(err)
 	}

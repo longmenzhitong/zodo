@@ -9,41 +9,31 @@ import (
 	"zodo/internal/backup"
 	"zodo/internal/cst"
 	"zodo/internal/errs"
+	"zodo/internal/param"
 	"zodo/internal/todos"
 )
 
 const (
-	exit = "exit"
-)
-
-const (
-	// 备份指令
-	pull = "pull"
-)
-
-const (
-	// 查询指令
-	list        = "ll"
-	detail      = "cat"
-	dailyReport = "dr"
-)
-
-const (
-	// 修改属性的指令
-	add         = "add"
-	modify      = "mod"
-	setDeadline = "ddl"
-	setRemark   = "rmk"
-	setChild    = "scd"
-)
-
-const (
-	// 修改状态的指令
+	exit          = "exit"
+	pull          = "pull"
+	list          = "ll"
+	detail        = "cat"
+	dailyReport   = "dr"
+	add           = "add"
+	_delete       = "del"
+	modify        = "mod"
+	setDeadline   = "ddl"
+	setRemark     = "rmk"
+	setChild      = "scd"
 	setPending    = "pend"
 	setProcessing = "proc"
 	setDone       = "done"
-	setDeleted    = "del"
 )
+
+var allOrders = []string{
+	exit, pull, list, detail, dailyReport, add, _delete, modify,
+	setDeadline, setRemark, setChild, setPending, setProcessing, setDone,
+}
 
 func Handle(input string) error {
 	input = strings.TrimSpace(input)
@@ -78,7 +68,15 @@ func Handle(input string) error {
 	}
 
 	if order == add {
-		todos.Add(val)
+		return todos.Add(val)
+	}
+
+	if order == _delete || param.Delete {
+		ids, err := parseIds(val)
+		if err != nil {
+			return err
+		}
+		todos.Delete(ids)
 		return nil
 	}
 
@@ -156,17 +154,6 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if order == setDeleted {
-		ids, err := parseIds(val)
-		if err != nil {
-			return err
-		}
-		for _, id := range ids {
-			todos.SetDeleted(id)
-		}
-		return nil
-	}
-
 	// todo help
 	// todo hint
 
@@ -184,14 +171,17 @@ func parseInput(input string) (order string, val string) {
 	if input == "" {
 		return
 	}
-	i := strings.Index(input, " ")
-	if i == -1 {
-		order = input
-	} else {
-		order = input[:i]
-		val = input[i+1:]
+
+	for _, odr := range allOrders {
+		if strings.HasPrefix(input, odr) {
+			order = odr
+			val = strings.TrimSpace(strings.TrimPrefix(input, odr))
+			return
+		}
 	}
-	return strings.TrimSpace(order), strings.TrimSpace(val)
+
+	val = input
+	return
 }
 
 func parseIds(val string) (ids []int, err error) {

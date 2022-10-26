@@ -8,13 +8,9 @@ import (
 	"zodo/internal/cst"
 )
 
-const (
-	dirName = "zodo-data"
-)
+const dirName = "zodo-data"
 
-var (
-	Dir string
-)
+var Dir string
 
 func init() {
 	Dir = cst.HomeDir() + cst.PathSep + dirName

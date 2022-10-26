@@ -1,140 +1,30 @@
 package todos
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"strconv"
-	"strings"
 	"time"
 	"zodo/internal/cst"
 	"zodo/internal/emails"
 	"zodo/internal/errs"
-	"zodo/internal/files"
 	"zodo/internal/ids"
 	"zodo/internal/param"
 	"zodo/internal/stdout"
 	"zodo/internal/times"
 )
 
-type todo struct {
-	Id         int
-	Content    string
-	Status     string
-	Deadline   string
-	Remark     string
-	CreateTime string
-	ParentId   int
-	Childs     map[int]bool
-}
-
-func (td *todo) GetStatus() string {
-	switch td.Status {
-	case statusPending:
-		return color.HiMagentaString(td.Status)
-	case statusProcessing:
-		return color.HiCyanString(td.Status)
-	case statusDone:
-		return color.HiBlueString(td.Status)
-	default:
-		return td.Status
-	}
-}
-
-func (td *todo) GetDeadLine() string {
-	if td.Deadline == "" {
-		return ""
-	}
-
-	if td.Status == statusDone {
-		return times.Simplify(td.Deadline)
-	}
-
-	nd, wd := calcRemainDays(td.Deadline)
-	ddl := fmt.Sprintf("%s (%dnd/%dwd)", td.Deadline, nd, wd)
-	ddl = times.Simplify(ddl)
-
-	if td.Status == statusPending || td.Status == statusProcessing {
-		if wd == 0 {
-			ddl = color.RedString(ddl)
-		} else if wd == 1 {
-			ddl = color.HiYellowString(ddl)
-		} else {
-			ddl = color.GreenString(ddl)
-		}
-	}
-	return ddl
-}
-
-func (td *todo) GetCreateTime() string {
-	return times.Simplify(td.CreateTime)
-}
-
-func (td *todo) GetParentId() string {
-	return strconv.Itoa(td.ParentId)
-}
-
-func (td *todo) GetChild() string {
-	if td.Childs == nil {
-		return ""
-	}
-	childIds := make([]string, 0)
-	for id := range td.Childs {
-		childIds = append(childIds, strconv.Itoa(id))
-	}
-	return strings.Join(childIds, ",")
-}
-
-const (
-	fileName = "todo"
-)
-
 const (
 	statusPending    = "Pending"
 	statusProcessing = "Processing"
 	statusDone       = "Done"
-	statusDeleted    = "Deleted"
 )
-
-var (
-	path  string
-	tds   []*todo
-	tdMap map[int]*todo
-)
-
-func init() {
-	path = files.GetPath(fileName)
-	files.EnsureExist(path)
-
-	Load()
-}
-
-func Load() {
-	tds = make([]*todo, 0)
-	tdMap = make(map[int]*todo, 0)
-	for _, line := range files.ReadLinesFromPath(path) {
-		var td todo
-		err := json.Unmarshal([]byte(line), &td)
-		if err != nil {
-			panic(err)
-		}
-		tds = append(tds, &td)
-		tdMap[td.Id] = &td
-	}
-}
 
 func List() {
 	rows := make([]table.Row, 0)
-	for _, td := range tds {
-		if td.Status == statusDeleted {
-			continue
-		}
-
+	for _, td := range Data.List {
 		if !param.All && td.Status == statusDone {
 			continue
 		}
-
 		if td.ParentId != 0 {
 			continue
 		}
@@ -143,8 +33,8 @@ func List() {
 			rows = append(rows, table.Row{
 				td.Id,
 				td.Content,
-				td.GetStatus(),
-				td.GetDeadLine(),
+				td.getStatus(),
+				td.getDeadLine(),
 			})
 		} else {
 			rows = append(rows, table.Row{
@@ -154,13 +44,13 @@ func List() {
 				"",
 			})
 			for childId := range td.Childs {
-				child := tdMap[childId]
+				child := Data.Map[childId]
 				if child != nil {
 					rows = append(rows, table.Row{
 						child.Id,
-						fmt.Sprintf("  * %s", child.Content),
-						child.GetStatus(),
-						child.GetDeadLine(),
+						fmt.Sprintf("  - %s", child.Content),
+						child.getStatus(),
+						child.getDeadLine(),
 					})
 				}
 			}
@@ -170,7 +60,7 @@ func List() {
 }
 
 func Detail(id int) {
-	td := tdMap[id]
+	td := Data.Map[id]
 	if td == nil {
 		return
 	}
@@ -178,22 +68,18 @@ func Detail(id int) {
 	rows := make([]table.Row, 0)
 	rows = append(rows, table.Row{"Id", td.Id})
 	rows = append(rows, table.Row{"Content", td.Content})
-	rows = append(rows, table.Row{"Status", td.GetStatus()})
-	rows = append(rows, table.Row{"Deadline", td.GetDeadLine()})
+	rows = append(rows, table.Row{"Status", td.getStatus()})
+	rows = append(rows, table.Row{"Deadline", td.getDeadLine()})
 	rows = append(rows, table.Row{"Remark", td.Remark})
-	rows = append(rows, table.Row{"Create", td.GetCreateTime()})
-	rows = append(rows, table.Row{"Parent", td.GetParentId()})
-	rows = append(rows, table.Row{"Child", td.GetChild()})
+	rows = append(rows, table.Row{"Create", td.getCreateTime()})
+	rows = append(rows, table.Row{"Parent", td.getParentId()})
+	rows = append(rows, table.Row{"Child", td.getChilds()})
 	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
 }
 
 func DailyReport() {
 	var text string
-	for _, td := range tds {
-		if td.Status == statusDeleted {
-			continue
-		}
-
+	for _, td := range Data.List {
 		if !param.All && td.Status == statusDone {
 			continue
 		}
@@ -211,49 +97,57 @@ func DailyReport() {
 	emails.Send("Daily Report", text)
 }
 
-func Add(content string) {
+func Add(content string) error {
 	if content == "" {
-		return
+		return &errs.InvalidInputError{
+			Input:   content,
+			Message: fmt.Sprintf("content empty"),
+		}
 	}
-	td := todo{
+	Data.add(todo{
 		Id:         ids.Get(),
 		Content:    content,
 		Status:     statusPending,
 		CreateTime: time.Now().Format(cst.LayoutDateTime),
+	})
+	return nil
+}
+
+func Delete(ids []int) {
+	for _, id := range ids {
+		Data.delete(id)
 	}
-	tds = append(tds, &td)
-	save()
 }
 
 func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
-	td := tdMap[id]
+	td := Data.Map[id]
 	if td != nil {
 		td.Content = content
 	}
-	save()
+	Data.save()
 }
 
 func SetDeadline(id int, deadline string) {
-	td := tdMap[id]
+	td := Data.Map[id]
 	if td != nil {
 		td.Deadline = deadline
 	}
-	save()
+	Data.save()
 }
 
 func SetRemark(id int, remark string) {
-	td := tdMap[id]
+	td := Data.Map[id]
 	if td != nil {
 		td.Remark = remark
 	}
-	save()
+	Data.save()
 }
 
 func SetChild(parentId int, childIds []int) error {
-	parent := tdMap[parentId]
+	parent := Data.Map[parentId]
 	if parent == nil {
 		return &errs.NotFoundError{
 			Target:  "parent",
@@ -264,7 +158,7 @@ func SetChild(parentId int, childIds []int) error {
 		parent.Childs = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
-		child := tdMap[childId]
+		child := Data.Map[childId]
 		if child == nil {
 			return &errs.NotFoundError{
 				Target:  "child",
@@ -274,7 +168,7 @@ func SetChild(parentId int, childIds []int) error {
 		child.ParentId = parentId
 		parent.Childs[childId] = true
 	}
-	save()
+	Data.save()
 	return nil
 }
 
@@ -291,28 +185,12 @@ func SetDone(id int) {
 	modifyStatus(id, statusDone)
 }
 
-func SetDeleted(id int) {
-	modifyStatus(id, statusDeleted)
-}
-
 func modifyStatus(id int, status string) {
-	td := tdMap[id]
+	td := Data.Map[id]
 	if td != nil {
 		td.Status = status
 	}
-	save()
-}
-
-func save() {
-	lines := make([]string, 0)
-	for _, td := range tds {
-		js, err := json.Marshal(td)
-		if err != nil {
-			panic(err)
-		}
-		lines = append(lines, string(js))
-	}
-	files.RewriteLinesToPath(path, lines)
+	Data.save()
 }
 
 func calcRemainDays(deadline string) (natureDays int, workDays int) {

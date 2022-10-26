@@ -10,7 +10,7 @@ import (
 
 func StartDailyReport() {
 	c := cron.New()
-	err := c.AddFunc(conf.All.Reminder.DailyReport.Cron, func() {
+	err := c.AddFunc(conf.Data.Reminder.DailyReport.Cron, func() {
 		err := backup.Pull()
 		if err != nil {
 			fmt.Println(err.Error())

@@ -6,23 +6,19 @@ import (
 )
 
 var (
-	// 模式参数
 	Interactive bool
 	Server      bool
+	All         bool
+	Delete      bool
 )
 
-var (
-	All bool
-)
-
-var (
-	Input string
-)
+var Input string
 
 func init() {
 	flag.BoolVar(&Interactive, "i", false, "enter interactive mode")
 	flag.BoolVar(&Server, "s", false, "enter server mode")
 	flag.BoolVar(&All, "a", false, "all")
+	flag.BoolVar(&Delete, "d", false, "delete")
 }
 
 func Parse() {
