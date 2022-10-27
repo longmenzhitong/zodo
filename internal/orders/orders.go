@@ -63,8 +63,7 @@ func Handle(input string) error {
 	}
 
 	if order == dailyReport {
-		todos.DailyReport()
-		return nil
+		return todos.DailyReport()
 	}
 
 	if order == add {

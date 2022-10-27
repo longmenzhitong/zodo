@@ -77,7 +77,7 @@ func Detail(id int) {
 	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
 }
 
-func DailyReport() {
+func DailyReport() error {
 	var text string
 	for _, td := range Data.List {
 		if !param.All && td.Status == statusDone {
@@ -94,7 +94,7 @@ func DailyReport() {
 		text += fmt.Sprintf("Created on %s.\n", times.Simplify(td.CreateTime))
 		text += fmt.Sprintf("====================\n")
 	}
-	emails.Send("Daily Report", text)
+	return emails.Send("Daily Report", text)
 }
 
 func Add(content string) error {

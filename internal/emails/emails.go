@@ -8,7 +8,7 @@ import (
 	"zodo/internal/conf"
 )
 
-func Send(title, text string) {
+func Send(title, text string) error {
 	em := email.NewEmail()
 	from := conf.Data.Reminder.Email.From
 	em.From = fmt.Sprintf("ZODO <%s>", from)
@@ -18,8 +18,5 @@ func Send(title, text string) {
 
 	addr := conf.Data.Reminder.Email.Server
 	auth := conf.Data.Reminder.Email.Auth
-	err := em.Send(addr, smtp.PlainAuth("", from, auth, strings.Split(addr, ":")[0]))
-	if err != nil {
-		panic(err)
-	}
+	return em.Send(addr, smtp.PlainAuth("", from, auth, strings.Split(addr, ":")[0]))
 }

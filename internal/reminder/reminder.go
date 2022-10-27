@@ -15,7 +15,10 @@ func StartDailyReport() {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		todos.DailyReport()
+		err = todos.DailyReport()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	})
 	if err != nil {
 		panic(err)
