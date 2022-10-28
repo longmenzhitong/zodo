@@ -45,7 +45,7 @@ func List() {
 			})
 			for childId := range td.Childs {
 				child := Data.Map[childId]
-				if child != nil && child.Status != statusDone {
+				if child != nil && (param.All || child.Status != statusDone) {
 					rows = append(rows, table.Row{
 						child.Id,
 						fmt.Sprintf(" |-%s", child.Content),
