@@ -22,50 +22,36 @@ const (
 func List() {
 	rows := make([]table.Row, 0)
 	for _, td := range Data.List {
-		if !param.All && td.Status == statusDone {
-			continue
-		}
-		if td.ParentId != 0 {
-			continue
-		}
-
-		if td.Childs == nil || len(td.Childs) == 0 {
-			rows = append(rows, table.Row{
-				td.Id,
-				td.Content,
-				td.getStatus(),
-				td.getDeadLine(),
-			})
-		} else {
-			rows = append(rows, table.Row{
-				td.Id,
-				td.Content,
-				"",
-				"",
-			})
-			walkChild(td, &rows, " ")
+		if td.ParentId == 0 {
+			walkTree(td, &rows, "")
 		}
 	}
 	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline"}, rows)
 }
 
-func walkChild(td *todo, rows *[]table.Row, tab string) {
-	if td == nil || td.Childs == nil || len(td.Childs) == 0 {
+func walkTree(td *todo, rows *[]table.Row, tab string) {
+	// FIXME 应该每个节点只遍历一次，现在是遍历了多次
+	if td == nil {
 		return
 	}
-
-	for childId := range td.Childs {
-		child := Data.Map[childId]
-		if child == nil || (!param.All && child.Status == statusDone) {
-			continue
+	if !param.All && td.Status == statusDone {
+		return
+	}
+	content := td.Content
+	if td.ParentId != 0 {
+		content = fmt.Sprintf("%s|-%s", tab, content)
+	}
+	*rows = append(*rows, table.Row{
+		td.Id,
+		content,
+		td.getStatus(),
+		td.getDeadLine(),
+	})
+	if td.Childs != nil {
+		for childId, _ := range td.Childs {
+			child := Data.Map[childId]
+			walkTree(child, rows, tab+"  ")
 		}
-		*rows = append(*rows, table.Row{
-			child.Id,
-			fmt.Sprintf("%s|-%s", tab, child.Content),
-			child.getStatus(),
-			child.getDeadLine(),
-		})
-		walkChild(child, rows, tab+"  ")
 	}
 }
 
