@@ -45,10 +45,10 @@ func List() {
 			})
 			for childId := range td.Childs {
 				child := Data.Map[childId]
-				if child != nil {
+				if child != nil && child.Status != statusDone {
 					rows = append(rows, table.Row{
 						child.Id,
-						fmt.Sprintf("  - %s", child.Content),
+						fmt.Sprintf(" |-%s", child.Content),
 						child.getStatus(),
 						child.getDeadLine(),
 					})
@@ -97,20 +97,21 @@ func DailyReport() error {
 	return emails.Send("Daily Report", text)
 }
 
-func Add(content string) error {
+func Add(content string) (int, error) {
 	if content == "" {
-		return &errs.InvalidInputError{
+		return -1, &errs.InvalidInputError{
 			Input:   content,
 			Message: fmt.Sprintf("content empty"),
 		}
 	}
+	id := ids.Get()
 	Data.add(todo{
-		Id:         ids.Get(),
+		Id:         id,
 		Content:    content,
 		Status:     statusPending,
 		CreateTime: time.Now().Format(cst.LayoutDateTime),
 	})
-	return nil
+	return id, nil
 }
 
 func Delete(ids []int) {

@@ -67,7 +67,16 @@ func Handle(input string) error {
 	}
 
 	if order == add {
-		return todos.Add(val)
+		_, err := todos.Add(val)
+		return err
+	}
+
+	if param.ParentId != -1 {
+		id, err := todos.Add(param.Input)
+		if err != nil {
+			return err
+		}
+		return todos.SetChild(param.ParentId, []int{id})
 	}
 
 	if order == _delete || param.Delete {
