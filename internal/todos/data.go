@@ -124,6 +124,14 @@ func (d *data) delete(id int) {
 	}
 	d.List = newList
 
+	toDelete := d.Map[id]
+	if toDelete != nil {
+		parent := d.Map[toDelete.ParentId]
+		if parent != nil {
+			delete(parent.Childs, id)
+		}
+	}
+
 	delete(d.Map, id)
 
 	d.save()

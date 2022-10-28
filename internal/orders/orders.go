@@ -71,7 +71,7 @@ func Handle(input string) error {
 		return err
 	}
 
-	if param.ParentId != -1 {
+	if param.ParentId != 0 {
 		id, err := todos.Add(param.Input)
 		if err != nil {
 			return err
