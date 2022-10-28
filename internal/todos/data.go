@@ -132,6 +132,8 @@ func (d *data) delete(id int) {
 		}
 	}
 
+	// TODO 删除子任务
+
 	delete(d.Map, id)
 
 	d.save()

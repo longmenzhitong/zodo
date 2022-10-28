@@ -43,20 +43,30 @@ func List() {
 				"",
 				"",
 			})
-			for childId := range td.Childs {
-				child := Data.Map[childId]
-				if child != nil && (param.All || child.Status != statusDone) {
-					rows = append(rows, table.Row{
-						child.Id,
-						fmt.Sprintf(" |-%s", child.Content),
-						child.getStatus(),
-						child.getDeadLine(),
-					})
-				}
-			}
+			walkChild(td, &rows, " ")
 		}
 	}
 	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline"}, rows)
+}
+
+func walkChild(td *todo, rows *[]table.Row, tab string) {
+	if td == nil || td.Childs == nil || len(td.Childs) == 0 {
+		return
+	}
+
+	for childId := range td.Childs {
+		child := Data.Map[childId]
+		if child == nil || (!param.All && child.Status == statusDone) {
+			continue
+		}
+		*rows = append(*rows, table.Row{
+			child.Id,
+			fmt.Sprintf("%s|-%s", tab, child.Content),
+			child.getStatus(),
+			child.getDeadLine(),
+		})
+		walkChild(child, rows, tab+"  ")
+	}
 }
 
 func Detail(id int) {
@@ -136,6 +146,7 @@ func SetDeadline(id int, deadline string) {
 	if td != nil {
 		td.Deadline = deadline
 	}
+	// TODO 如果是子任务，可能需要调整父任务的子任务顺序
 	Data.save()
 }
 
