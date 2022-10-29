@@ -30,7 +30,6 @@ func List() {
 }
 
 func walkTree(td *todo, rows *[]table.Row, tab string) {
-	// FIXME 应该每个节点只遍历一次，现在是遍历了多次
 	if td == nil {
 		return
 	}
@@ -132,7 +131,6 @@ func SetDeadline(id int, deadline string) {
 	if td != nil {
 		td.Deadline = deadline
 	}
-	// TODO 如果是子任务，可能需要调整父任务的子任务顺序
 	Data.save()
 }
 
@@ -178,7 +176,6 @@ func SetChild(parentId int, childIds []int) error {
 	return nil
 }
 
-// TODO 子任务状态的变更可能会影响父任务
 func SetPending(id int) {
 	modifyStatus(id, statusPending)
 }

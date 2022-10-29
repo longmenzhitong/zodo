@@ -22,6 +22,9 @@ type todo struct {
 }
 
 func (t *todo) getStatus() string {
+	if t.hasChildren() {
+		return ""
+	}
 	switch t.Status {
 	case statusPending:
 		return color.HiMagentaString(t.Status)
@@ -35,7 +38,7 @@ func (t *todo) getStatus() string {
 }
 
 func (t *todo) getDeadLine() string {
-	if t.Deadline == "" {
+	if t.Deadline == "" || t.hasChildren() {
 		return ""
 	}
 
@@ -68,7 +71,7 @@ func (t *todo) getParentId() string {
 }
 
 func (t *todo) getChildren() string {
-	if t.Children == nil {
+	if !t.hasChildren() {
 		return ""
 	}
 	childIds := make([]string, 0)
@@ -76,6 +79,10 @@ func (t *todo) getChildren() string {
 		childIds = append(childIds, strconv.Itoa(id))
 	}
 	return strings.Join(childIds, ",")
+}
+
+func (t *todo) hasChildren() bool {
+	return t.Children != nil && len(t.Children) > 0
 }
 
 type data struct {
@@ -131,8 +138,6 @@ func (d *data) delete(id int) {
 			delete(parent.Children, id)
 		}
 	}
-
-	// TODO 删除子任务
 
 	delete(d.Map, id)
 

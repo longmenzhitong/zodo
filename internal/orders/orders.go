@@ -162,9 +162,6 @@ func Handle(input string) error {
 		return nil
 	}
 
-	// todo help
-	// todo hint
-
 	id, err := strconv.Atoi(input)
 	if err == nil {
 		todos.Detail(id)
