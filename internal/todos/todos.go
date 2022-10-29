@@ -158,11 +158,19 @@ func SetChild(parentId int, childIds []int) error {
 	for _, childId := range childIds {
 		child := Data.Map[childId]
 		if child == nil {
-			return &errs.NotFoundError{
+			err := &errs.NotFoundError{
 				Target:  "child",
 				Message: fmt.Sprintf("childId: %d", childId),
 			}
+			fmt.Println(err.Error())
+			continue
 		}
+
+		oldParent := Data.Map[child.ParentId]
+		if oldParent != nil {
+			delete(oldParent.Childs, childId)
+		}
+
 		child.ParentId = parentId
 		parent.Childs[childId] = true
 	}
