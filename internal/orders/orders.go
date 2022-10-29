@@ -22,6 +22,7 @@ const (
 	add           = "add"
 	_delete       = "del"
 	modify        = "mod"
+	clear         = "clr"
 	setDeadline   = "ddl"
 	setRemark     = "rmk"
 	setChild      = "scd"
@@ -31,7 +32,7 @@ const (
 )
 
 var allOrders = []string{
-	exit, pull, list, detail, dailyReport, add, _delete, modify,
+	exit, pull, list, detail, dailyReport, add, _delete, modify, clear,
 	setDeadline, setRemark, setChild, setPending, setProcessing, setDone,
 }
 
@@ -94,6 +95,11 @@ func Handle(input string) error {
 			return err
 		}
 		todos.Modify(id, content)
+		return nil
+	}
+
+	if order == clear {
+		fmt.Printf("%d cleared\n", todos.Clear())
 		return nil
 	}
 

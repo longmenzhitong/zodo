@@ -126,6 +126,10 @@ func Modify(id int, content string) {
 	Data.save()
 }
 
+func Clear() int {
+	return Data.clear()
+}
+
 func SetDeadline(id int, deadline string) {
 	td := Data.Map[id]
 	if td != nil {

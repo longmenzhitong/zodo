@@ -144,6 +144,24 @@ func (d *data) delete(id int) {
 	d.save()
 }
 
+func (d *data) clear() int {
+	n := 0
+	newList := make([]*todo, 0)
+	for _, td := range d.List {
+		if td.ParentId != 0 {
+			if _, ok := d.Map[td.ParentId]; !ok {
+				delete(d.Map, td.Id)
+				n++
+				continue
+			}
+		}
+		newList = append(newList, td)
+	}
+	d.List = newList
+	d.save()
+	return n
+}
+
 const fileName = "todo"
 
 var path string
