@@ -47,8 +47,8 @@ func walkTree(td *todo, rows *[]table.Row, tab string) {
 		td.getStatus(),
 		td.getDeadLine(),
 	})
-	if td.Childs != nil {
-		for childId, _ := range td.Childs {
+	if td.Children != nil {
+		for childId, _ := range td.Children {
 			child := Data.Map[childId]
 			walkTree(child, rows, tab+"  ")
 		}
@@ -69,7 +69,7 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Remark", td.Remark})
 	rows = append(rows, table.Row{"Create", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
-	rows = append(rows, table.Row{"Child", td.getChilds()})
+	rows = append(rows, table.Row{"Children", td.getChildren()})
 	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
 }
 
@@ -152,8 +152,8 @@ func SetChild(parentId int, childIds []int) error {
 			Message: fmt.Sprintf("parentId: %d", parentId),
 		}
 	}
-	if parent.Childs == nil {
-		parent.Childs = make(map[int]bool, 0)
+	if parent.Children == nil {
+		parent.Children = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
 		child := Data.Map[childId]
@@ -168,11 +168,11 @@ func SetChild(parentId int, childIds []int) error {
 
 		oldParent := Data.Map[child.ParentId]
 		if oldParent != nil {
-			delete(oldParent.Childs, childId)
+			delete(oldParent.Children, childId)
 		}
 
 		child.ParentId = parentId
-		parent.Childs[childId] = true
+		parent.Children[childId] = true
 	}
 	Data.save()
 	return nil

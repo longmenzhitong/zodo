@@ -18,7 +18,7 @@ type todo struct {
 	Remark     string
 	CreateTime string
 	ParentId   int
-	Childs     map[int]bool
+	Children   map[int]bool
 }
 
 func (t *todo) getStatus() string {
@@ -67,12 +67,12 @@ func (t *todo) getParentId() string {
 	return strconv.Itoa(t.ParentId)
 }
 
-func (t *todo) getChilds() string {
-	if t.Childs == nil {
+func (t *todo) getChildren() string {
+	if t.Children == nil {
 		return ""
 	}
 	childIds := make([]string, 0)
-	for id := range t.Childs {
+	for id := range t.Children {
 		childIds = append(childIds, strconv.Itoa(id))
 	}
 	return strings.Join(childIds, ",")
@@ -128,7 +128,7 @@ func (d *data) delete(id int) {
 	if toDelete != nil {
 		parent := d.Map[toDelete.ParentId]
 		if parent != nil {
-			delete(parent.Childs, id)
+			delete(parent.Children, id)
 		}
 	}
 
