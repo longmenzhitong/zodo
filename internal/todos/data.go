@@ -123,6 +123,11 @@ func (d *data) add(td todo) {
 }
 
 func (d *data) delete(id int) {
+	toDelete := d.Map[id]
+	if toDelete == nil {
+		return
+	}
+
 	newList := make([]*todo, 0)
 	for _, td := range d.List {
 		if td.Id != id {
@@ -131,11 +136,14 @@ func (d *data) delete(id int) {
 	}
 	d.List = newList
 
-	toDelete := d.Map[id]
-	if toDelete != nil {
-		parent := d.Map[toDelete.ParentId]
-		if parent != nil {
-			delete(parent.Children, id)
+	parent := d.Map[toDelete.ParentId]
+	if parent != nil {
+		delete(parent.Children, id)
+	}
+
+	if toDelete.hasChildren() {
+		for childId := range toDelete.Children {
+			d.delete(childId)
 		}
 	}
 
