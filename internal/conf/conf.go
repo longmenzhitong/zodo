@@ -26,6 +26,9 @@ type data struct {
 			To     []string `yaml:"to"`
 		} `yaml:"email"`
 	} `yaml:"reminder"`
+	Table struct {
+		MaxLen int `yaml:"maxLen"`
+	} `yaml:"table"`
 }
 
 const fileName = "conf"
@@ -54,13 +57,15 @@ func initYaml(path string) {
 		"  email:",
 		"reminder:",
 		"  dailyReport:",
-		"    enabled: false",
+		"    enabled:",
 		"    cron:",
 		"  email:",
 		"    server:",
 		"    auth:",
 		"    from:",
 		"    to:",
+		"table:",
+		"  maxLen:",
 	})
 }
 
@@ -72,5 +77,8 @@ func parseYaml(path string) {
 	err = yaml.Unmarshal(f, &Data)
 	if err != nil {
 		panic(err)
+	}
+	if Data.Table.MaxLen == 0 {
+		Data.Table.MaxLen = 150
 	}
 }
