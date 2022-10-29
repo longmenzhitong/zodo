@@ -48,9 +48,9 @@ func (t *todo) getDeadLine() string {
 	ddl = times.Simplify(ddl)
 
 	if t.Status == statusPending || t.Status == statusProcessing {
-		if wd == 0 {
+		if wd == 0 && nd == 0 {
 			ddl = color.RedString(ddl)
-		} else if wd == 1 {
+		} else if wd == 1 || nd == 1 {
 			ddl = color.HiYellowString(ddl)
 		} else {
 			ddl = color.GreenString(ddl)
