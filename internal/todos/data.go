@@ -159,6 +159,11 @@ func (d *data) writeLines(lines []string, storageType string) {
 			panic(err)
 		}
 		redish.Client().Set(key, linesJson, 0)
+
+		if conf.Data.Storage.Redis.Localize {
+			d.writeLines(lines, conf.StorageTypeFile)
+		}
+
 		return
 	}
 	panic(&errs.InvalidConfigError{

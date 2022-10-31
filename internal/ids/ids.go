@@ -58,6 +58,11 @@ func Set(id int, storageType string) {
 	}
 	if conf.IsRedisStorage(storageType) {
 		redish.Client().Set(key, id, 0)
+
+		if conf.Data.Storage.Redis.Localize {
+			Set(id, conf.StorageTypeFile)
+		}
+
 		return
 	}
 	panic(&errs.InvalidConfigError{
