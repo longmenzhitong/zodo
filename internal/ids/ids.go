@@ -35,7 +35,7 @@ func Get(storageType string) int {
 		return id
 	}
 	if conf.IsRedisStorage(storageType) {
-		cmd := redish.Client.Get(key)
+		cmd := redish.Client().Get(key)
 		idStr, err := cmd.Result()
 		if err != nil {
 			panic(err)
@@ -58,7 +58,7 @@ func Set(id int, storageType string) {
 		return
 	}
 	if conf.IsRedisStorage(storageType) {
-		redish.Client.Set(key, id, 0)
+		redish.Client().Set(key, id, 0)
 		return
 	}
 	panic(&errs.InvalidConfigError{

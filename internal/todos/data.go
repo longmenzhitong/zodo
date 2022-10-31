@@ -116,7 +116,7 @@ func (d *data) readLines(storageType string) []string {
 	}
 	if conf.IsRedisStorage(storageType) {
 		var lines []string
-		cmd := redish.Client.Get(key)
+		cmd := redish.Client().Get(key)
 		linesJson, err := cmd.Result()
 		if errors.Is(err, redis.Nil) {
 			return lines
@@ -158,7 +158,7 @@ func (d *data) writeLines(lines []string, storageType string) {
 		if err != nil {
 			panic(err)
 		}
-		redish.Client.Set(key, linesJson, 0)
+		redish.Client().Set(key, linesJson, 0)
 		return
 	}
 	panic(&errs.InvalidConfigError{
