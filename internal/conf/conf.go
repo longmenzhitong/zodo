@@ -20,6 +20,7 @@ type data struct {
 			Address  string `yaml:"address"`
 			Password string `yaml:"password"`
 			Db       int    `yaml:"db"`
+			Localize bool   `yaml:"localize"`
 		} `yaml:"redis"`
 	} `yaml:"storage"`
 	Reminder struct {
@@ -64,6 +65,7 @@ func initYaml(path string) {
 		"    address:",
 		"    password:",
 		"    db:",
+		"    localize:",
 		"reminder:",
 		"  dailyReport:",
 		"    enabled:",

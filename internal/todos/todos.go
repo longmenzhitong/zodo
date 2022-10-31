@@ -127,10 +127,6 @@ func Modify(id int, content string) {
 	Data.save()
 }
 
-func Clear() int {
-	return Data.clear()
-}
-
 func Transfer() {
 	Data.Transfer()
 }
