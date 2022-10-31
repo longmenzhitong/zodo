@@ -8,12 +8,20 @@ import (
 	"zodo/internal/files"
 )
 
+const (
+	storageTypeRedis = "redis"
+	storageTypeFile  = "file"
+)
+
 type data struct {
-	Git struct {
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-		Email    string `yaml:"email"`
-	} `yaml:"git"`
+	Storage struct {
+		Type  string `yaml:"type"`
+		Redis struct {
+			Address  string `yaml:"address"`
+			Password string `yaml:"password"`
+			Db       int    `yaml:"db"`
+		} `yaml:"redis"`
+	} `yaml:"storage"`
 	Reminder struct {
 		DailyReport struct {
 			Enabled bool   `yaml:"enabled"`
@@ -51,10 +59,12 @@ func init() {
 func initYaml(path string) {
 	files.EnsureExist(path)
 	files.RewriteLinesToPath(path, []string{
-		"git:",
-		"  username:",
-		"  password:",
-		"  email:",
+		"storage:",
+		"  type:",
+		"  redis:",
+		"    address:",
+		"    password:",
+		"    db:",
 		"reminder:",
 		"  dailyReport:",
 		"    enabled:",
@@ -81,4 +91,12 @@ func parseYaml(path string) {
 	if Data.Table.MaxLen == 0 {
 		Data.Table.MaxLen = 150
 	}
+}
+
+func IsFileStorage() bool {
+	return Data.Storage.Type == storageTypeFile
+}
+
+func IsRedisStorage() bool {
+	return Data.Storage.Type == storageTypeRedis
 }

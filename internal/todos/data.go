@@ -2,11 +2,15 @@ package todos
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/go-redis/redis"
 	"strconv"
 	"strings"
+	"zodo/internal/conf"
 	"zodo/internal/files"
+	"zodo/internal/redish"
 	"zodo/internal/times"
 )
 
@@ -93,7 +97,24 @@ type data struct {
 func (d *data) Refresh() {
 	d.List = make([]*todo, 0)
 	d.Map = make(map[int]*todo, 0)
-	for _, line := range files.ReadLinesFromPath(path) {
+	var lines []string
+	if conf.IsFileStorage() {
+		lines = files.ReadLinesFromPath(path)
+	} else {
+		cmd := redish.Client.Get(key)
+		linesJson, err := cmd.Result()
+		if errors.Is(err, redis.Nil) {
+			return
+		}
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal([]byte(linesJson), &lines)
+		if err != nil {
+			panic(err)
+		}
+	}
+	for _, line := range lines {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
@@ -113,7 +134,15 @@ func (d *data) save() {
 		}
 		lines = append(lines, string(js))
 	}
-	files.RewriteLinesToPath(path, lines)
+	if conf.IsFileStorage() {
+		files.RewriteLinesToPath(path, lines)
+	} else {
+		linesJson, err := json.Marshal(lines)
+		if err != nil {
+			panic(err)
+		}
+		redish.Client.Set(key, linesJson, 0)
+	}
 }
 
 func (d *data) add(td todo) {
@@ -171,6 +200,8 @@ func (d *data) clear() int {
 }
 
 const fileName = "todo"
+
+const key = "zd:todo"
 
 var path string
 

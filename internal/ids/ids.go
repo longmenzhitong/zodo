@@ -2,10 +2,14 @@ package ids
 
 import (
 	"strconv"
+	"zodo/internal/conf"
 	"zodo/internal/files"
+	"zodo/internal/redish"
 )
 
 const fileName = "id"
+
+const key = "zd:id"
 
 var path string
 
@@ -15,6 +19,14 @@ func init() {
 }
 
 func Get() int {
+	if conf.IsFileStorage() {
+		return getFromFile()
+	} else {
+		return getFromRedis()
+	}
+}
+
+func getFromFile() int {
 	var id int
 	lines := files.ReadLinesFromPath(path)
 	if len(lines) == 0 {
@@ -30,4 +42,13 @@ func Get() int {
 	files.RewriteLinesToPath(path, []string{strconv.Itoa(id + 1)})
 
 	return id
+}
+
+func getFromRedis() int {
+	cmd := redish.Client.Incr(key)
+	id, err := cmd.Result()
+	if err != nil {
+		panic(err)
+	}
+	return int(id)
 }
