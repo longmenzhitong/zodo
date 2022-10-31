@@ -9,7 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"zodo/internal/conf"
+	"zodo/internal/errs"
 	"zodo/internal/files"
+	"zodo/internal/ids"
 	"zodo/internal/redish"
 	"zodo/internal/times"
 )
@@ -94,27 +96,10 @@ type data struct {
 	Map  map[int]*todo
 }
 
-func (d *data) Refresh() {
+func (d *data) load() {
 	d.List = make([]*todo, 0)
 	d.Map = make(map[int]*todo, 0)
-	var lines []string
-	if conf.IsFileStorage() {
-		lines = files.ReadLinesFromPath(path)
-	} else {
-		cmd := redish.Client.Get(key)
-		linesJson, err := cmd.Result()
-		if errors.Is(err, redis.Nil) {
-			return
-		}
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal([]byte(linesJson), &lines)
-		if err != nil {
-			panic(err)
-		}
-	}
-	for _, line := range lines {
+	for _, line := range d.readLines(conf.Data.Storage.Type) {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
@@ -123,6 +108,32 @@ func (d *data) Refresh() {
 		d.List = append(d.List, &td)
 		d.Map[td.Id] = &td
 	}
+}
+
+func (d *data) readLines(storageType string) []string {
+	if conf.IsFileStorage(storageType) {
+		return files.ReadLinesFromPath(path)
+	}
+	if conf.IsRedisStorage(storageType) {
+		var lines []string
+		cmd := redish.Client.Get(key)
+		linesJson, err := cmd.Result()
+		if errors.Is(err, redis.Nil) {
+			return lines
+		}
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal([]byte(linesJson), &lines)
+		if err != nil {
+			panic(err)
+		}
+		return lines
+	}
+	panic(&errs.InvalidConfigError{
+		Config:  "storage.type",
+		Message: storageType,
+	})
 }
 
 func (d *data) save() {
@@ -134,15 +145,49 @@ func (d *data) save() {
 		}
 		lines = append(lines, string(js))
 	}
-	if conf.IsFileStorage() {
+	d.writeLines(lines, conf.Data.Storage.Type)
+}
+
+func (d *data) writeLines(lines []string, storageType string) {
+	if conf.IsFileStorage(storageType) {
 		files.RewriteLinesToPath(path, lines)
-	} else {
+		return
+	}
+	if conf.IsRedisStorage(storageType) {
 		linesJson, err := json.Marshal(lines)
 		if err != nil {
 			panic(err)
 		}
 		redish.Client.Set(key, linesJson, 0)
+		return
 	}
+	panic(&errs.InvalidConfigError{
+		Config:  "storage.type",
+		Message: storageType,
+	})
+}
+
+func (d *data) Transfer() {
+	if conf.IsFileStorage() {
+		lines := d.readLines(conf.StorageTypeRedis)
+		d.writeLines(lines, conf.StorageTypeFile)
+
+		id := ids.Get(conf.StorageTypeRedis)
+		ids.Set(id+1, conf.StorageTypeFile)
+		return
+	}
+	if conf.IsRedisStorage() {
+		lines := d.readLines(conf.StorageTypeFile)
+		d.writeLines(lines, conf.StorageTypeRedis)
+
+		id := ids.Get(conf.StorageTypeFile)
+		ids.Set(id+1, conf.StorageTypeRedis)
+		return
+	}
+	panic(&errs.InvalidConfigError{
+		Config:  "storage.type",
+		Message: conf.Data.Storage.Type,
+	})
 }
 
 func (d *data) add(td todo) {
@@ -212,5 +257,5 @@ func init() {
 	files.EnsureExist(path)
 
 	Data = &data{}
-	Data.Refresh()
+	Data.load()
 }

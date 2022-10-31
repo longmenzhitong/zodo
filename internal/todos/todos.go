@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
+	"zodo/internal/conf"
 	"zodo/internal/cst"
 	"zodo/internal/emails"
 	"zodo/internal/errs"
@@ -99,7 +100,7 @@ func Add(content string) (int, error) {
 			Message: fmt.Sprintf("content empty"),
 		}
 	}
-	id := ids.Get()
+	id := ids.GetAndSet(conf.Data.Storage.Type)
 	Data.add(todo{
 		Id:         id,
 		Content:    content,
@@ -128,6 +129,10 @@ func Modify(id int, content string) {
 
 func Clear() int {
 	return Data.clear()
+}
+
+func Transfer() {
+	Data.Transfer()
 }
 
 func SetDeadline(id int, deadline string) {

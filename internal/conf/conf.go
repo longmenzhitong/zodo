@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	storageTypeRedis = "redis"
-	storageTypeFile  = "file"
+	StorageTypeRedis = "redis"
+	StorageTypeFile  = "file"
 )
 
 type data struct {
@@ -93,10 +93,18 @@ func parseYaml(path string) {
 	}
 }
 
-func IsFileStorage() bool {
-	return Data.Storage.Type == storageTypeFile
+func IsFileStorage(storageType ...string) bool {
+	if storageType != nil && len(storageType) > 0 {
+		return storageType[0] == StorageTypeFile
+	} else {
+		return Data.Storage.Type == StorageTypeFile
+	}
 }
 
-func IsRedisStorage() bool {
-	return Data.Storage.Type == storageTypeRedis
+func IsRedisStorage(storageType ...string) bool {
+	if storageType != nil && len(storageType) > 0 {
+		return storageType[0] == StorageTypeRedis
+	} else {
+		return Data.Storage.Type == StorageTypeRedis
+	}
 }

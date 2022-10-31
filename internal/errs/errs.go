@@ -11,6 +11,15 @@ func (e *InvalidInputError) Error() string {
 	return fmt.Sprintf("invalid input [%s]: %s, ", e.Input, e.Message)
 }
 
+type InvalidConfigError struct {
+	Config  string
+	Message string
+}
+
+func (e *InvalidConfigError) Error() string {
+	return fmt.Sprintf("invalid config [%s]: %s, ", e.Config, e.Message)
+}
+
 type NotFoundError struct {
 	Target  string
 	Message string
