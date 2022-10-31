@@ -1,22 +1,17 @@
 package emails
 
 import (
-	"fmt"
-	"github.com/jordan-wright/email"
-	"net/smtp"
-	"strings"
+	"github.com/go-gomail/gomail"
 	"zodo/internal/conf"
 )
 
 func Send(title, text string) error {
-	em := email.NewEmail()
-	from := conf.Data.Reminder.Email.From
-	em.From = fmt.Sprintf("ZODO <%s>", from)
-	em.To = conf.Data.Reminder.Email.To
-	em.Subject = title
-	em.Text = []byte(text)
+	m := gomail.NewMessage()
+	m.SetAddressHeader("From", conf.Data.Email.From, "ZODO")
+	m.SetHeader("To", conf.Data.Email.To...)
+	m.SetHeader("Subject", title)
+	m.SetBody("text/html", text)
 
-	addr := conf.Data.Reminder.Email.Server
-	auth := conf.Data.Reminder.Email.Auth
-	return em.Send(addr, smtp.PlainAuth("", from, auth, strings.Split(addr, ":")[0]))
+	d := gomail.NewDialer(conf.Data.Email.Server, conf.Data.Email.Port, conf.Data.Email.From, conf.Data.Email.Auth)
+	return d.DialAndSend(m)
 }

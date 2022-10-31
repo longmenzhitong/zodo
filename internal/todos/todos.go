@@ -81,6 +81,7 @@ func DailyReport() error {
 			continue
 		}
 
+		// TODO 内容格式优化
 		text += fmt.Sprintf("%s [%s]\n", td.Content, td.Status)
 		if td.Deadline != "" {
 			text += fmt.Sprintf("%s is the deadline.\n", times.Simplify(td.Deadline))

@@ -1,4 +1,4 @@
-package reminder
+package task
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 func StartDailyReport() {
 	c := cron.New()
-	err := c.AddFunc(conf.Data.Reminder.DailyReport.Cron, func() {
+	err := c.AddFunc(conf.Data.DailyReport.Cron, func() {
 		err := todos.DailyReport()
 		if err != nil {
 			fmt.Println(err.Error())

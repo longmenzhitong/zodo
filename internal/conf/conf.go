@@ -23,18 +23,17 @@ type data struct {
 			Localize bool   `yaml:"localize"`
 		} `yaml:"redis"`
 	} `yaml:"storage"`
-	Reminder struct {
-		DailyReport struct {
-			Enabled bool   `yaml:"enabled"`
-			Cron    string `yaml:"cron"`
-		} `yaml:"dailyReport"`
-		Email struct {
-			Server string   `yaml:"server"`
-			Auth   string   `yaml:"auth"`
-			From   string   `yaml:"from"`
-			To     []string `yaml:"to"`
-		} `yaml:"email"`
-	} `yaml:"reminder"`
+	DailyReport struct {
+		Enabled bool   `yaml:"enabled"`
+		Cron    string `yaml:"cron"`
+	} `yaml:"dailyReport"`
+	Email struct {
+		Server string   `yaml:"server"`
+		Port   int      `yaml:"port"`
+		Auth   string   `yaml:"auth"`
+		From   string   `yaml:"from"`
+		To     []string `yaml:"to"`
+	} `yaml:"email"`
 	Table struct {
 		MaxLen int `yaml:"maxLen"`
 	} `yaml:"table"`
@@ -66,15 +65,15 @@ func initYaml(path string) {
 		"    password:",
 		"    db:",
 		"    localize:",
-		"reminder:",
-		"  dailyReport:",
-		"    enabled:",
-		"    cron:",
-		"  email:",
-		"    server:",
-		"    auth:",
-		"    from:",
-		"    to:",
+		"dailyReport:",
+		"  enabled:",
+		"  cron:",
+		"email:",
+		"  server:",
+		"  port:",
+		"  auth:",
+		"  from:",
+		"  to:",
 		"table:",
 		"  maxLen:",
 	})

@@ -5,8 +5,8 @@ import (
 	"zodo/internal/conf"
 	"zodo/internal/orders"
 	"zodo/internal/param"
-	"zodo/internal/reminder"
 	"zodo/internal/stdin"
+	"zodo/internal/task"
 )
 
 func init() {
@@ -15,8 +15,8 @@ func init() {
 
 func main() {
 	if param.Server {
-		if conf.Data.Reminder.DailyReport.Enabled {
-			reminder.StartDailyReport()
+		if conf.Data.DailyReport.Enabled {
+			task.StartDailyReport()
 		}
 		select {}
 	}
