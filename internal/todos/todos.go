@@ -74,9 +74,10 @@ func Detail(id int) {
 }
 
 func DailyReport() error {
+	Data.load()
 	var text string
 	for _, td := range Data.List {
-		if !param.All && td.Status == statusDone {
+		if td.Status == statusDone {
 			continue
 		}
 

@@ -8,7 +8,6 @@ import (
 )
 
 func StartDailyReport() {
-	// fixme
 	c := cron.New()
 	err := c.AddFunc(conf.Data.Reminder.DailyReport.Cron, func() {
 		err := todos.DailyReport()
