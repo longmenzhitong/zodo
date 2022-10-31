@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"zodo/internal/backup"
 	"zodo/internal/cst"
 	"zodo/internal/errs"
 	"zodo/internal/param"
@@ -15,7 +14,6 @@ import (
 
 const (
 	exit          = "exit"
-	pull          = "pull"
 	list          = "ll"
 	detail        = "cat"
 	dailyReport   = "dr"
@@ -32,7 +30,7 @@ const (
 )
 
 var allOrders = []string{
-	exit, pull, list, detail, dailyReport, add, _delete, modify, clear,
+	exit, list, detail, dailyReport, add, _delete, modify, clear,
 	setDeadline, setRemark, setChild, setPending, setProcessing, setDone,
 }
 
@@ -43,10 +41,6 @@ func Handle(input string) error {
 	if order == exit {
 		fmt.Println("Bye.")
 		os.Exit(0)
-	}
-
-	if order == pull {
-		return backup.Pull()
 	}
 
 	if order == list {
