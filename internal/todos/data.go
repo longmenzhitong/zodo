@@ -254,7 +254,6 @@ var Data *data
 
 func init() {
 	path = files.GetPath(fileName)
-	files.EnsureExist(path)
 
 	Data = &data{}
 	Data.load()

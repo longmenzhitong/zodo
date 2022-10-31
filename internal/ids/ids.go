@@ -16,7 +16,6 @@ var path string
 
 func init() {
 	path = files.GetPath(fileName)
-	files.EnsureExist(path)
 }
 
 func Get(storageType string) int {

@@ -57,7 +57,6 @@ func init() {
 }
 
 func initYaml(path string) {
-	files.EnsureExist(path)
 	files.RewriteLinesToPath(path, []string{
 		"storage:",
 		"  type:",

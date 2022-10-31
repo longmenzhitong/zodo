@@ -27,6 +27,7 @@ func GetPath(name string) string {
 }
 
 func ReadLinesFromPath(path string) []string {
+	ensureExist(path)
 	f, err := os.Open(path)
 	if err != nil {
 		panic(err)
@@ -60,6 +61,7 @@ func RewriteLinesToPath(path string, lines []string) {
 }
 
 func WriteLinesToPath(path string, lines []string, mod int) {
+	ensureExist(path)
 	f, err := os.OpenFile(path, mod, 0)
 	if err != nil {
 		panic(err)
@@ -82,7 +84,7 @@ func writeLinesToFile(f *os.File, lines []string) {
 	}
 }
 
-func EnsureExist(path string) {
+func ensureExist(path string) {
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		_, err = os.Create(path)
 		if err != nil {
