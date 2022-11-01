@@ -3,6 +3,7 @@ package todos
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"sort"
 	"time"
 	"zodo/internal/conf"
 	"zodo/internal/cst"
@@ -47,11 +48,42 @@ func walkTree(td *todo, rows *[]table.Row, tab string) {
 		td.getStatus(),
 		td.getDeadLine(),
 	})
-	if td.Children != nil {
-		for childId, _ := range td.Children {
-			child := Data.Map[childId]
-			walkTree(child, rows, tab+"  ")
+	if td.Children == nil || len(td.Children) == 0 {
+		return
+	}
+	childList := make([]*todo, 0)
+	for childId, _ := range td.Children {
+		child := Data.Map[childId]
+		if child == nil {
+			fmt.Println(&errs.NotFoundError{
+				Target:  "child",
+				Message: fmt.Sprintf("parentId: %d, childId: %d", td.Id, childId),
+			})
+		} else {
+			childList = append(childList, Data.Map[childId])
 		}
+	}
+	sort.Slice(childList, func(i, j int) bool {
+		a := childList[i]
+		b := childList[j]
+		if a.Deadline != "" && b.Deadline != "" {
+			ta, err := time.Parse(cst.LayoutYearMonthDay, a.Deadline)
+			if err != nil {
+				panic(err)
+			}
+			tb, err := time.Parse(cst.LayoutYearMonthDay, b.Deadline)
+			if err != nil {
+				panic(err)
+			}
+			return ta.Unix() < tb.Unix()
+		}
+		if a.Deadline == "" && b.Deadline == "" {
+			return a.Id < b.Id
+		}
+		return a.Deadline != ""
+	})
+	for _, child := range childList {
+		walkTree(child, rows, tab+"  ")
 	}
 }
 
@@ -149,7 +181,7 @@ func SetRemark(id int, remark string) {
 	Data.save()
 }
 
-func SetChild(parentId int, childIds []int) error {
+func SetChild(parentId int, childIds []int, append bool) error {
 	parent := Data.Map[parentId]
 	if parent == nil {
 		return &errs.NotFoundError{
@@ -157,17 +189,29 @@ func SetChild(parentId int, childIds []int) error {
 			Message: fmt.Sprintf("parentId: %d", parentId),
 		}
 	}
-	if parent.Children == nil {
+	if parent.Children != nil && !append {
+		for childId, _ := range parent.Children {
+			child := Data.Map[childId]
+			if child == nil {
+				fmt.Println(&errs.NotFoundError{
+					Target:  "child",
+					Message: fmt.Sprintf("childId: %d", childId),
+				})
+			} else {
+				child.ParentId = 0
+			}
+		}
+	}
+	if parent.Children == nil || !append {
 		parent.Children = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
 		child := Data.Map[childId]
 		if child == nil {
-			err := &errs.NotFoundError{
+			fmt.Println(&errs.NotFoundError{
 				Target:  "child",
 				Message: fmt.Sprintf("childId: %d", childId),
-			}
-			fmt.Println(err.Error())
+			})
 			continue
 		}
 

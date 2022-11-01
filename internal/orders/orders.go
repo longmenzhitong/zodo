@@ -24,6 +24,7 @@ const (
 	setDeadline   = "ddl"
 	setRemark     = "rmk"
 	setChild      = "scd"
+	addChild      = "acd"
 	setPending    = "pend"
 	setProcessing = "proc"
 	setDone       = "done"
@@ -31,7 +32,7 @@ const (
 
 var allOrders = []string{
 	exit, list, detail, dailyReport, add, _delete, modify, transfer,
-	setDeadline, setRemark, setChild, setPending, setProcessing, setDone,
+	setDeadline, setRemark, setChild, addChild, setPending, setProcessing, setDone,
 }
 
 func Handle(input string) error {
@@ -71,7 +72,7 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		return todos.SetChild(param.ParentId, []int{id})
+		return todos.SetChild(param.ParentId, []int{id}, true)
 	}
 
 	if order == _delete || param.Delete {
@@ -126,7 +127,21 @@ func Handle(input string) error {
 				Message: fmt.Sprintf("expect: %s [parentId] [childId]", setChild),
 			}
 		}
-		return todos.SetChild(ids[0], ids[1:])
+		return todos.SetChild(ids[0], ids[1:], false)
+	}
+
+	if order == addChild {
+		ids, err := parseIds(val)
+		if err != nil {
+			return err
+		}
+		if len(ids) < 2 {
+			return &errs.InvalidInputError{
+				Input:   input,
+				Message: fmt.Sprintf("expect: %s [parentId] [childId]", addChild),
+			}
+		}
+		return todos.SetChild(ids[0], ids[1:], true)
 	}
 
 	if order == setPending {
