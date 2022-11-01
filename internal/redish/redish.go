@@ -7,12 +7,6 @@ import (
 
 var client *redis.Client
 
-func init() {
-	if conf.IsRedisStorage() {
-		initClient()
-	}
-}
-
 func Client() *redis.Client {
 	if client == nil {
 		initClient()
