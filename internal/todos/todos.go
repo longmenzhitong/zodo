@@ -78,6 +78,9 @@ func walkTree(td *todo, rows *[]table.Row, tab string) {
 			return ta.Unix() < tb.Unix()
 		}
 		if a.Deadline == "" && b.Deadline == "" {
+			if a.Status != b.Status {
+				return a.Status == statusProcessing
+			}
 			return a.Id < b.Id
 		}
 		return a.Deadline != ""
