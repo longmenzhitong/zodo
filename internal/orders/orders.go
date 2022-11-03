@@ -56,24 +56,33 @@ func Handle(input string) error {
 		return todos.DailyReport()
 	}
 
-	if order == add {
-		_, err := todos.Add(val)
+	if order == add || param.ParentId != 0 || param.Deadline != "" {
+		var content string
+		if order == add {
+			content = val
+		} else {
+			content = param.Input
+		}
+		id, err := todos.Add(content)
 		if err != nil {
 			return err
 		}
-		todos.Save()
-		return nil
-	}
 
-	if param.ParentId != 0 {
-		id, err := todos.Add(param.Input)
-		if err != nil {
-			return err
+		if param.ParentId != 0 {
+			err = todos.SetChild(param.ParentId, []int{id}, true)
+			if err != nil {
+				return err
+			}
 		}
-		err = todos.SetChild(param.ParentId, []int{id}, true)
-		if err != nil {
-			return err
+
+		if param.Deadline != "" {
+			ddl, err := validateDeadline(param.Deadline)
+			if err != nil {
+				return err
+			}
+			todos.SetDeadline(id, ddl)
 		}
+
 		todos.Save()
 		return nil
 	}
@@ -123,7 +132,7 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if order == setChild {
+	if order == setChild || order == addChild {
 		ids, err := parseIds(val)
 		if err != nil {
 			return err
@@ -131,29 +140,10 @@ func Handle(input string) error {
 		if len(ids) < 2 {
 			return &errs.InvalidInputError{
 				Input:   input,
-				Message: fmt.Sprintf("expect: %s [parentId] [childId]", setChild),
+				Message: fmt.Sprintf("expect: %s [parentId] [childId]", order),
 			}
 		}
-		err = todos.SetChild(ids[0], ids[1:], false)
-		if err != nil {
-			return err
-		}
-		todos.Save()
-		return nil
-	}
-
-	if order == addChild {
-		ids, err := parseIds(val)
-		if err != nil {
-			return err
-		}
-		if len(ids) < 2 {
-			return &errs.InvalidInputError{
-				Input:   input,
-				Message: fmt.Sprintf("expect: %s [parentId] [childId]", addChild),
-			}
-		}
-		err = todos.SetChild(ids[0], ids[1:], true)
+		err = todos.SetChild(ids[0], ids[1:], order == addChild)
 		if err != nil {
 			return err
 		}
@@ -259,23 +249,30 @@ func parseIdAndStr(val string) (id int, str string, err error) {
 	return
 }
 
-func parseDeadline(val string) (id int, deadline string, err error) {
-	id, deadline, err = parseIdAndStr(val)
+func parseDeadline(val string) (id int, ddl string, err error) {
+	id, ddl, err = parseIdAndStr(val)
 	if err != nil {
 		return
 	}
 
-	_, err = time.Parse(cst.LayoutYearMonthDay, deadline)
+	ddl, err = validateDeadline(ddl)
+	return
+}
+
+func validateDeadline(ddl string) (string, error) {
+	_, err := time.Parse(cst.LayoutYearMonthDay, ddl)
 	if err == nil {
-		return
+		return ddl, nil
 	}
 
-	t, err := time.Parse(cst.LayoutMonthDay, deadline)
+	t, err := time.Parse(cst.LayoutMonthDay, ddl)
 	if err == nil {
 		d := time.Date(time.Now().Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
-		deadline = d.Format(cst.LayoutYearMonthDay)
-		return
+		return d.Format(cst.LayoutYearMonthDay), nil
 	}
 
-	return
+	return "", &errs.InvalidInputError{
+		Input:   "deadline",
+		Message: ddl,
+	}
 }
