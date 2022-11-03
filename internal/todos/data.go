@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/go-redis/redis"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"zodo/internal/errs"
 	"zodo/internal/files"
 	"zodo/internal/ids"
+	"zodo/internal/param"
 	"zodo/internal/redish"
 	"zodo/internal/times"
 )
@@ -27,6 +29,7 @@ type todo struct {
 	CreateTime string
 	ParentId   int
 	Children   map[int]bool
+	Level      int
 }
 
 func (t *todo) getStatus() string {
@@ -103,12 +106,12 @@ func (t *todo) hasChildren() bool {
 	return t.Children != nil && len(t.Children) > 0
 }
 
-type data struct {
+type _data struct {
 	List []*todo
 	Map  map[int]*todo
 }
 
-func (d *data) load() {
+func (d *_data) load() {
 	d.List = make([]*todo, 0)
 	d.Map = make(map[int]*todo, 0)
 	for _, line := range d.readLines(conf.Data.Storage.Type) {
@@ -122,7 +125,7 @@ func (d *data) load() {
 	}
 }
 
-func (d *data) readLines(storageType string) []string {
+func (d *_data) readLines(storageType string) []string {
 	if conf.IsFileStorage(storageType) {
 		return files.ReadLinesFromPath(path)
 	}
@@ -148,7 +151,7 @@ func (d *data) readLines(storageType string) []string {
 	})
 }
 
-func (d *data) save() {
+func (d *_data) save() {
 	lines := make([]string, 0)
 	for _, td := range d.List {
 		js, err := json.Marshal(td)
@@ -160,7 +163,7 @@ func (d *data) save() {
 	d.writeLines(lines, conf.Data.Storage.Type)
 }
 
-func (d *data) writeLines(lines []string, storageType string) {
+func (d *_data) writeLines(lines []string, storageType string) {
 	if conf.IsFileStorage(storageType) {
 		files.RewriteLinesToPath(path, lines)
 		return
@@ -184,7 +187,7 @@ func (d *data) writeLines(lines []string, storageType string) {
 	})
 }
 
-func (d *data) Transfer() {
+func (d *_data) transfer() {
 	if conf.IsFileStorage() {
 		lines := d.readLines(conf.StorageTypeRedis)
 		d.writeLines(lines, conf.StorageTypeFile)
@@ -207,12 +210,90 @@ func (d *data) Transfer() {
 	})
 }
 
-func (d *data) add(td todo) {
+func (d *_data) list(keyword string) []todo {
+	tds := make([]todo, 0)
+	for _, td := range d.List {
+		if td.ParentId == 0 && strings.Contains(strings.ToLower(td.Content), strings.ToLower(keyword)) {
+			walk(td, &tds, 0)
+		}
+	}
+	return tds
+}
+
+func walk(td *todo, tds *[]todo, level int) {
+	if td == nil {
+		return
+	}
+	if !param.All && td.Status == statusDone {
+		return
+	}
+
+	td.Level = level
+	*tds = append(*tds, *td)
+
+	if td.Children == nil || len(td.Children) == 0 {
+		return
+	}
+
+	childList := make([]*todo, 0)
+	for childId, _ := range td.Children {
+		child := data.Map[childId]
+		if child == nil {
+			fmt.Println(&errs.NotFoundError{
+				Target:  "child",
+				Message: fmt.Sprintf("parentId: %d, childId: %d", td.Id, childId),
+			})
+		} else {
+			childList = append(childList, child)
+		}
+	}
+	childList = _sort(childList)
+
+	for _, child := range childList {
+		walk(child, tds, level+1)
+	}
+}
+
+func _sort(tds []*todo) []*todo {
+	sort.Slice(tds, func(i, j int) bool {
+		a := tds[i]
+		b := tds[j]
+		if a.Deadline != "" && b.Deadline != "" {
+			ta, err := time.Parse(cst.LayoutYearMonthDay, a.Deadline)
+			if err != nil {
+				panic(err)
+			}
+			tb, err := time.Parse(cst.LayoutYearMonthDay, b.Deadline)
+			if err != nil {
+				panic(err)
+			}
+			return ta.Unix() < tb.Unix()
+		}
+		if a.Deadline == "" && b.Deadline == "" {
+			if a.Status != b.Status {
+				return a.Status == statusProcessing
+			}
+			return a.Id < b.Id
+		}
+		return a.Deadline != ""
+	})
+	return tds
+}
+
+func padding(level int) string {
+	var res string
+	for i := 0; i < level; i++ {
+		res += "  "
+	}
+	return res
+}
+
+func (d *_data) add(td todo) {
 	d.List = append(d.List, &td)
 	d.Map[td.Id] = &td
 }
 
-func (d *data) delete(id int) {
+func (d *_data) delete(id int) {
 	toDelete := d.Map[id]
 	if toDelete == nil {
 		return
@@ -246,11 +327,11 @@ const key = "zd:todo"
 
 var path string
 
-var Data *data
+var data *_data
 
 func init() {
 	path = files.GetPath(fileName)
 
-	Data = &data{}
-	Data.load()
+	data = &_data{}
+	data.load()
 }

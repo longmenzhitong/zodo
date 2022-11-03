@@ -3,15 +3,12 @@ package todos
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"sort"
-	"strings"
 	"time"
 	"zodo/internal/conf"
 	"zodo/internal/cst"
 	"zodo/internal/emails"
 	"zodo/internal/errs"
 	"zodo/internal/ids"
-	"zodo/internal/param"
 	"zodo/internal/stdout"
 	"zodo/internal/times"
 )
@@ -22,79 +19,27 @@ const (
 	statusDone       = "Done"
 )
 
-func List(input string) {
+func List(keyword string) {
 	rows := make([]table.Row, 0)
-	for _, td := range Data.List {
-		if td.ParentId == 0 && strings.Contains(strings.ToLower(td.Content), strings.ToLower(input)) {
-			walkTree(td, &rows, "")
+	for _, td := range data.list(keyword) {
+		content := td.Content
+		if td.Level > 0 {
+			content = fmt.Sprintf("%s|-%s", padding(td.Level), content)
 		}
+		ddl, remain := td.getDeadLineAndRemain()
+		rows = append(rows, table.Row{
+			td.Id,
+			content,
+			td.getStatus(),
+			ddl,
+			remain,
+		})
 	}
 	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
 }
 
-func walkTree(td *todo, rows *[]table.Row, tab string) {
-	if td == nil {
-		return
-	}
-	if !param.All && td.Status == statusDone {
-		return
-	}
-	content := td.Content
-	if td.ParentId != 0 {
-		content = fmt.Sprintf("%s|-%s", tab, content)
-	}
-	ddl, remain := td.getDeadLineAndRemain()
-	*rows = append(*rows, table.Row{
-		td.Id,
-		content,
-		td.getStatus(),
-		ddl,
-		remain,
-	})
-	if td.Children == nil || len(td.Children) == 0 {
-		return
-	}
-	childList := make([]*todo, 0)
-	for childId, _ := range td.Children {
-		child := Data.Map[childId]
-		if child == nil {
-			fmt.Println(&errs.NotFoundError{
-				Target:  "child",
-				Message: fmt.Sprintf("parentId: %d, childId: %d", td.Id, childId),
-			})
-		} else {
-			childList = append(childList, Data.Map[childId])
-		}
-	}
-	sort.Slice(childList, func(i, j int) bool {
-		a := childList[i]
-		b := childList[j]
-		if a.Deadline != "" && b.Deadline != "" {
-			ta, err := time.Parse(cst.LayoutYearMonthDay, a.Deadline)
-			if err != nil {
-				panic(err)
-			}
-			tb, err := time.Parse(cst.LayoutYearMonthDay, b.Deadline)
-			if err != nil {
-				panic(err)
-			}
-			return ta.Unix() < tb.Unix()
-		}
-		if a.Deadline == "" && b.Deadline == "" {
-			if a.Status != b.Status {
-				return a.Status == statusProcessing
-			}
-			return a.Id < b.Id
-		}
-		return a.Deadline != ""
-	})
-	for _, child := range childList {
-		walkTree(child, rows, tab+"  ")
-	}
-}
-
 func Detail(id int) {
-	td := Data.Map[id]
+	td := data.Map[id]
 	if td == nil {
 		return
 	}
@@ -114,9 +59,9 @@ func Detail(id int) {
 }
 
 func DailyReport() error {
-	Data.load()
+	data.load()
 	var text string
-	for _, td := range Data.List {
+	for _, td := range data.List {
 		if td.Status == statusDone {
 			continue
 		}
@@ -136,7 +81,7 @@ func DailyReport() error {
 }
 
 func Save() {
-	Data.save()
+	data.save()
 }
 
 func Add(content string) (int, error) {
@@ -147,7 +92,7 @@ func Add(content string) (int, error) {
 		}
 	}
 	id := ids.GetAndSet(conf.Data.Storage.Type)
-	Data.add(todo{
+	data.add(todo{
 		Id:         id,
 		Content:    content,
 		Status:     statusPending,
@@ -158,7 +103,7 @@ func Add(content string) (int, error) {
 
 func Delete(ids []int) {
 	for _, id := range ids {
-		Data.delete(id)
+		data.delete(id)
 	}
 }
 
@@ -166,32 +111,32 @@ func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
-	td := Data.Map[id]
+	td := data.Map[id]
 	if td != nil {
 		td.Content = content
 	}
 }
 
 func Transfer() {
-	Data.Transfer()
+	data.transfer()
 }
 
 func SetDeadline(id int, deadline string) {
-	td := Data.Map[id]
+	td := data.Map[id]
 	if td != nil {
 		td.Deadline = deadline
 	}
 }
 
 func SetRemark(id int, remark string) {
-	td := Data.Map[id]
+	td := data.Map[id]
 	if td != nil {
 		td.Remark = remark
 	}
 }
 
 func SetChild(parentId int, childIds []int, append bool) error {
-	parent := Data.Map[parentId]
+	parent := data.Map[parentId]
 	if parent == nil {
 		return &errs.NotFoundError{
 			Target:  "parent",
@@ -200,7 +145,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 	}
 	if parent.Children != nil && !append {
 		for childId, _ := range parent.Children {
-			child := Data.Map[childId]
+			child := data.Map[childId]
 			if child == nil {
 				fmt.Println(&errs.NotFoundError{
 					Target:  "child",
@@ -215,7 +160,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 		parent.Children = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
-		child := Data.Map[childId]
+		child := data.Map[childId]
 		if child == nil {
 			fmt.Println(&errs.NotFoundError{
 				Target:  "child",
@@ -224,7 +169,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 			continue
 		}
 
-		oldParent := Data.Map[child.ParentId]
+		oldParent := data.Map[child.ParentId]
 		if oldParent != nil {
 			delete(oldParent.Children, childId)
 		}
@@ -248,7 +193,7 @@ func SetDone(id int) {
 }
 
 func modifyStatus(id int, status string) {
-	td := Data.Map[id]
+	td := data.Map[id]
 	if td != nil {
 		td.Status = status
 	}
