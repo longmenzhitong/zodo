@@ -5,7 +5,6 @@ import (
 	"zodo/internal/conf"
 	"zodo/internal/orders"
 	"zodo/internal/param"
-	"zodo/internal/stdin"
 	"zodo/internal/task"
 )
 
@@ -19,19 +18,6 @@ func main() {
 			task.StartDailyReport()
 		}
 		select {}
-	}
-
-	if param.Interactive {
-		fmt.Println("================")
-		fmt.Println("Welcome to ZODO!")
-		fmt.Println("================")
-		for true {
-			fmt.Print("$ ")
-			err := orders.Handle(stdin.ReadString())
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-		}
 	}
 
 	err := orders.Handle(param.Input)

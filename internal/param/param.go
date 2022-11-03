@@ -6,17 +6,15 @@ import (
 )
 
 var (
-	Interactive bool
-	Server      bool
-	All         bool
-	Delete      bool
-	ParentId    int
+	Server   bool
+	All      bool
+	Delete   bool
+	ParentId int
 )
 
 var Input string
 
 func init() {
-	flag.BoolVar(&Interactive, "i", false, "enter interactive mode")
 	flag.BoolVar(&Server, "s", false, "enter server mode")
 	flag.BoolVar(&All, "a", false, "all")
 	flag.BoolVar(&Delete, "d", false, "delete: -d [id1] [id2] [...]")

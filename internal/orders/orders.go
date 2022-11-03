@@ -14,7 +14,6 @@ import (
 
 const (
 	exit          = "exit"
-	list          = "ll"
 	detail        = "cat"
 	dailyReport   = "dr"
 	add           = "add"
@@ -31,7 +30,7 @@ const (
 )
 
 var allOrders = []string{
-	exit, list, detail, dailyReport, add, _delete, modify, transfer,
+	exit, detail, dailyReport, add, _delete, modify, transfer,
 	setDeadline, setRemark, setChild, addChild, setPending, setProcessing, setDone,
 }
 
@@ -42,11 +41,6 @@ func Handle(input string) error {
 	if order == exit {
 		fmt.Println("Bye.")
 		os.Exit(0)
-	}
-
-	if order == list {
-		todos.List(input)
-		return nil
 	}
 
 	if order == detail {
