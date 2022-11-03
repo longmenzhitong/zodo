@@ -45,7 +45,7 @@ func Handle(input string) error {
 	}
 
 	if order == list {
-		todos.List()
+		todos.List(input)
 		return nil
 	}
 
@@ -183,7 +183,7 @@ func Handle(input string) error {
 		return nil
 	}
 
-	todos.List()
+	todos.List(input)
 	return nil
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"sort"
+	"strings"
 	"time"
 	"zodo/internal/conf"
 	"zodo/internal/cst"
@@ -21,10 +22,10 @@ const (
 	statusDone       = "Done"
 )
 
-func List() {
+func List(input string) {
 	rows := make([]table.Row, 0)
 	for _, td := range Data.List {
-		if td.ParentId == 0 {
+		if td.ParentId == 0 && strings.Contains(strings.ToLower(td.Content), strings.ToLower(input)) {
 			walkTree(td, &rows, "")
 		}
 	}
