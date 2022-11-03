@@ -8,7 +8,9 @@ import (
 	"github.com/go-redis/redis"
 	"strconv"
 	"strings"
+	"time"
 	"zodo/internal/conf"
+	"zodo/internal/cst"
 	"zodo/internal/errs"
 	"zodo/internal/files"
 	"zodo/internal/ids"
@@ -43,29 +45,39 @@ func (t *todo) getStatus() string {
 	}
 }
 
-func (t *todo) getDeadLine() string {
+func (t *todo) getDeadLineAndRemain() (ddl string, remain string) {
 	if t.Deadline == "" || t.hasChildren() {
-		return ""
+		return "", ""
 	}
 
 	if t.Status == statusDone {
-		return times.Simplify(t.Deadline)
+		return times.Simplify(t.Deadline), ""
 	}
 
-	nd, wd := calcRemainDays(t.Deadline)
-	ddl := fmt.Sprintf("%s (%dnd/%dwd)", t.Deadline, nd, wd)
+	ddlTime, err := time.Parse(cst.LayoutYearMonthDay, t.Deadline)
+	if err != nil {
+		panic(err)
+	}
+
+	ddl = fmt.Sprintf("%s(%s)", t.Deadline, ddlTime.Weekday().String())
 	ddl = times.Simplify(ddl)
+
+	nd, wd := calcRemainDays(t.Deadline)
+	remain = fmt.Sprintf("%dnd/%dwd", nd, wd)
 
 	if t.Status == statusPending || t.Status == statusProcessing {
 		if wd == 0 && nd == 0 {
 			ddl = color.RedString(ddl)
+			remain = color.RedString(remain)
 		} else if wd == 1 || nd == 1 {
 			ddl = color.HiYellowString(ddl)
+			remain = color.HiYellowString(remain)
 		} else {
 			ddl = color.GreenString(ddl)
+			remain = color.GreenString(remain)
 		}
 	}
-	return ddl
+	return
 }
 
 func (t *todo) getCreateTime() string {

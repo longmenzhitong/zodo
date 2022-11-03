@@ -28,7 +28,7 @@ func List() {
 			walkTree(td, &rows, "")
 		}
 	}
-	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline"}, rows)
+	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
 }
 
 func walkTree(td *todo, rows *[]table.Row, tab string) {
@@ -42,11 +42,13 @@ func walkTree(td *todo, rows *[]table.Row, tab string) {
 	if td.ParentId != 0 {
 		content = fmt.Sprintf("%s|-%s", tab, content)
 	}
+	ddl, remain := td.getDeadLineAndRemain()
 	*rows = append(*rows, table.Row{
 		td.Id,
 		content,
 		td.getStatus(),
-		td.getDeadLine(),
+		ddl,
+		remain,
 	})
 	if td.Children == nil || len(td.Children) == 0 {
 		return
@@ -100,7 +102,9 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Id", td.Id})
 	rows = append(rows, table.Row{"Content", td.Content})
 	rows = append(rows, table.Row{"Status", td.getStatus()})
-	rows = append(rows, table.Row{"Deadline", td.getDeadLine()})
+	ddl, remain := td.getDeadLineAndRemain()
+	rows = append(rows, table.Row{"Deadline", ddl})
+	rows = append(rows, table.Row{"Remain", remain})
 	rows = append(rows, table.Row{"Remark", td.Remark})
 	rows = append(rows, table.Row{"Create", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
