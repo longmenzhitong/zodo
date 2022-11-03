@@ -32,23 +32,24 @@ type todo struct {
 	Level      int
 }
 
-func (t *todo) getStatus() string {
+func (t *todo) getStatus(colorful bool) string {
 	if t.hasChildren() {
 		return ""
 	}
-	switch t.Status {
-	case statusPending:
-		return color.HiMagentaString(t.Status)
-	case statusProcessing:
-		return color.HiCyanString(t.Status)
-	case statusDone:
-		return color.HiBlueString(t.Status)
-	default:
-		return t.Status
+	if colorful {
+		switch t.Status {
+		case statusPending:
+			return color.HiMagentaString(t.Status)
+		case statusProcessing:
+			return color.HiCyanString(t.Status)
+		case statusDone:
+			return color.HiBlueString(t.Status)
+		}
 	}
+	return t.Status
 }
 
-func (t *todo) getDeadLineAndRemain() (ddl string, remain string) {
+func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 	if t.Deadline == "" || t.hasChildren() {
 		return "", ""
 	}
@@ -68,7 +69,7 @@ func (t *todo) getDeadLineAndRemain() (ddl string, remain string) {
 	nd, wd := calcRemainDays(t.Deadline)
 	remain = fmt.Sprintf("%dnd/%dwd", nd, wd)
 
-	if t.Status == statusPending || t.Status == statusProcessing {
+	if colorful && (t.Status == statusPending || t.Status == statusProcessing) {
 		if wd == 0 && nd == 0 {
 			ddl = color.RedString(ddl)
 			remain = color.RedString(remain)
@@ -280,10 +281,10 @@ func _sort(tds []*todo) []*todo {
 	return tds
 }
 
-func padding(level int) string {
+func padding(level int, unit string) string {
 	var res string
 	for i := 0; i < level; i++ {
-		res += "  "
+		res += unit
 	}
 	return res
 }

@@ -24,13 +24,13 @@ func List(keyword string) {
 	for _, td := range data.list(keyword) {
 		content := td.Content
 		if td.Level > 0 {
-			content = fmt.Sprintf("%s|-%s", padding(td.Level), content)
+			content = fmt.Sprintf("%s|-%s", padding(td.Level, "  "), content)
 		}
-		ddl, remain := td.getDeadLineAndRemain()
+		ddl, remain := td.getDeadLineAndRemain(true)
 		rows = append(rows, table.Row{
 			td.Id,
 			content,
-			td.getStatus(),
+			td.getStatus(true),
 			ddl,
 			remain,
 		})
@@ -47,8 +47,8 @@ func Detail(id int) {
 	rows := make([]table.Row, 0)
 	rows = append(rows, table.Row{"Id", td.Id})
 	rows = append(rows, table.Row{"Content", td.Content})
-	rows = append(rows, table.Row{"Status", td.getStatus()})
-	ddl, remain := td.getDeadLineAndRemain()
+	rows = append(rows, table.Row{"Status", td.getStatus(true)})
+	ddl, remain := td.getDeadLineAndRemain(true)
 	rows = append(rows, table.Row{"Deadline", ddl})
 	rows = append(rows, table.Row{"Remain", remain})
 	rows = append(rows, table.Row{"Remark", td.Remark})
@@ -61,21 +61,24 @@ func Detail(id int) {
 func DailyReport() error {
 	data.load()
 	var text string
-	for _, td := range data.List {
-		if td.Status == statusDone {
-			continue
+	for _, td := range data.list("") {
+		ddl, remain := td.getDeadLineAndRemain(false)
+		if td.Level == 0 {
+			text += "\n"
+			if ddl != "" {
+				text += fmt.Sprintf("* %s  %s, deadline %s, remain %s\n", td.Content, td.getStatus(false), ddl, remain)
+			} else {
+				text += fmt.Sprintf("* %s  %s\n", td.Content, td.getStatus(false))
+			}
+		} else {
+			if ddl != "" {
+				text += fmt.Sprintf("%s  |- %s  %s, deadline %s, remain %s\n",
+					padding(td.Level, "    "), td.Content, td.getStatus(false), ddl, remain)
+			} else {
+				text += fmt.Sprintf("%s  |- %s  %s\n",
+					padding(td.Level, "    "), td.Content, td.getStatus(false))
+			}
 		}
-
-		// TODO 内容格式优化
-		text += fmt.Sprintf("%s [%s]\n", td.Content, td.Status)
-		if td.Deadline != "" {
-			text += fmt.Sprintf("%s is the deadline.\n", times.Simplify(td.Deadline))
-		}
-		if td.Remark != "" {
-			text += fmt.Sprintf("%s\n", td.Remark)
-		}
-		text += fmt.Sprintf("Created on %s.\n", times.Simplify(td.CreateTime))
-		text += fmt.Sprintf("====================\n")
 	}
 	return emails.Send("Daily Report", text)
 }
