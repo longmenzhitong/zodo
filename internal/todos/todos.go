@@ -135,6 +135,10 @@ func DailyReport() error {
 	return emails.Send("Daily Report", text)
 }
 
+func Save() {
+	Data.save()
+}
+
 func Add(content string) (int, error) {
 	if content == "" {
 		return -1, &errs.InvalidInputError{
@@ -166,7 +170,6 @@ func Modify(id int, content string) {
 	if td != nil {
 		td.Content = content
 	}
-	Data.save()
 }
 
 func Transfer() {
@@ -178,7 +181,6 @@ func SetDeadline(id int, deadline string) {
 	if td != nil {
 		td.Deadline = deadline
 	}
-	Data.save()
 }
 
 func SetRemark(id int, remark string) {
@@ -186,7 +188,6 @@ func SetRemark(id int, remark string) {
 	if td != nil {
 		td.Remark = remark
 	}
-	Data.save()
 }
 
 func SetChild(parentId int, childIds []int, append bool) error {
@@ -231,7 +232,6 @@ func SetChild(parentId int, childIds []int, append bool) error {
 		child.ParentId = parentId
 		parent.Children[childId] = true
 	}
-	Data.save()
 	return nil
 }
 
@@ -252,7 +252,6 @@ func modifyStatus(id int, status string) {
 	if td != nil {
 		td.Status = status
 	}
-	Data.save()
 }
 
 func calcRemainDays(deadline string) (natureDays int, workDays int) {

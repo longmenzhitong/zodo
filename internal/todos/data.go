@@ -210,7 +210,6 @@ func (d *data) Transfer() {
 func (d *data) add(td todo) {
 	d.List = append(d.List, &td)
 	d.Map[td.Id] = &td
-	d.save()
 }
 
 func (d *data) delete(id int) {
@@ -239,8 +238,6 @@ func (d *data) delete(id int) {
 	}
 
 	delete(d.Map, id)
-
-	d.save()
 }
 
 const fileName = "todo"

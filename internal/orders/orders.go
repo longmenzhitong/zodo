@@ -58,7 +58,11 @@ func Handle(input string) error {
 
 	if order == add {
 		_, err := todos.Add(val)
-		return err
+		if err != nil {
+			return err
+		}
+		todos.Save()
+		return nil
 	}
 
 	if param.ParentId != 0 {
@@ -66,7 +70,12 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		return todos.SetChild(param.ParentId, []int{id}, true)
+		err = todos.SetChild(param.ParentId, []int{id}, true)
+		if err != nil {
+			return err
+		}
+		todos.Save()
+		return nil
 	}
 
 	if order == _delete || param.Delete {
@@ -75,6 +84,7 @@ func Handle(input string) error {
 			return err
 		}
 		todos.Delete(ids)
+		todos.Save()
 		return nil
 	}
 
@@ -84,6 +94,7 @@ func Handle(input string) error {
 			return err
 		}
 		todos.Modify(id, content)
+		todos.Save()
 		return nil
 	}
 
@@ -98,6 +109,7 @@ func Handle(input string) error {
 			return err
 		}
 		todos.SetDeadline(id, deadline)
+		todos.Save()
 		return nil
 	}
 
@@ -107,6 +119,7 @@ func Handle(input string) error {
 			return err
 		}
 		todos.SetRemark(id, remark)
+		todos.Save()
 		return nil
 	}
 
@@ -121,7 +134,12 @@ func Handle(input string) error {
 				Message: fmt.Sprintf("expect: %s [parentId] [childId]", setChild),
 			}
 		}
-		return todos.SetChild(ids[0], ids[1:], false)
+		err = todos.SetChild(ids[0], ids[1:], false)
+		if err != nil {
+			return err
+		}
+		todos.Save()
+		return nil
 	}
 
 	if order == addChild {
@@ -135,7 +153,12 @@ func Handle(input string) error {
 				Message: fmt.Sprintf("expect: %s [parentId] [childId]", addChild),
 			}
 		}
-		return todos.SetChild(ids[0], ids[1:], true)
+		err = todos.SetChild(ids[0], ids[1:], true)
+		if err != nil {
+			return err
+		}
+		todos.Save()
+		return nil
 	}
 
 	if order == setPending {
@@ -146,6 +169,7 @@ func Handle(input string) error {
 		for _, id := range ids {
 			todos.SetPending(id)
 		}
+		todos.Save()
 		return nil
 	}
 
@@ -157,6 +181,7 @@ func Handle(input string) error {
 		for _, id := range ids {
 			todos.SetProcessing(id)
 		}
+		todos.Save()
 		return nil
 	}
 
@@ -168,6 +193,7 @@ func Handle(input string) error {
 		for _, id := range ids {
 			todos.SetDone(id)
 		}
+		todos.Save()
 		return nil
 	}
 
