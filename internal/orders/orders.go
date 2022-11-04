@@ -177,14 +177,23 @@ func Handle(input string) error {
 
 	if order == setDone {
 		ids, err := parseIds(val)
-		if err != nil {
-			return err
+		if err == nil {
+			for _, id := range ids {
+				todos.SetDone(id)
+			}
+			todos.Save()
+			return nil
 		}
-		for _, id := range ids {
+
+		id, remark, err := parseIdAndStr(val)
+		if err == nil {
 			todos.SetDone(id)
+			todos.SetRemark(id, remark)
+			todos.Save()
+			return nil
 		}
-		todos.Save()
-		return nil
+
+		return err
 	}
 
 	id, err := strconv.Atoi(input)
