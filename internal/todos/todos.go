@@ -120,6 +120,10 @@ func Modify(id int, content string) {
 	}
 }
 
+func Rollback() {
+	rollback()
+}
+
 func Transfer() {
 	transfer()
 }

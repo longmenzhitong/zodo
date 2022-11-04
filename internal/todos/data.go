@@ -111,10 +111,12 @@ const fileName = "todo"
 const key = "zd:todo"
 
 var path string
+var backupPath string
 var _list []*todo
 
 func init() {
 	path = files.GetPath(fileName)
+	backupPath = path + ".backup"
 	load()
 }
 
@@ -157,6 +159,7 @@ func readLines(storageType string) []string {
 }
 
 func save() {
+	backup()
 	lines := make([]string, 0)
 	for _, td := range _list {
 		js, err := json.Marshal(td)
@@ -190,6 +193,16 @@ func writeLines(lines []string, storageType string) {
 		Config:  "storage.type",
 		Message: storageType,
 	})
+}
+
+func backup() {
+	lines := readLines(conf.Data.Storage.Type)
+	files.RewriteLinesToPath(backupPath, lines)
+}
+
+func rollback() {
+	lines := files.ReadLinesFromPath(backupPath)
+	writeLines(lines, conf.Data.Storage.Type)
 }
 
 func transfer() {

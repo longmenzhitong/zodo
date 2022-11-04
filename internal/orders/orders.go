@@ -19,6 +19,7 @@ const (
 	add           = "add"
 	_delete       = "del"
 	modify        = "mod"
+	rollback      = "rbk"
 	transfer      = "trans"
 	setDeadline   = "ddl"
 	setRemark     = "rmk"
@@ -30,7 +31,7 @@ const (
 )
 
 var allOrders = []string{
-	exit, detail, dailyReport, add, _delete, modify, transfer,
+	exit, detail, dailyReport, add, _delete, modify, rollback, transfer,
 	setDeadline, setRemark, setChild, addChild, setPending, setProcessing, setDone,
 }
 
@@ -104,6 +105,11 @@ func Handle(input string) error {
 		}
 		todos.Modify(id, content)
 		todos.Save()
+		return nil
+	}
+
+	if order == rollback {
+		todos.Rollback()
 		return nil
 	}
 
