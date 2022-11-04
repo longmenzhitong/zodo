@@ -107,26 +107,30 @@ func (t *todo) hasChildren() bool {
 	return t.Children != nil && len(t.Children) > 0
 }
 
-type _data struct {
-	List []*todo
-	Map  map[int]*todo
+const fileName = "todo"
+const key = "zd:todo"
+
+var path string
+var _list []*todo
+
+func init() {
+	path = files.GetPath(fileName)
+	load()
 }
 
-func (d *_data) load() {
-	d.List = make([]*todo, 0)
-	d.Map = make(map[int]*todo, 0)
-	for _, line := range d.readLines(conf.Data.Storage.Type) {
+func load() {
+	_list = make([]*todo, 0)
+	for _, line := range readLines(conf.Data.Storage.Type) {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
 			panic(err)
 		}
-		d.List = append(d.List, &td)
-		d.Map[td.Id] = &td
+		_list = append(_list, &td)
 	}
 }
 
-func (d *_data) readLines(storageType string) []string {
+func readLines(storageType string) []string {
 	if conf.IsFileStorage(storageType) {
 		return files.ReadLinesFromPath(path)
 	}
@@ -152,19 +156,19 @@ func (d *_data) readLines(storageType string) []string {
 	})
 }
 
-func (d *_data) save() {
+func save() {
 	lines := make([]string, 0)
-	for _, td := range d.List {
+	for _, td := range _list {
 		js, err := json.Marshal(td)
 		if err != nil {
 			panic(err)
 		}
 		lines = append(lines, string(js))
 	}
-	d.writeLines(lines, conf.Data.Storage.Type)
+	writeLines(lines, conf.Data.Storage.Type)
 }
 
-func (d *_data) writeLines(lines []string, storageType string) {
+func writeLines(lines []string, storageType string) {
 	if conf.IsFileStorage(storageType) {
 		files.RewriteLinesToPath(path, lines)
 		return
@@ -177,7 +181,7 @@ func (d *_data) writeLines(lines []string, storageType string) {
 		redish.Client().Set(key, linesJson, 0)
 
 		if conf.Data.Storage.Redis.Localize {
-			d.writeLines(lines, conf.StorageTypeFile)
+			writeLines(lines, conf.StorageTypeFile)
 		}
 
 		return
@@ -188,18 +192,18 @@ func (d *_data) writeLines(lines []string, storageType string) {
 	})
 }
 
-func (d *_data) transfer() {
+func transfer() {
 	if conf.IsFileStorage() {
-		lines := d.readLines(conf.StorageTypeRedis)
-		d.writeLines(lines, conf.StorageTypeFile)
+		lines := readLines(conf.StorageTypeRedis)
+		writeLines(lines, conf.StorageTypeFile)
 
 		id := ids.Get(conf.StorageTypeRedis)
 		ids.Set(id+1, conf.StorageTypeFile)
 		return
 	}
 	if conf.IsRedisStorage() {
-		lines := d.readLines(conf.StorageTypeFile)
-		d.writeLines(lines, conf.StorageTypeRedis)
+		lines := readLines(conf.StorageTypeFile)
+		writeLines(lines, conf.StorageTypeRedis)
 
 		id := ids.Get(conf.StorageTypeFile)
 		ids.Set(id+1, conf.StorageTypeRedis)
@@ -211,9 +215,9 @@ func (d *_data) transfer() {
 	})
 }
 
-func (d *_data) list(keyword string) []todo {
+func list(keyword string) []todo {
 	tds := make([]todo, 0)
-	for _, td := range d.List {
+	for _, td := range _list {
 		if td.ParentId == 0 && strings.Contains(strings.ToLower(td.Content), strings.ToLower(keyword)) {
 			walk(td, &tds, 0)
 		}
@@ -237,8 +241,8 @@ func walk(td *todo, tds *[]todo, level int) {
 	}
 
 	childList := make([]*todo, 0)
-	for childId, _ := range td.Children {
-		child := data.Map[childId]
+	for childId := range td.Children {
+		child := _map()[childId]
 		if child == nil {
 			fmt.Println(&errs.NotFoundError{
 				Target:  "child",
@@ -289,50 +293,41 @@ func padding(level int, unit string) string {
 	return res
 }
 
-func (d *_data) add(td todo) {
-	d.List = append(d.List, &td)
-	d.Map[td.Id] = &td
+func _map() map[int]*todo {
+	res := make(map[int]*todo, 0)
+	for _, td := range _list {
+		res[td.Id] = td
+	}
+	return res
 }
 
-func (d *_data) delete(id int) {
-	toDelete := d.Map[id]
+func add(td todo) {
+	_list = append(_list, &td)
+}
+
+func _delete(id int) {
+	m := _map()
+	toDelete := m[id]
 	if toDelete == nil {
 		return
 	}
 
 	newList := make([]*todo, 0)
-	for _, td := range d.List {
+	for _, td := range _list {
 		if td.Id != id {
 			newList = append(newList, td)
 		}
 	}
-	d.List = newList
+	_list = newList
 
-	parent := d.Map[toDelete.ParentId]
+	parent := m[toDelete.ParentId]
 	if parent != nil {
 		delete(parent.Children, id)
 	}
 
 	if toDelete.hasChildren() {
 		for childId := range toDelete.Children {
-			d.delete(childId)
+			_delete(childId)
 		}
 	}
-
-	delete(d.Map, id)
-}
-
-const fileName = "todo"
-
-const key = "zd:todo"
-
-var path string
-
-var data *_data
-
-func init() {
-	path = files.GetPath(fileName)
-
-	data = &_data{}
-	data.load()
 }

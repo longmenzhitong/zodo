@@ -21,7 +21,7 @@ const (
 
 func List(keyword string) {
 	rows := make([]table.Row, 0)
-	for _, td := range data.list(keyword) {
+	for _, td := range list(keyword) {
 		content := td.Content
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|-%s", padding(td.Level, "  "), content)
@@ -39,7 +39,7 @@ func List(keyword string) {
 }
 
 func Detail(id int) {
-	td := data.Map[id]
+	td := _map()[id]
 	if td == nil {
 		return
 	}
@@ -59,9 +59,9 @@ func Detail(id int) {
 }
 
 func DailyReport() error {
-	data.load()
+	load()
 	var text string
-	for _, td := range data.list("") {
+	for _, td := range list("") {
 		ddl, remain := td.getDeadLineAndRemain(false)
 		if td.Level == 0 {
 			text += "\n"
@@ -84,7 +84,7 @@ func DailyReport() error {
 }
 
 func Save() {
-	data.save()
+	save()
 }
 
 func Add(content string) (int, error) {
@@ -95,7 +95,7 @@ func Add(content string) (int, error) {
 		}
 	}
 	id := ids.GetAndSet(conf.Data.Storage.Type)
-	data.add(todo{
+	add(todo{
 		Id:         id,
 		Content:    content,
 		Status:     statusPending,
@@ -106,7 +106,7 @@ func Add(content string) (int, error) {
 
 func Delete(ids []int) {
 	for _, id := range ids {
-		data.delete(id)
+		_delete(id)
 	}
 }
 
@@ -114,32 +114,33 @@ func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
-	td := data.Map[id]
+	td := _map()[id]
 	if td != nil {
 		td.Content = content
 	}
 }
 
 func Transfer() {
-	data.transfer()
+	transfer()
 }
 
 func SetDeadline(id int, deadline string) {
-	td := data.Map[id]
+	td := _map()[id]
 	if td != nil {
 		td.Deadline = deadline
 	}
 }
 
 func SetRemark(id int, remark string) {
-	td := data.Map[id]
+	td := _map()[id]
 	if td != nil {
 		td.Remark = remark
 	}
 }
 
 func SetChild(parentId int, childIds []int, append bool) error {
-	parent := data.Map[parentId]
+	m := _map()
+	parent := m[parentId]
 	if parent == nil {
 		return &errs.NotFoundError{
 			Target:  "parent",
@@ -148,7 +149,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 	}
 	if parent.Children != nil && !append {
 		for childId, _ := range parent.Children {
-			child := data.Map[childId]
+			child := m[childId]
 			if child == nil {
 				fmt.Println(&errs.NotFoundError{
 					Target:  "child",
@@ -163,7 +164,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 		parent.Children = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
-		child := data.Map[childId]
+		child := m[childId]
 		if child == nil {
 			fmt.Println(&errs.NotFoundError{
 				Target:  "child",
@@ -172,7 +173,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 			continue
 		}
 
-		oldParent := data.Map[child.ParentId]
+		oldParent := m[child.ParentId]
 		if oldParent != nil {
 			delete(oldParent.Children, childId)
 		}
@@ -196,7 +197,7 @@ func SetDone(id int) {
 }
 
 func modifyStatus(id int, status string) {
-	td := data.Map[id]
+	td := _map()[id]
 	if td != nil {
 		td.Status = status
 	}
