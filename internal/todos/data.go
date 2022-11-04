@@ -26,6 +26,7 @@ type todo struct {
 	Status     string
 	Deadline   string
 	Remark     string
+	Remind     string
 	CreateTime string
 	ParentId   int
 	Children   map[int]bool

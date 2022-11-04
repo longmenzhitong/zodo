@@ -25,6 +25,7 @@ const (
 	transfer      = "trans"
 	setDeadline   = "ddl"
 	setRemark     = "rmk"
+	setRemind     = "rmd"
 	setChild      = "scd"
 	addChild      = "acd"
 	setPending    = "pend"
@@ -43,6 +44,7 @@ var orderMap = map[string]string{
 	transfer:      "transfer between file and redis",
 	setDeadline:   "set deadline of todo",
 	setRemark:     "set remark of todo",
+	setRemind:     "set remind of todo",
 	setChild:      "set child of todo",
 	addChild:      "add child of todo",
 	setPending:    "mark todo as pending",
@@ -143,11 +145,15 @@ func Handle(input string) error {
 	}
 
 	if order == setDeadline {
-		id, deadline, err := parseDeadline(val)
+		id, ddl, err := parseIdAndStr(val)
 		if err != nil {
 			return err
 		}
-		todos.SetDeadline(id, deadline)
+		ddl, err = validateDeadline(ddl)
+		if err != nil {
+			return err
+		}
+		todos.SetDeadline(id, ddl)
 		todos.Save()
 		return nil
 	}
@@ -158,6 +164,20 @@ func Handle(input string) error {
 			return err
 		}
 		todos.SetRemark(id, remark)
+		todos.Save()
+		return nil
+	}
+
+	if order == setRemind {
+		id, rmd, err := parseIdAndStr(val)
+		if err != nil {
+			return err
+		}
+		rmd, err = validateRemind(rmd)
+		if err != nil {
+			return err
+		}
+		todos.SetRemind(id, rmd)
 		todos.Save()
 		return nil
 	}
@@ -288,16 +308,6 @@ func parseIdAndStr(val string) (id int, str string, err error) {
 	return
 }
 
-func parseDeadline(val string) (id int, ddl string, err error) {
-	id, ddl, err = parseIdAndStr(val)
-	if err != nil {
-		return
-	}
-
-	ddl, err = validateDeadline(ddl)
-	return
-}
-
 func validateDeadline(ddl string) (string, error) {
 	_, err := time.Parse(cst.LayoutYearMonthDay, ddl)
 	if err == nil {
@@ -313,5 +323,30 @@ func validateDeadline(ddl string) (string, error) {
 	return "", &errs.InvalidInputError{
 		Input:   "deadline",
 		Message: ddl,
+	}
+}
+
+func validateRemind(rmd string) (string, error) {
+	_, err := time.Parse(cst.LayoutYearMonthDayHourMinute, rmd)
+	if err == nil {
+		return rmd, nil
+	}
+
+	now := time.Now()
+	t, err := time.Parse(cst.LayoutMonthDayHourMinute, rmd)
+	if err == nil {
+		d := time.Date(now.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.Local)
+		return d.Format(cst.LayoutYearMonthDayHourMinute), nil
+	}
+
+	t, err = time.Parse(cst.LayoutHourMinute, rmd)
+	if err == nil {
+		d := time.Date(now.Year(), now.Month(), now.Day(), t.Hour(), t.Minute(), 0, 0, time.Local)
+		return d.Format(cst.LayoutYearMonthDayHourMinute), nil
+	}
+
+	return "", &errs.InvalidInputError{
+		Input:   "remind",
+		Message: rmd,
 	}
 }

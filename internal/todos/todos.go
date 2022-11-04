@@ -52,6 +52,7 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Deadline", ddl})
 	rows = append(rows, table.Row{"Remain", remain})
 	rows = append(rows, table.Row{"Remark", td.Remark})
+	rows = append(rows, table.Row{"Remind", td.Remind})
 	rows = append(rows, table.Row{"Create", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
@@ -139,6 +140,13 @@ func SetRemark(id int, remark string) {
 	td := _map()[id]
 	if td != nil {
 		td.Remark = remark
+	}
+}
+
+func SetRemind(id int, remind string) {
+	td := _map()[id]
+	if td != nil {
+		td.Remind = remind
 	}
 }
 
