@@ -2,18 +2,20 @@ package orders
 
 import (
 	"fmt"
-	"os"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 	"zodo/internal/cst"
 	"zodo/internal/errs"
 	"zodo/internal/param"
+	"zodo/internal/stdout"
 	"zodo/internal/todos"
 )
 
 const (
-	exit          = "exit"
+	help          = "help"
 	detail        = "cat"
 	dailyReport   = "dr"
 	add           = "add"
@@ -30,18 +32,40 @@ const (
 	setDone       = "done"
 )
 
-var allOrders = []string{
-	exit, detail, dailyReport, add, _delete, modify, rollback, transfer,
-	setDeadline, setRemark, setChild, addChild, setPending, setProcessing, setDone,
+var orderMap = map[string]string{
+	help:          "view help info",
+	detail:        "view detail of todo",
+	dailyReport:   "send daily report email",
+	add:           "add todo",
+	_delete:       "delete todo",
+	modify:        "modify todo",
+	rollback:      "rollback to last version",
+	transfer:      "transfer between file and redis",
+	setDeadline:   "set deadline of todo",
+	setRemark:     "set remark of todo",
+	setChild:      "set child of todo",
+	addChild:      "add child of todo",
+	setPending:    "mark todo as pending",
+	setProcessing: "mark todo as processing",
+	setDone:       "mark todo as done",
 }
 
 func Handle(input string) error {
 	input = strings.TrimSpace(input)
 	order, val := parseInput(input)
 
-	if order == exit {
-		fmt.Println("Bye.")
-		os.Exit(0)
+	if order == help {
+		orderList := make([]string, 0)
+		for odr := range orderMap {
+			orderList = append(orderList, odr)
+		}
+		sort.Strings(orderList)
+		rows := make([]table.Row, 0)
+		for _, odr := range orderList {
+			rows = append(rows, table.Row{odr, orderMap[odr]})
+		}
+		stdout.PrintTable(table.Row{"Order", "Comment"}, rows)
+		return nil
 	}
 
 	if order == detail {
@@ -217,7 +241,7 @@ func parseInput(input string) (order string, val string) {
 		return
 	}
 
-	for _, odr := range allOrders {
+	for odr := range orderMap {
 		if strings.HasPrefix(input, odr) {
 			order = odr
 			val = strings.TrimSpace(strings.TrimPrefix(input, odr))
