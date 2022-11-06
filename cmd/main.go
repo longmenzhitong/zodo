@@ -17,6 +17,9 @@ func main() {
 		if conf.Data.DailyReport.Enabled {
 			task.StartDailyReport()
 		}
+		if conf.Data.Reminder.Enabled {
+			task.StartReminder()
+		}
 		select {}
 	}
 

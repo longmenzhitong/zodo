@@ -3,6 +3,7 @@ package todos
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"strings"
 	"time"
 	"zodo/internal/conf"
 	"zodo/internal/cst"
@@ -17,6 +18,10 @@ const (
 	statusPending    = "Pending"
 	statusProcessing = "Processing"
 	statusDone       = "Done"
+)
+
+const (
+	remindStatusDone = "(done)"
 )
 
 func List(keyword string) {
@@ -81,7 +86,46 @@ func DailyReport() error {
 			}
 		}
 	}
-	return emails.Send("Daily Report", text)
+	if text != "" {
+		return emails.Send("Daily Report", text)
+	}
+	return nil
+}
+
+func Remind() error {
+	load()
+	var text string
+	for _, td := range list("") {
+		rmd := td.Remind
+		if rmd == "" || strings.HasSuffix(rmd, remindStatusDone) {
+			continue
+		}
+		t, err := time.ParseInLocation(cst.LayoutYearMonthDayHourMinute, rmd, time.Local)
+		if err != nil {
+			return err
+		}
+		if time.Now().Before(t) {
+			continue
+		}
+
+		SetRemind(td.Id, rmd+remindStatusDone)
+
+		ddl, remain := td.getDeadLineAndRemain(false)
+		text += "\n"
+		if ddl != "" {
+			text += fmt.Sprintf("* %s  %s, deadline %s, remain %s\n", td.Content, td.getStatus(false), ddl, remain)
+		} else {
+			text += fmt.Sprintf("* %s  %s\n", td.Content, td.getStatus(false))
+		}
+	}
+	if text != "" {
+		err := emails.Send("Reminder", text)
+		if err != nil {
+			return err
+		}
+		Save()
+	}
+	return nil
 }
 
 func Save() {

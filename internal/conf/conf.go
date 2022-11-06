@@ -27,6 +27,10 @@ type data struct {
 		Enabled bool   `yaml:"enabled"`
 		Cron    string `yaml:"cron"`
 	} `yaml:"dailyReport"`
+	Reminder struct {
+		Enabled bool   `yaml:"enabled"`
+		Cron    string `yaml:"cron"`
+	} `yaml:"reminder"`
 	Email struct {
 		Server string   `yaml:"server"`
 		Port   int      `yaml:"port"`
