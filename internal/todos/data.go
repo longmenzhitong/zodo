@@ -21,16 +21,18 @@ import (
 )
 
 type todo struct {
-	Id         int
-	Content    string
-	Status     string
-	Deadline   string
-	Remark     string
-	Remind     string
-	CreateTime string
-	ParentId   int
-	Children   map[int]bool
-	Level      int
+	Id           int
+	Content      string
+	Status       string
+	Deadline     string
+	Remark       string
+	RemindTime   string
+	RemindStatus string
+	LoopType     string
+	CreateTime   string
+	ParentId     int
+	Children     map[int]bool
+	Level        int
 }
 
 func (t *todo) getStatus(colorful bool) string {

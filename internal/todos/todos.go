@@ -3,7 +3,6 @@ package todos
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"strings"
 	"time"
 	"zodo/internal/conf"
 	"zodo/internal/cst"
@@ -18,10 +17,6 @@ const (
 	statusPending    = "Pending"
 	statusProcessing = "Processing"
 	statusDone       = "Done"
-)
-
-const (
-	remindStatusDone = "(done)"
 )
 
 func List(keyword string) {
@@ -57,7 +52,9 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Deadline", ddl})
 	rows = append(rows, table.Row{"Remain", remain})
 	rows = append(rows, table.Row{"Remark", td.Remark})
-	rows = append(rows, table.Row{"Remind", td.Remind})
+	rows = append(rows, table.Row{"RemindTime", td.RemindTime})
+	rows = append(rows, table.Row{"RemindStatus", td.RemindStatus})
+	rows = append(rows, table.Row{"LoopType", td.LoopType})
 	rows = append(rows, table.Row{"Create", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
@@ -92,42 +89,6 @@ func DailyReport() error {
 	return nil
 }
 
-func Remind() error {
-	load()
-	var text string
-	for _, td := range list("") {
-		rmd := td.Remind
-		if rmd == "" || strings.HasSuffix(rmd, remindStatusDone) {
-			continue
-		}
-		t, err := time.ParseInLocation(cst.LayoutYearMonthDayHourMinute, rmd, time.Local)
-		if err != nil {
-			return err
-		}
-		if time.Now().Before(t) {
-			continue
-		}
-
-		SetRemind(td.Id, rmd+remindStatusDone)
-
-		ddl, remain := td.getDeadLineAndRemain(false)
-		text += "\n"
-		if ddl != "" {
-			text += fmt.Sprintf("* %s  %s, deadline %s, remain %s\n", td.Content, td.getStatus(false), ddl, remain)
-		} else {
-			text += fmt.Sprintf("* %s  %s\n", td.Content, td.getStatus(false))
-		}
-	}
-	if text != "" {
-		err := emails.Send("Reminder", text)
-		if err != nil {
-			return err
-		}
-		Save()
-	}
-	return nil
-}
-
 func Save() {
 	save()
 }
@@ -135,8 +96,7 @@ func Save() {
 func Add(content string) (int, error) {
 	if content == "" {
 		return -1, &errs.InvalidInputError{
-			Input:   content,
-			Message: fmt.Sprintf("content empty"),
+			Message: fmt.Sprint("content empty"),
 		}
 	}
 	id := ids.GetAndSet(conf.Data.Storage.Type)
@@ -184,13 +144,6 @@ func SetRemark(id int, remark string) {
 	td := _map()[id]
 	if td != nil {
 		td.Remark = remark
-	}
-}
-
-func SetRemind(id int, remind string) {
-	td := _map()[id]
-	if td != nil {
-		td.Remind = remind
 	}
 }
 

@@ -3,6 +3,7 @@ package cst
 import "os"
 
 const (
+	Yes                          = "y"
 	PathSep                      = string(os.PathSeparator)
 	LayoutDateTime               = "2006-01-02 15:04:05"
 	LayoutYearMonthDay           = "2006-01-02"

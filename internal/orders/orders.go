@@ -26,6 +26,7 @@ const (
 	setDeadline   = "ddl"
 	setRemark     = "rmk"
 	setRemind     = "rmd"
+	setLoopRemind = "rmd+"
 	setChild      = "scd"
 	addChild      = "acd"
 	setPending    = "pend"
@@ -45,6 +46,7 @@ var orderMap = map[string]string{
 	setDeadline:   "set deadline of todo",
 	setRemark:     "set remark of todo",
 	setRemind:     "set remind of todo",
+	setLoopRemind: "set loop remind of todo",
 	setChild:      "set child of todo",
 	addChild:      "add child of todo",
 	setPending:    "mark todo as pending",
@@ -168,7 +170,7 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if order == setRemind {
+	if order == setRemind || order == setLoopRemind {
 		id, rmd, err := parseIdAndStr(val)
 		if err != nil {
 			return err
@@ -177,7 +179,10 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
-		todos.SetRemind(id, rmd)
+		err = todos.SetRemind(id, rmd, order == setLoopRemind)
+		if err != nil {
+			return err
+		}
 		todos.Save()
 		return nil
 	}
@@ -189,8 +194,7 @@ func Handle(input string) error {
 		}
 		if len(ids) < 2 {
 			return &errs.InvalidInputError{
-				Input:   input,
-				Message: fmt.Sprintf("expect: %s [parentId] [childId]", order),
+				Message: fmt.Sprintf("expect: %s [parentId] [childId], got: %s", order, input),
 			}
 		}
 		err = todos.SetChild(ids[0], ids[1:], order == addChild)
@@ -295,8 +299,7 @@ func parseIdAndStr(val string) (id int, str string, err error) {
 	i := strings.Index(val, " ")
 	if i == -1 {
 		err = &errs.InvalidInputError{
-			Input:   val,
-			Message: "expect: [id] [str]",
+			Message: fmt.Sprintf("expect: [id] [str], got: %s", val),
 		}
 		return
 	}
@@ -321,8 +324,7 @@ func validateDeadline(ddl string) (string, error) {
 	}
 
 	return "", &errs.InvalidInputError{
-		Input:   "deadline",
-		Message: ddl,
+		Message: fmt.Sprintf("deadline: %s", ddl),
 	}
 }
 
@@ -346,7 +348,6 @@ func validateRemind(rmd string) (string, error) {
 	}
 
 	return "", &errs.InvalidInputError{
-		Input:   "remind",
-		Message: rmd,
+		Message: fmt.Sprintf("remind: %s", rmd),
 	}
 }
