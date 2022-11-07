@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/go-redis/redis"
+	"github.com/mozillazg/go-pinyin"
 	"sort"
 	"strconv"
 	"strings"
@@ -234,11 +235,48 @@ func transfer() {
 func list(keyword string) []todo {
 	tds := make([]todo, 0)
 	for _, td := range _list {
-		if td.ParentId == 0 && strings.Contains(strings.ToLower(td.Content), strings.ToLower(keyword)) {
+		if td.ParentId == 0 && hit(td, keyword) {
 			walk(td, &tds, 0)
 		}
 	}
 	return tds
+}
+
+func hit(td *todo, keyword string) bool {
+	if td == nil {
+		return false
+	}
+	if keyword == "" {
+		return true
+	}
+
+	content := strings.ToLower(td.Content)
+	keyword = strings.ToLower(keyword)
+	if strings.Contains(content, keyword) {
+		return true
+	}
+
+	pa := pinyin.NewArgs()
+	pyArrays := pinyin.Pinyin(content, pa)
+	var pyStr string
+	for _, pyArray := range pyArrays {
+		for _, py := range pyArray {
+			pyStr += py
+		}
+	}
+	if strings.Contains(pyStr, keyword) {
+		return true
+	}
+
+	if td.hasChildren() {
+		for childId := range td.Children {
+			if hit(_map()[childId], keyword) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func walk(td *todo, tds *[]todo, level int) {
