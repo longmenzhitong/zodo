@@ -246,6 +246,9 @@ func hit(td *todo, keyword string) bool {
 	if td == nil {
 		return false
 	}
+	if !param.All && td.Status == statusDone {
+		return false
+	}
 	if keyword == "" {
 		return true
 	}
