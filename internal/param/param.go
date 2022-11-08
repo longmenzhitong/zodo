@@ -18,7 +18,7 @@ func init() {
 	flag.BoolVar(&Server, "s", false, "enter server mode")
 	flag.BoolVar(&All, "a", false, "all")
 	flag.IntVar(&ParentId, "p", 0, "add and set parent: -p [parentId] [content]")
-	flag.StringVar(&Deadline, "D", "", "add and set deadline: -D [deadline] [content]")
+	flag.StringVar(&Deadline, "d", "", "add and set deadline: -d [deadline] [content]")
 }
 
 func Parse() {
