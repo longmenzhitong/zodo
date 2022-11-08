@@ -266,7 +266,7 @@ func parseInput(input string) (order string, val string) {
 	}
 
 	for odr := range orderMap {
-		if strings.HasPrefix(input, odr) {
+		if strings.HasPrefix(input, odr+" ") {
 			order = odr
 			val = strings.TrimSpace(strings.TrimPrefix(input, odr))
 			return
