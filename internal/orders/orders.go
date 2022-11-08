@@ -116,7 +116,7 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if order == _delete || param.Delete {
+	if order == _delete {
 		ids, err := parseIds(val)
 		if err != nil {
 			return err
