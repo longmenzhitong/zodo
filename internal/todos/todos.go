@@ -19,6 +19,12 @@ const (
 	statusDone       = "Done"
 )
 
+var statusPriority = map[string]int{
+	statusDone:       0,
+	statusPending:    1,
+	statusProcessing: 2,
+}
+
 func List(keyword string) {
 	rows := make([]table.Row, 0)
 	for _, td := range list(keyword) {

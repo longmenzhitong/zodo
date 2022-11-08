@@ -234,7 +234,7 @@ func transfer() {
 
 func list(keyword string) []todo {
 	tds := make([]todo, 0)
-	for _, td := range _list {
+	for _, td := range _sort(_list) {
 		if td.ParentId == 0 && hit(td, keyword) {
 			walk(td, &tds, 0)
 		}
@@ -317,27 +317,35 @@ func walk(td *todo, tds *[]todo, level int) {
 }
 
 func _sort(tds []*todo) []*todo {
-	sort.Slice(tds, func(i, j int) bool {
+	sort.SliceStable(tds, func(i, j int) bool {
 		a := tds[i]
 		b := tds[j]
-		if a.Deadline != "" && b.Deadline != "" {
-			ta, err := time.Parse(cst.LayoutYearMonthDay, a.Deadline)
-			if err != nil {
-				panic(err)
-			}
-			tb, err := time.Parse(cst.LayoutYearMonthDay, b.Deadline)
-			if err != nil {
-				panic(err)
-			}
-			return ta.Unix() < tb.Unix()
+
+		if a.Status != b.Status {
+			return statusPriority[a.Status] > statusPriority[b.Status]
 		}
-		if a.Deadline == "" && b.Deadline == "" {
-			if a.Status != b.Status {
-				return a.Status == statusProcessing
-			}
+
+		if a.Status == statusDone && b.Status == statusDone {
 			return a.Id < b.Id
 		}
-		return a.Deadline != ""
+
+		if a.Deadline != b.Deadline {
+			if a.Deadline != "" && b.Deadline != "" {
+				ta, err := time.Parse(cst.LayoutYearMonthDay, a.Deadline)
+				if err != nil {
+					panic(err)
+				}
+				tb, err := time.Parse(cst.LayoutYearMonthDay, b.Deadline)
+				if err != nil {
+					panic(err)
+				}
+				return ta.Unix() < tb.Unix()
+			} else {
+				return a.Deadline != ""
+			}
+		}
+
+		return a.Id < b.Id
 	})
 	return tds
 }
