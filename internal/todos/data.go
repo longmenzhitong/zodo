@@ -29,6 +29,7 @@ type todo struct {
 	RemindTime   string
 	RemindStatus string
 	LoopType     string
+	DoneTime     string
 	CreateTime   string
 	ParentId     int
 	Children     map[int]bool
@@ -85,6 +86,19 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 		}
 	}
 	return
+}
+
+func calcRemainDays(deadline string) (natureDays int, workDays int) {
+	ddlTime, err := time.Parse(cst.LayoutYearMonthDay, deadline)
+	if err != nil {
+		panic(err)
+	}
+
+	return times.CalcBetweenDays(time.Now(), ddlTime)
+}
+
+func (t *todo) getDoneTime() string {
+	return times.Simplify(t.DoneTime)
 }
 
 func (t *todo) getCreateTime() string {
@@ -371,10 +385,10 @@ func add(td todo) {
 	_list = append(_list, &td)
 }
 
-func _delete(id int) {
+func remove(id int) {
 	m := _map()
-	toDelete := m[id]
-	if toDelete == nil {
+	toRemove := m[id]
+	if toRemove == nil {
 		return
 	}
 
@@ -386,14 +400,14 @@ func _delete(id int) {
 	}
 	_list = newList
 
-	parent := m[toDelete.ParentId]
+	parent := m[toRemove.ParentId]
 	if parent != nil {
 		delete(parent.Children, id)
 	}
 
-	if toDelete.hasChildren() {
-		for childId := range toDelete.Children {
-			_delete(childId)
+	if toRemove.hasChildren() {
+		for childId := range toRemove.Children {
+			remove(childId)
 		}
 	}
 }

@@ -10,7 +10,6 @@ import (
 	"zodo/internal/errs"
 	"zodo/internal/ids"
 	"zodo/internal/stdout"
-	"zodo/internal/times"
 )
 
 const (
@@ -61,10 +60,43 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"RemindTime", td.RemindTime})
 	rows = append(rows, table.Row{"RemindStatus", td.RemindStatus})
 	rows = append(rows, table.Row{"LoopType", td.LoopType})
-	rows = append(rows, table.Row{"Create", td.getCreateTime()})
+	rows = append(rows, table.Row{"DoneTime", td.getDoneTime()})
+	rows = append(rows, table.Row{"CreateTime", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
 	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
+}
+
+func Add(content string) (int, error) {
+	if content == "" {
+		return -1, &errs.InvalidInputError{
+			Message: fmt.Sprint("empty content"),
+		}
+	}
+	id := ids.GetAndSet(conf.Data.Storage.Type)
+	add(todo{
+		Id:         id,
+		Content:    content,
+		Status:     statusPending,
+		CreateTime: time.Now().Format(cst.LayoutDateTime),
+	})
+	return id, nil
+}
+
+func Modify(id int, content string) {
+	if content == "" {
+		return
+	}
+	td := _map()[id]
+	if td != nil {
+		td.Content = content
+	}
+}
+
+func Delete(ids []int) {
+	for _, id := range ids {
+		remove(id)
+	}
 }
 
 func DailyReport() error {
@@ -97,38 +129,6 @@ func DailyReport() error {
 
 func Save() {
 	save()
-}
-
-func Add(content string) (int, error) {
-	if content == "" {
-		return -1, &errs.InvalidInputError{
-			Message: fmt.Sprint("empty content"),
-		}
-	}
-	id := ids.GetAndSet(conf.Data.Storage.Type)
-	add(todo{
-		Id:         id,
-		Content:    content,
-		Status:     statusPending,
-		CreateTime: time.Now().Format(cst.LayoutDateTime),
-	})
-	return id, nil
-}
-
-func Delete(ids []int) {
-	for _, id := range ids {
-		_delete(id)
-	}
-}
-
-func Modify(id int, content string) {
-	if content == "" {
-		return
-	}
-	td := _map()[id]
-	if td != nil {
-		td.Content = content
-	}
 }
 
 func Rollback() {
@@ -213,6 +213,7 @@ func SetDone(id int) {
 		return
 	}
 	td.Status = statusDone
+	td.DoneTime = time.Now().Format(cst.LayoutDateTime)
 	if !td.hasChildren() {
 		return
 	}
@@ -226,13 +227,4 @@ func modifyStatus(id int, status string) {
 	if td != nil {
 		td.Status = status
 	}
-}
-
-func calcRemainDays(deadline string) (natureDays int, workDays int) {
-	ddlTime, err := time.Parse(cst.LayoutYearMonthDay, deadline)
-	if err != nil {
-		panic(err)
-	}
-
-	return times.CalcBetweenDays(time.Now(), ddlTime)
 }
