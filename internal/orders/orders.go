@@ -34,7 +34,7 @@ const (
 	setDone       = "done"
 )
 
-var orderMap = map[string]string{
+var orderDesc = map[string]string{
 	help:          "view help info",
 	detail:        "view detail of todo",
 	dailyReport:   "send daily report email",
@@ -60,13 +60,13 @@ func Handle(input string) error {
 
 	if order == help {
 		orderList := make([]string, 0)
-		for odr := range orderMap {
+		for odr := range orderDesc {
 			orderList = append(orderList, odr)
 		}
 		sort.Strings(orderList)
 		rows := make([]table.Row, 0)
 		for _, odr := range orderList {
-			rows = append(rows, table.Row{odr, orderMap[odr]})
+			rows = append(rows, table.Row{odr, orderDesc[odr]})
 		}
 		stdout.PrintTable(table.Row{"Order", "Comment"}, rows)
 		return nil
@@ -265,7 +265,7 @@ func parseInput(input string) (order string, val string) {
 		return
 	}
 
-	for odr := range orderMap {
+	for odr := range orderDesc {
 		if strings.HasPrefix(input, odr+" ") {
 			order = odr
 			val = strings.TrimSpace(strings.TrimPrefix(input, odr))
