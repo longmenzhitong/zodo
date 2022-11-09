@@ -81,7 +81,7 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 	return nil
 }
 
-func CancelRemind(ids []int) {
+func DeleteRemind(ids []int) {
 	m := _map()
 	for _, id := range ids {
 		td := m[id]

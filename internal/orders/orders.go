@@ -15,43 +15,45 @@ import (
 )
 
 const (
-	help          = "help"
-	dailyReport   = "dr"
-	add           = "add"
-	_delete       = "del"
-	modify        = "mod"
-	rollback      = "rbk"
-	transfer      = "trans"
-	setDeadline   = "ddl"
-	setRemark     = "rmk"
-	setRemind     = "rmd"
-	setLoopRemind = "rmd+"
-	cancelRemind  = "rmd-"
-	setChild      = "scd"
-	addChild      = "acd"
-	setPending    = "pend"
-	setProcessing = "proc"
-	setDone       = "done"
+	help           = "help"
+	dailyReport    = "dr"
+	add            = "add"
+	_delete        = "del"
+	modify         = "mod"
+	rollback       = "rbk"
+	transfer       = "trans"
+	setDeadline    = "ddl"
+	deleteDeadline = "ddl-"
+	setRemark      = "rmk"
+	setRemind      = "rmd"
+	setLoopRemind  = "rmd+"
+	deleteRemind   = "rmd-"
+	setChild       = "scd"
+	addChild       = "acd"
+	setPending     = "pend"
+	setProcessing  = "proc"
+	setDone        = "done"
 )
 
 var orderDesc = map[string]string{
-	help:          "view help info",
-	dailyReport:   "send daily report email",
-	add:           "add todo",
-	_delete:       "delete todo",
-	modify:        "modify todo",
-	rollback:      "rollback to last version",
-	transfer:      "transfer between file and redis",
-	setDeadline:   "set deadline of todo",
-	setRemark:     "set remark of todo",
-	setRemind:     "set remind of todo",
-	setLoopRemind: "set loop remind of todo",
-	cancelRemind:  "cancel remind of todo",
-	setChild:      "set child of todo",
-	addChild:      "add child of todo",
-	setPending:    "mark todo as pending",
-	setProcessing: "mark todo as processing",
-	setDone:       "mark todo as done",
+	help:           "view help info",
+	dailyReport:    "send daily report email",
+	add:            "add todo",
+	_delete:        "delete todo",
+	modify:         "modify todo",
+	rollback:       "rollback to last version",
+	transfer:       "transfer between file and redis",
+	setDeadline:    "set deadline of todo",
+	deleteDeadline: "delete deadline of todo",
+	setRemark:      "set remark of todo",
+	setRemind:      "set remind of todo",
+	setLoopRemind:  "set loop remind of todo",
+	deleteRemind:   "delete remind of todo",
+	setChild:       "set child of todo",
+	addChild:       "add child of todo",
+	setPending:     "mark todo as pending",
+	setProcessing:  "mark todo as processing",
+	setDone:        "mark todo as done",
 }
 
 func Handle(input string) error {
@@ -151,6 +153,18 @@ func Handle(input string) error {
 		return nil
 	}
 
+	if order == deleteDeadline {
+		ids, err := parseIds(val)
+		if err != nil {
+			return err
+		}
+		for _, id := range ids {
+			todos.SetDeadline(id, "")
+		}
+		todos.Save()
+		return nil
+	}
+
 	if order == setRemark {
 		id, remark, err := parseIdAndStr(val)
 		if err != nil {
@@ -178,12 +192,12 @@ func Handle(input string) error {
 		return nil
 	}
 
-	if order == cancelRemind {
+	if order == deleteRemind {
 		ids, err := parseIds(val)
 		if err != nil {
 			return err
 		}
-		todos.CancelRemind(ids)
+		todos.DeleteRemind(ids)
 		todos.Save()
 		return nil
 	}
