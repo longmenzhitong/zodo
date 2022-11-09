@@ -253,7 +253,7 @@ func Handle(input string) error {
 
 	// detail
 	ids, err := parseIds(input)
-	if err == nil {
+	if err == nil && len(ids) > 0 {
 		for _, id := range ids {
 			todos.Detail(id)
 			fmt.Println()
