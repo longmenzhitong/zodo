@@ -140,3 +140,56 @@ func Test_parseIdAndStr(t *testing.T) {
 		})
 	}
 }
+
+func Test_parseInput(t *testing.T) {
+	type args struct {
+		input  string
+		orders []string
+	}
+	orders := []string{"help", "rmd+", "rmd"}
+	tests := []struct {
+		name      string
+		args      args
+		wantOrder string
+		wantVal   string
+	}{
+		{
+			name: "parseInput_1",
+			args: args{
+				input:  "help",
+				orders: orders,
+			},
+			wantOrder: "help",
+			wantVal:   "",
+		},
+		{
+			name: "parseInput_2",
+			args: args{
+				input:  "rmd 1 11:02",
+				orders: orders,
+			},
+			wantOrder: "rmd",
+			wantVal:   "1 11:02",
+		},
+		{
+			name: "parseInput_3",
+			args: args{
+				input:  "rmd+ 1 11:02",
+				orders: orders,
+			},
+			wantOrder: "rmd+",
+			wantVal:   "1 11:02",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotOrder, gotVal := parseInput(tt.args.input, tt.args.orders)
+			if gotOrder != tt.wantOrder {
+				t.Errorf("parseInput() gotOrder = %v, want %v", gotOrder, tt.wantOrder)
+			}
+			if gotVal != tt.wantVal {
+				t.Errorf("parseInput() gotVal = %v, want %v", gotVal, tt.wantVal)
+			}
+		})
+	}
+}

@@ -35,6 +35,28 @@ const (
 	setDone        = "done"
 )
 
+// parse according the order in this list
+var orderList = []string{
+	help,
+	dailyReport,
+	add,
+	_delete,
+	modify,
+	rollback,
+	transfer,
+	deleteDeadline,
+	setDeadline,
+	setRemark,
+	setLoopRemind,
+	deleteRemind,
+	setRemind,
+	setChild,
+	addChild,
+	setPending,
+	setProcessing,
+	setDone,
+}
+
 var orderDesc = map[string]string{
 	help:           "view help info",
 	dailyReport:    "send daily report email",
@@ -58,7 +80,7 @@ var orderDesc = map[string]string{
 
 func Handle(input string) error {
 	input = strings.TrimSpace(input)
-	order, val := parseInput(input)
+	order, val := parseInput(input, orderList)
 
 	if order == help {
 		orderList := make([]string, 0)
@@ -279,13 +301,13 @@ func Handle(input string) error {
 	return nil
 }
 
-func parseInput(input string) (order string, val string) {
+func parseInput(input string, orders []string) (order string, val string) {
 	if input == "" {
 		return
 	}
 
-	for odr := range orderDesc {
-		if strings.HasPrefix(input, odr+" ") {
+	for _, odr := range orders {
+		if strings.HasPrefix(input, odr) {
 			order = odr
 			val = strings.TrimSpace(strings.TrimPrefix(input, odr))
 			return
