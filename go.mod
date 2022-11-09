@@ -7,6 +7,7 @@ require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/jedib0t/go-pretty/v6 v6.4.0
+	github.com/jessevdk/go-flags v1.5.0
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/robfig/cron v1.2.0
 	gopkg.in/yaml.v3 v3.0.1

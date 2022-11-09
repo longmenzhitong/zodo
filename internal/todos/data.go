@@ -16,7 +16,6 @@ import (
 	"zodo/internal/errs"
 	"zodo/internal/files"
 	"zodo/internal/ids"
-	"zodo/internal/param"
 	"zodo/internal/redish"
 	"zodo/internal/times"
 )
@@ -232,21 +231,21 @@ func transfer() {
 	})
 }
 
-func list(keyword string) []todo {
+func list(keyword string, all bool) []todo {
 	tds := make([]todo, 0)
 	for _, td := range _sort(_list) {
-		if td.ParentId == 0 && hit(td, keyword) {
-			walk(td, &tds, 0)
+		if td.ParentId == 0 && hit(td, keyword, all) {
+			walk(td, &tds, 0, all)
 		}
 	}
 	return tds
 }
 
-func hit(td *todo, keyword string) bool {
+func hit(td *todo, keyword string, all bool) bool {
 	if td == nil {
 		return false
 	}
-	if !param.All && td.Status == statusDone {
+	if !all && td.Status == statusDone {
 		return false
 	}
 	if keyword == "" {
@@ -274,7 +273,7 @@ func hit(td *todo, keyword string) bool {
 	if td.hasChildren() {
 		m := _map()
 		for childId := range td.Children {
-			if hit(m[childId], keyword) {
+			if hit(m[childId], keyword, all) {
 				return true
 			}
 		}
@@ -283,11 +282,11 @@ func hit(td *todo, keyword string) bool {
 	return false
 }
 
-func walk(td *todo, tds *[]todo, level int) {
+func walk(td *todo, tds *[]todo, level int, all bool) {
 	if td == nil {
 		return
 	}
-	if !param.All && td.Status == statusDone {
+	if !all && td.Status == statusDone {
 		return
 	}
 
@@ -314,7 +313,7 @@ func walk(td *todo, tds *[]todo, level int) {
 	childList = _sort(childList)
 
 	for _, child := range childList {
-		walk(child, tds, level+1)
+		walk(child, tds, level+1, all)
 	}
 }
 

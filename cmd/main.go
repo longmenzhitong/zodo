@@ -1,30 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"zodo/internal/conf"
-	"zodo/internal/orders"
-	"zodo/internal/param"
-	"zodo/internal/task"
+	"github.com/jessevdk/go-flags"
+	"zodo/internal/command"
 )
 
-func init() {
-	param.Parse()
-}
-
 func main() {
-	if param.Server {
-		if conf.Data.DailyReport.Enabled {
-			task.StartDailyReport()
-		}
-		if conf.Data.Reminder.Enabled {
-			task.StartReminder()
-		}
-		select {}
-	}
-
-	err := orders.Handle(param.Input)
+	var opt command.Option
+	_, err := flags.Parse(&opt)
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
 }

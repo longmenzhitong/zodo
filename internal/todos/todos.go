@@ -25,9 +25,9 @@ var statusPriority = map[string]int{
 	statusProcessing: 2,
 }
 
-func List(keyword string) {
+func List(keyword string, all bool) {
 	rows := make([]table.Row, 0)
-	for _, td := range list(keyword) {
+	for _, td := range list(keyword, all) {
 		content := td.Content
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|-%s", padding(td.Level, "  "), content)
@@ -70,7 +70,7 @@ func Detail(id int) {
 func DailyReport() error {
 	load()
 	var text string
-	for _, td := range list("") {
+	for _, td := range list("", false) {
 		ddl, remain := td.getDeadLineAndRemain(false)
 		if td.Level == 0 {
 			text += "\n"
@@ -102,7 +102,7 @@ func Save() {
 func Add(content string) (int, error) {
 	if content == "" {
 		return -1, &errs.InvalidInputError{
-			Message: fmt.Sprint("content empty"),
+			Message: fmt.Sprint("empty content"),
 		}
 	}
 	id := ids.GetAndSet(conf.Data.Storage.Type)

@@ -81,7 +81,7 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 	return nil
 }
 
-func DeleteRemind(ids []int) {
+func RemoveRemind(ids []int) {
 	m := _map()
 	for _, id := range ids {
 		td := m[id]
@@ -97,7 +97,7 @@ func Remind() error {
 	load()
 	var text string
 	m := _map()
-	for _, td := range list("") {
+	for _, td := range list("", false) {
 		if !isNeedRemind(td.RemindTime, td.LoopType, td.RemindStatus, time.Now()) {
 			continue
 		}
