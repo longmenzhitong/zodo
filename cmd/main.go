@@ -7,8 +7,5 @@ import (
 
 func main() {
 	var opt command.Option
-	_, err := flags.Parse(&opt)
-	if err != nil {
-		panic(err)
-	}
+	_, _ = flags.Parse(&opt)
 }

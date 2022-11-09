@@ -9,26 +9,25 @@ import (
 )
 
 type Option struct {
-	Server         ServerCommand         `command:"server"`
-	List           ListCommand           `command:"ls"`
-	Detail         DetailCommand         `command:"cat"`
-	Add            AddCommand            `command:"add"`
-	Modify         ModifyCommand         `command:"mod"`
-	Remove         RemoveCommand         `command:"rm"`
-	DailyReport    DailyReportCommand    `command:"dr"`
-	Rollback       RollbackCommand       `command:"rbk"`
-	Transfer       TransferCommand       `command:"tr"`
-	SetRemark      SetRemarkCommand      `command:"rmk"`
-	SetDeadline    SetDeadlineCommand    `command:"ddl"`
-	RemoveDeadline RemoveDeadlineCommand `command:"ddl-"`
-	SetRemind      SetRemindCommand      `command:"rmd"`
-	SetLoopRemind  SetLoopRemindCommand  `command:"rmd+"`
-	RemoveRemind   RemoveRemindCommand   `command:"rmd-"`
-	SetChild       SetChildCommand       `command:"scd"`
-	AddChild       AddChildCommand       `command:"acd"`
-	SetPending     SetPendingCommand     `command:"pend"`
-	SetProcessing  SetProcessingCommand  `command:"proc"`
-	SetDone        SetDoneCommand        `command:"done"`
+	Server         ServerCommand         `command:"server" description:"Enter server mode"`
+	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] <keyword>"`
+	Detail         DetailCommand         `command:"cat" description:"Show todo detail: cat <id>..."`
+	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] <content>"`
+	Modify         ModifyCommand         `command:"mod" description:"Modify todo: mod <id> <content>"`
+	Remove         RemoveCommand         `command:"rm" description:"Remove todo: rm <id>..."`
+	DailyReport    DailyReportCommand    `command:"dr" description:"Send daily report email"`
+	Rollback       RollbackCommand       `command:"rbk" description:"Rollback to last version"`
+	Transfer       TransferCommand       `command:"tr" description:"Transfer between file and redis"`
+	SetRemark      SetRemarkCommand      `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
+	SetDeadline    SetDeadlineCommand    `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
+	RemoveDeadline RemoveDeadlineCommand `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
+	SetRemind      SetRemindCommand      `command:"rmd" description:"Set remind of todo: rmd [-l] <id> <remind-time>"`
+	RemoveRemind   RemoveRemindCommand   `command:"rmd-" description:"Remove remind of todo: rmd- <id>..."`
+	SetChild       SetChildCommand       `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
+	AddChild       AddChildCommand       `command:"acd" description:"Add child of todo: acd <parent-id> <child-id>..."`
+	SetPending     SetPendingCommand     `command:"pend" description:"Mark todo status as pending: pend <id>..."`
+	SetProcessing  SetProcessingCommand  `command:"proc" description:"Mark todo status as processing: proc <id>..."`
+	SetDone        SetDoneCommand        `command:"done" description:"Mark todo status as done: done <id>..."`
 }
 
 type ServerCommand struct {
@@ -70,7 +69,7 @@ func (c *DetailCommand) Execute(args []string) error {
 }
 
 type AddCommand struct {
-	ParentId int    `short:"p" required:"false" description:"parent id"`
+	ParentId int    `short:"p" required:"false" description:"parent-id"`
 	Deadline string `short:"d" required:"false" description:"deadline"`
 }
 
@@ -196,20 +195,10 @@ func (c *RemoveDeadlineCommand) Execute(args []string) error {
 }
 
 type SetRemindCommand struct {
+	Loop bool `short:"l" required:"false" description:"Choose loop type"`
 }
 
 func (c *SetRemindCommand) Execute(args []string) error {
-	return setRemind(args, false)
-}
-
-type SetLoopRemindCommand struct {
-}
-
-func (c *SetLoopRemindCommand) Execute(args []string) error {
-	return setRemind(args, true)
-}
-
-func setRemind(args []string, loop bool) error {
 	id, rmd, err := argsToIdAndStr(args)
 	if err != nil {
 		return err
@@ -218,7 +207,7 @@ func setRemind(args []string, loop bool) error {
 	if err != nil {
 		return err
 	}
-	err = todos.SetRemind(id, rmd, loop)
+	err = todos.SetRemind(id, rmd, c.Loop)
 	if err != nil {
 		return err
 	}
