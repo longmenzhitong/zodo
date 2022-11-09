@@ -9,7 +9,7 @@ import (
 )
 
 type Option struct {
-	Server         ServerCommand         `command:"server" description:"Enter server mode"`
+	Server         ServerCommand         `command:"sv" description:"Enter server mode"`
 	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] <keyword>"`
 	Detail         DetailCommand         `command:"cat" description:"Show todo detail: cat <id>..."`
 	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] <content>"`
