@@ -272,8 +272,9 @@ func hit(td *todo, keyword string) bool {
 	}
 
 	if td.hasChildren() {
+		m := _map()
 		for childId := range td.Children {
-			if hit(_map()[childId], keyword) {
+			if hit(m[childId], keyword) {
 				return true
 			}
 		}
@@ -297,9 +298,10 @@ func walk(td *todo, tds *[]todo, level int) {
 		return
 	}
 
+	m := _map()
 	childList := make([]*todo, 0)
 	for childId := range td.Children {
-		child := _map()[childId]
+		child := m[childId]
 		if child == nil {
 			fmt.Println(&errs.NotFoundError{
 				Target:  "child",

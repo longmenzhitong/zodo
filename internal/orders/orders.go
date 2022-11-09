@@ -27,6 +27,7 @@ const (
 	setRemark     = "rmk"
 	setRemind     = "rmd"
 	setLoopRemind = "rmd+"
+	cancelRemind  = "rmd-"
 	setChild      = "scd"
 	addChild      = "acd"
 	setPending    = "pend"
@@ -47,6 +48,7 @@ var orderDesc = map[string]string{
 	setRemark:     "set remark of todo",
 	setRemind:     "set remind of todo",
 	setLoopRemind: "set loop remind of todo",
+	cancelRemind:  "cancel remind of todo",
 	setChild:      "set child of todo",
 	addChild:      "add child of todo",
 	setPending:    "mark todo as pending",
@@ -183,6 +185,16 @@ func Handle(input string) error {
 		if err != nil {
 			return err
 		}
+		todos.Save()
+		return nil
+	}
+
+	if order == cancelRemind {
+		ids, err := parseIds(val)
+		if err != nil {
+			return err
+		}
+		todos.CancelRemind(ids)
 		todos.Save()
 		return nil
 	}

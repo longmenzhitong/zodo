@@ -81,16 +81,29 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 	return nil
 }
 
+func CancelRemind(ids []int) {
+	m := _map()
+	for _, id := range ids {
+		td := m[id]
+		if td != nil {
+			td.RemindTime = ""
+			td.RemindStatus = ""
+			td.LoopType = ""
+		}
+	}
+}
+
 func Remind() error {
 	load()
 	var text string
+	m := _map()
 	for _, td := range list("") {
 		if !isNeedRemind(td.RemindTime, td.LoopType, td.RemindStatus, time.Now()) {
 			continue
 		}
 
 		if td.LoopType == loopOnce {
-			_map()[td.Id].RemindStatus = rmdStatusFinished
+			m[td.Id].RemindStatus = rmdStatusFinished
 		}
 
 		ddl, remain := td.getDeadLineAndRemain(false)

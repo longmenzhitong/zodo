@@ -208,8 +208,7 @@ func SetProcessing(id int) {
 }
 
 func SetDone(id int) {
-	m := _map()
-	td := m[id]
+	td := _map()[id]
 	if td == nil {
 		return
 	}
