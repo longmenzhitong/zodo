@@ -16,7 +16,6 @@ import (
 
 const (
 	help          = "help"
-	detail        = "cat"
 	dailyReport   = "dr"
 	add           = "add"
 	_delete       = "del"
@@ -37,7 +36,6 @@ const (
 
 var orderDesc = map[string]string{
 	help:          "view help info",
-	detail:        "view detail of todo",
 	dailyReport:   "send daily report email",
 	add:           "add todo",
 	_delete:       "delete todo",
@@ -71,15 +69,6 @@ func Handle(input string) error {
 			rows = append(rows, table.Row{odr, orderDesc[odr]})
 		}
 		stdout.PrintTable(table.Row{"Order", "Comment"}, rows)
-		return nil
-	}
-
-	if order == detail {
-		id, err := strconv.Atoi(val)
-		if err != nil {
-			return err
-		}
-		todos.Detail(id)
 		return nil
 	}
 
@@ -262,9 +251,13 @@ func Handle(input string) error {
 		return err
 	}
 
-	id, err := strconv.Atoi(input)
+	// detail
+	ids, err := parseIds(input)
 	if err == nil {
-		todos.Detail(id)
+		for _, id := range ids {
+			todos.Detail(id)
+			fmt.Println()
+		}
 		return nil
 	}
 
