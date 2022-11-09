@@ -208,7 +208,18 @@ func SetProcessing(id int) {
 }
 
 func SetDone(id int) {
-	modifyStatus(id, statusDone)
+	m := _map()
+	td := m[id]
+	if td == nil {
+		return
+	}
+	td.Status = statusDone
+	if !td.hasChildren() {
+		return
+	}
+	for childId := range td.Children {
+		SetDone(childId)
+	}
 }
 
 func modifyStatus(id int, status string) {
