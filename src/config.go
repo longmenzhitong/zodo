@@ -1,11 +1,10 @@
-package conf
+package zodo
 
 import (
 	"errors"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
-	"zodo/internal/files"
 )
 
 const (
@@ -13,7 +12,7 @@ const (
 	StorageTypeFile  = "file"
 )
 
-type data struct {
+type config struct {
 	Storage struct {
 		Type  string `yaml:"type"`
 		Redis struct {
@@ -43,25 +42,34 @@ type data struct {
 	} `yaml:"table"`
 }
 
-const fileName = "conf"
+const configFileName = "conf"
 
-var Data data
+var (
+	configPath string
+	Config     config
+)
 
-var path string
+func InitConfig() {
+	dir := ProjectDir()
+	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
+		err = os.Mkdir(dir, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+	}
 
-func init() {
-	path = files.GetPath(fileName)
+	configPath = Path(configFileName)
 
-	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-		initYaml(path)
+	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
+		initYaml(configPath)
 		return
 	}
 
-	parseYaml(path)
+	parseYaml(configPath)
 }
 
 func initYaml(path string) {
-	files.RewriteLinesToPath(path, []string{
+	RewriteLinesToPath(path, []string{
 		"storage:",
 		"  type:",
 		"  redis:",
@@ -70,6 +78,9 @@ func initYaml(path string) {
 		"    db:",
 		"    localize:",
 		"dailyReport:",
+		"  enabled:",
+		"  cron:",
+		"reminder:",
 		"  enabled:",
 		"  cron:",
 		"email:",
@@ -88,27 +99,11 @@ func parseYaml(path string) {
 	if err != nil {
 		panic(err)
 	}
-	err = yaml.Unmarshal(f, &Data)
+	err = yaml.Unmarshal(f, &Config)
 	if err != nil {
 		panic(err)
 	}
-	if Data.Table.MaxLen == 0 {
-		Data.Table.MaxLen = 150
-	}
-}
-
-func IsFileStorage(storageType ...string) bool {
-	if storageType != nil && len(storageType) > 0 {
-		return storageType[0] == StorageTypeFile
-	} else {
-		return Data.Storage.Type == StorageTypeFile
-	}
-}
-
-func IsRedisStorage(storageType ...string) bool {
-	if storageType != nil && len(storageType) > 0 {
-		return storageType[0] == StorageTypeRedis
-	} else {
-		return Data.Storage.Type == StorageTypeRedis
+	if Config.Table.MaxLen == 0 {
+		Config.Table.MaxLen = 150
 	}
 }

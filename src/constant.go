@@ -1,4 +1,4 @@
-package cst
+package zodo
 
 import "os"
 
@@ -13,10 +13,18 @@ const (
 	LayoutYearMonthDayHourMinute = "2006-01-02 15:04"
 )
 
-func HomeDir() string {
-	homeDir, err := os.UserHomeDir()
+func homeDir() string {
+	d, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
 	}
-	return homeDir
+	return d
+}
+
+func ProjectDir() string {
+	return homeDir() + PathSep + "zodo-data"
+}
+
+func Path(filename string) string {
+	return ProjectDir() + PathSep + filename
 }

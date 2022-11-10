@@ -1,14 +1,9 @@
-package todos
+package zodo
 
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
-	"zodo/internal/cst"
-	"zodo/internal/emails"
-	"zodo/internal/errs"
-	"zodo/internal/stdin"
-	"zodo/internal/stdout"
 )
 
 const (
@@ -43,9 +38,9 @@ var loopTypes = []string{
 }
 
 func SetRemind(id int, rmdTime string, loop bool) error {
-	td := _map()[id]
+	td := cc._map()[id]
 	if td == nil {
-		return &errs.NotFoundError{
+		return &NotFoundError{
 			Target:  "todo",
 			Message: fmt.Sprintf("id: %d", id),
 		}
@@ -56,8 +51,8 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 		for i := 0; i < len(loopTypes); i++ {
 			rows = append(rows, table.Row{i, loopTypes[i]})
 		}
-		stdout.PrintTable(table.Row{"Num", "Type"}, rows)
-		num, err := stdin.ReadInt(0, len(loopTypes), "Enter number of remind type:")
+		PrintTable(table.Row{"Num", "Type"}, rows)
+		num, err := ReadInt(0, len(loopTypes), "Enter number of remind type:")
 		if err != nil {
 			return err
 		}
@@ -69,11 +64,11 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 	if td.LoopType == loopOnce {
 		td.RemindTime = rmdTime
 	} else {
-		t, err := time.ParseInLocation(cst.LayoutYearMonthDayHourMinute, rmdTime, time.Local)
+		t, err := time.ParseInLocation(LayoutYearMonthDayHourMinute, rmdTime, time.Local)
 		if err != nil {
 			return err
 		}
-		td.RemindTime = t.Format(cst.LayoutHourMinute)
+		td.RemindTime = t.Format(LayoutHourMinute)
 	}
 
 	td.RemindStatus = rmdStatusWaiting
@@ -82,7 +77,7 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 }
 
 func RemoveRemind(ids []int) {
-	m := _map()
+	m := cc._map()
 	for _, id := range ids {
 		td := m[id]
 		if td != nil {
@@ -94,10 +89,10 @@ func RemoveRemind(ids []int) {
 }
 
 func Remind() error {
-	load()
+	cc.refresh()
 	var text string
-	m := _map()
-	for _, td := range list("", false) {
+	m := cc._map()
+	for _, td := range cc.list("", false) {
 		if !isNeedRemind(td.RemindTime, td.LoopType, td.RemindStatus, time.Now()) {
 			continue
 		}
@@ -115,11 +110,11 @@ func Remind() error {
 		}
 	}
 	if text != "" {
-		err := emails.Send("Reminder", text)
+		err := SendEmail("Reminder", text)
 		if err != nil {
 			return err
 		}
-		Save()
+		cc.save()
 	}
 	return nil
 }
@@ -132,13 +127,13 @@ func isNeedRemind(rmdTime, loopType, rmdStatus string, checkTime time.Time) bool
 		return false
 	}
 	if loopType == loopOnce {
-		t, err := time.ParseInLocation(cst.LayoutYearMonthDayHourMinute, rmdTime, time.Local)
+		t, err := time.ParseInLocation(LayoutYearMonthDayHourMinute, rmdTime, time.Local)
 		if err != nil {
 			panic(err)
 		}
 		return checkTime.Equal(t) || checkTime.After(t)
 	}
-	t, err := time.ParseInLocation(cst.LayoutHourMinute, rmdTime, time.Local)
+	t, err := time.ParseInLocation(LayoutHourMinute, rmdTime, time.Local)
 	if err != nil {
 		panic(err)
 	}
@@ -166,7 +161,7 @@ func isNeedRemind(rmdTime, loopType, rmdStatus string, checkTime time.Time) bool
 	case loopPerSunday:
 		return wd == time.Sunday
 	}
-	panic(&errs.InvalidInputError{
+	panic(&InvalidInputError{
 		Message: fmt.Sprintf("remindTime: %s, loopType: %s, remindStatus: %s, checkTime: %v",
 			rmdTime, loopType, rmdStatus, checkTime),
 	})

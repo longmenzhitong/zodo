@@ -1,4 +1,4 @@
-package times
+package zodo
 
 import (
 	"strconv"
@@ -37,7 +37,7 @@ func CalcBetweenDays(t1 time.Time, t2 time.Time) (natureDays int, workDays int) 
 	return
 }
 
-func Simplify(t string) string {
+func SimplifyTime(t string) string {
 	if t == "" {
 		return t
 	}

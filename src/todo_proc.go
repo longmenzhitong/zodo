@@ -1,32 +1,14 @@
-package todos
+package zodo
 
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
-	"zodo/internal/conf"
-	"zodo/internal/cst"
-	"zodo/internal/emails"
-	"zodo/internal/errs"
-	"zodo/internal/ids"
-	"zodo/internal/stdout"
 )
-
-const (
-	statusPending    = "Pending"
-	statusProcessing = "Processing"
-	statusDone       = "Done"
-)
-
-var statusPriority = map[string]int{
-	statusDone:       0,
-	statusPending:    1,
-	statusProcessing: 2,
-}
 
 func List(keyword string, all bool) {
 	rows := make([]table.Row, 0)
-	for _, td := range list(keyword, all) {
+	for _, td := range cc.list(keyword, all) {
 		content := td.Content
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|-%s", padding(td.Level, "  "), content)
@@ -40,11 +22,11 @@ func List(keyword string, all bool) {
 			remain,
 		})
 	}
-	stdout.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
+	PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
 }
 
 func Detail(id int) {
-	td := _map()[id]
+	td := cc._map()[id]
 	if td == nil {
 		return
 	}
@@ -64,21 +46,21 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"CreateTime", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
-	stdout.PrintTable(table.Row{"Item", "Val"}, rows)
+	PrintTable(table.Row{"Item", "Val"}, rows)
 }
 
 func Add(content string) (int, error) {
 	if content == "" {
-		return -1, &errs.InvalidInputError{
+		return -1, &InvalidInputError{
 			Message: fmt.Sprint("empty content"),
 		}
 	}
-	id := ids.GetAndSet(conf.Data.Storage.Type)
-	add(todo{
+	id := Id(Config.Storage.Type)
+	cc.add(todo{
 		Id:         id,
 		Content:    content,
 		Status:     statusPending,
-		CreateTime: time.Now().Format(cst.LayoutDateTime),
+		CreateTime: time.Now().Format(LayoutDateTime),
 	})
 	return id, nil
 }
@@ -87,22 +69,115 @@ func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
-	td := _map()[id]
+	td := cc._map()[id]
 	if td != nil {
 		td.Content = content
 	}
 }
 
-func Delete(ids []int) {
+func Remove(ids []int) {
 	for _, id := range ids {
-		remove(id)
+		cc.remove(id)
 	}
 }
 
+func SetDeadline(id int, deadline string) {
+	td := cc._map()[id]
+	if td != nil {
+		td.Deadline = deadline
+	}
+}
+
+func SetRemark(id int, remark string) {
+	td := cc._map()[id]
+	if td != nil {
+		td.Remark = remark
+	}
+}
+
+func SetChild(parentId int, childIds []int, append bool) error {
+	m := cc._map()
+	parent := m[parentId]
+	if parent == nil {
+		return &NotFoundError{
+			Target:  "parent",
+			Message: fmt.Sprintf("parentId: %d", parentId),
+		}
+	}
+	if parent.Children != nil && !append {
+		for childId := range parent.Children {
+			child := m[childId]
+			if child == nil {
+				fmt.Println(&NotFoundError{
+					Target:  "child",
+					Message: fmt.Sprintf("childId: %d", childId),
+				})
+			} else {
+				child.ParentId = 0
+			}
+		}
+	}
+	if parent.Children == nil || !append {
+		parent.Children = make(map[int]bool, 0)
+	}
+	for _, childId := range childIds {
+		child := m[childId]
+		if child == nil {
+			fmt.Println(&NotFoundError{
+				Target:  "child",
+				Message: fmt.Sprintf("childId: %d", childId),
+			})
+			continue
+		}
+
+		oldParent := m[child.ParentId]
+		if oldParent != nil {
+			delete(oldParent.Children, childId)
+		}
+
+		child.ParentId = parentId
+		parent.Children[childId] = true
+	}
+	return nil
+}
+
+func SetPending(id int) {
+	td := cc._map()[id]
+	if td != nil {
+		td.Status = statusPending
+	}
+}
+
+func SetProcessing(id int) {
+	td := cc._map()[id]
+	if td != nil {
+		td.Status = statusProcessing
+	}
+}
+
+func SetDone(id int) {
+	td := cc._map()[id]
+	if td == nil {
+		return
+	}
+	td.Status = statusDone
+	td.DoneTime = time.Now().Format(LayoutDateTime)
+	if !td.hasChildren() {
+		return
+	}
+	for childId := range td.Children {
+		SetDone(childId)
+	}
+}
+
+func Save() {
+	cc.save()
+}
+
 func Report() error {
-	load()
+	cc.refresh()
 	var text string
-	for _, td := range list("", false) {
+	for _, td := range cc.list("", false) {
 		ddl, remain := td.getDeadLineAndRemain(false)
 		if td.Level == 0 {
 			text += "\n"
@@ -122,109 +197,36 @@ func Report() error {
 		}
 	}
 	if text != "" {
-		return emails.Send("Daily Report", text)
+		return SendEmail("Daily Report", text)
 	}
 	return nil
-}
-
-func Save() {
-	save()
 }
 
 func Rollback() {
-	rollback()
+	writeTodoLines(ReadLinesFromPath(backupPath), Config.Storage.Type)
 }
 
 func Transfer() {
-	transfer()
-}
-
-func SetDeadline(id int, deadline string) {
-	td := _map()[id]
-	if td != nil {
-		td.Deadline = deadline
-	}
-}
-
-func SetRemark(id int, remark string) {
-	td := _map()[id]
-	if td != nil {
-		td.Remark = remark
-	}
-}
-
-func SetChild(parentId int, childIds []int, append bool) error {
-	m := _map()
-	parent := m[parentId]
-	if parent == nil {
-		return &errs.NotFoundError{
-			Target:  "parent",
-			Message: fmt.Sprintf("parentId: %d", parentId),
-		}
-	}
-	if parent.Children != nil && !append {
-		for childId, _ := range parent.Children {
-			child := m[childId]
-			if child == nil {
-				fmt.Println(&errs.NotFoundError{
-					Target:  "child",
-					Message: fmt.Sprintf("childId: %d", childId),
-				})
-			} else {
-				child.ParentId = 0
-			}
-		}
-	}
-	if parent.Children == nil || !append {
-		parent.Children = make(map[int]bool, 0)
-	}
-	for _, childId := range childIds {
-		child := m[childId]
-		if child == nil {
-			fmt.Println(&errs.NotFoundError{
-				Target:  "child",
-				Message: fmt.Sprintf("childId: %d", childId),
-			})
-			continue
-		}
-
-		oldParent := m[child.ParentId]
-		if oldParent != nil {
-			delete(oldParent.Children, childId)
-		}
-
-		child.ParentId = parentId
-		parent.Children[childId] = true
-	}
-	return nil
-}
-
-func SetPending(id int) {
-	modifyStatus(id, statusPending)
-}
-
-func SetProcessing(id int) {
-	modifyStatus(id, statusProcessing)
-}
-
-func SetDone(id int) {
-	td := _map()[id]
-	if td == nil {
+	switch Config.Storage.Type {
+	case StorageTypeFile:
+		writeTodoLines(readTodoLines(StorageTypeRedis), StorageTypeFile)
+		SetId(GetId(StorageTypeRedis)+1, StorageTypeFile)
 		return
-	}
-	td.Status = statusDone
-	td.DoneTime = time.Now().Format(cst.LayoutDateTime)
-	if !td.hasChildren() {
+	case StorageTypeRedis:
+		writeTodoLines(readTodoLines(StorageTypeFile), StorageTypeRedis)
+		SetId(GetId(StorageTypeFile)+1, StorageTypeRedis)
 		return
-	}
-	for childId := range td.Children {
-		SetDone(childId)
+	default:
+		panic(&InvalidConfigError{
+			Message: fmt.Sprintf("storage.type: %s", Config.Storage.Type),
+		})
 	}
 }
 
-func modifyStatus(id int, status string) {
-	td := _map()[id]
-	if td != nil {
-		td.Status = status
+func padding(level int, unit string) string {
+	var res string
+	for i := 0; i < level; i++ {
+		res += unit
 	}
+	return res
 }

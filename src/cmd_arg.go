@@ -1,12 +1,10 @@
-package command
+package zodo
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
-	"zodo/internal/cst"
-	"zodo/internal/errs"
 )
 
 func argsToStr(args []string) string {
@@ -36,7 +34,7 @@ func argsToIds(args []string) (ids []int, err error) {
 
 func argsToIdAndStr(args []string) (id int, str string, err error) {
 	if len(args) != 2 {
-		err = &errs.InvalidInputError{
+		err = &InvalidInputError{
 			Message: fmt.Sprintf("expect: [id] [str], got: %v", args),
 		}
 		return
@@ -50,42 +48,42 @@ func argsToIdAndStr(args []string) (id int, str string, err error) {
 }
 
 func validateDeadline(ddl string) (string, error) {
-	_, err := time.Parse(cst.LayoutYearMonthDay, ddl)
+	_, err := time.Parse(LayoutYearMonthDay, ddl)
 	if err == nil {
 		return ddl, nil
 	}
 
-	t, err := time.Parse(cst.LayoutMonthDay, ddl)
+	t, err := time.Parse(LayoutMonthDay, ddl)
 	if err == nil {
 		d := time.Date(time.Now().Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
-		return d.Format(cst.LayoutYearMonthDay), nil
+		return d.Format(LayoutYearMonthDay), nil
 	}
 
-	return "", &errs.InvalidInputError{
+	return "", &InvalidInputError{
 		Message: fmt.Sprintf("deadline: %s", ddl),
 	}
 }
 
 func validateRemind(rmd string) (string, error) {
-	_, err := time.Parse(cst.LayoutYearMonthDayHourMinute, rmd)
+	_, err := time.Parse(LayoutYearMonthDayHourMinute, rmd)
 	if err == nil {
 		return rmd, nil
 	}
 
 	now := time.Now()
-	t, err := time.Parse(cst.LayoutMonthDayHourMinute, rmd)
+	t, err := time.Parse(LayoutMonthDayHourMinute, rmd)
 	if err == nil {
 		d := time.Date(now.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.Local)
-		return d.Format(cst.LayoutYearMonthDayHourMinute), nil
+		return d.Format(LayoutYearMonthDayHourMinute), nil
 	}
 
-	t, err = time.Parse(cst.LayoutHourMinute, rmd)
+	t, err = time.Parse(LayoutHourMinute, rmd)
 	if err == nil {
 		d := time.Date(now.Year(), now.Month(), now.Day(), t.Hour(), t.Minute(), 0, 0, time.Local)
-		return d.Format(cst.LayoutYearMonthDayHourMinute), nil
+		return d.Format(LayoutYearMonthDayHourMinute), nil
 	}
 
-	return "", &errs.InvalidInputError{
+	return "", &InvalidInputError{
 		Message: fmt.Sprintf("remind: %s", rmd),
 	}
 }

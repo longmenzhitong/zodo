@@ -1,11 +1,11 @@
-package todos
+package zodo
 
 import (
 	"reflect"
 	"testing"
 )
 
-func Test__sort(t *testing.T) {
+func Test_sortTodo(t *testing.T) {
 	type args struct {
 		tds []*todo
 	}
@@ -67,7 +67,7 @@ func Test__sort(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := _sort(tt.args.tds); !reflect.DeepEqual(got, tt.want) {
+			if got := sortTodo(tt.args.tds); !reflect.DeepEqual(got, tt.want) {
 				argIds := make([]int, 0)
 				for _, td := range got {
 					argIds = append(argIds, td.Id)

@@ -1,4 +1,4 @@
-package stdin
+package zodo
 
 import (
 	"bufio"
@@ -6,11 +6,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"zodo/internal/cst"
-	"zodo/internal/errs"
 )
 
-func ReadString() string {
+func readString() string {
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
 		panic(err)
@@ -28,9 +26,9 @@ func ReadInt(min int, max int, msg string) (int, error) {
 	}
 
 	fmt.Println(msg)
-	input := ReadString()
+	input := readString()
 	if input == "" {
-		return -1, &errs.CancelledError{}
+		return -1, &CancelledError{}
 	}
 	num, err := strconv.Atoi(input)
 	if err != nil || num < min || num > max {
@@ -40,8 +38,8 @@ func ReadInt(min int, max int, msg string) (int, error) {
 	return num, nil
 }
 
-func Yes(format string, a ...interface{}) bool {
+func AskYes(format string, a ...interface{}) bool {
 	format += " [y/n]\n"
 	fmt.Printf(format, a...)
-	return strings.ToLower(ReadString()) == cst.Yes
+	return strings.ToLower(readString()) == Yes
 }

@@ -1,4 +1,4 @@
-package errs
+package zodo
 
 import "fmt"
 
@@ -11,12 +11,11 @@ func (e *InvalidInputError) Error() string {
 }
 
 type InvalidConfigError struct {
-	Config  string
 	Message string
 }
 
 func (e *InvalidConfigError) Error() string {
-	return fmt.Sprintf("invalid config [%s]: %s, ", e.Config, e.Message)
+	return fmt.Sprintf("invalid config: %s, ", e.Message)
 }
 
 type NotFoundError struct {
@@ -25,7 +24,7 @@ type NotFoundError struct {
 }
 
 func (e *NotFoundError) Error() string {
-	return fmt.Sprintf("[%s] not found: %s", e.Target, e.Message)
+	return fmt.Sprintf("%s not found: %s", e.Target, e.Message)
 }
 
 type CancelledError struct {

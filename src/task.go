@@ -1,16 +1,14 @@
-package task
+package zodo
 
 import (
 	"fmt"
 	"github.com/robfig/cron"
-	"zodo/internal/conf"
-	"zodo/internal/todos"
 )
 
 func StartDailyReport() {
 	c := cron.New()
-	err := c.AddFunc(conf.Data.DailyReport.Cron, func() {
-		err := todos.Report()
+	err := c.AddFunc(Config.DailyReport.Cron, func() {
+		err := Report()
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -23,8 +21,8 @@ func StartDailyReport() {
 
 func StartReminder() {
 	c := cron.New()
-	err := c.AddFunc(conf.Data.Reminder.Cron, func() {
-		err := todos.Remind()
+	err := c.AddFunc(Config.Reminder.Cron, func() {
+		err := Remind()
 		if err != nil {
 			fmt.Println(err.Error())
 		}

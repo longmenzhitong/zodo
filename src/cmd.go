@@ -1,15 +1,10 @@
-package command
+package zodo
 
 import (
 	"fmt"
-	"zodo/internal/conf"
-	"zodo/internal/errs"
-	"zodo/internal/task"
-	"zodo/internal/todos"
 )
 
 type Option struct {
-	// todos
 	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] <keyword>"`
 	Detail         DetailCommand         `command:"cat" description:"Show todo detail: cat <id>..."`
 	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] <content>"`
@@ -25,11 +20,10 @@ type Option struct {
 	SetPending     SetPendingCommand     `command:"pend" description:"Mark todo status as pending: pend <id>..."`
 	SetProcessing  SetProcessingCommand  `command:"proc" description:"Mark todo status as processing: proc <id>..."`
 	SetDone        SetDoneCommand        `command:"done" description:"Mark todo status as done: done <id>..."`
-	// others
-	Server   ServerCommand   `command:"server" description:"Enter server mode"`
-	Report   ReportCommand   `command:"report" description:"Send report email"`
-	Rollback RollbackCommand `command:"rollback" description:"Rollback to last version"`
-	Transfer TransferCommand `command:"transfer" description:"Transfer between file and redis"`
+	Server         ServerCommand         `command:"server" description:"Enter server mode"`
+	Report         ReportCommand         `command:"report" description:"Send report email"`
+	Rollback       RollbackCommand       `command:"Rollback" description:"Rollback to last version"`
+	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
 }
 
 type ListCommand struct {
@@ -37,8 +31,7 @@ type ListCommand struct {
 }
 
 func (c *ListCommand) Execute(args []string) error {
-	keyword := argsToStr(args)
-	todos.List(keyword, c.All)
+	List(argsToStr(args), c.All)
 	return nil
 }
 
@@ -51,7 +44,7 @@ func (c *DetailCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		todos.Detail(id)
+		Detail(id)
 		fmt.Println()
 	}
 	return nil
@@ -63,13 +56,13 @@ type AddCommand struct {
 }
 
 func (c *AddCommand) Execute(args []string) error {
-	id, err := todos.Add(argsToStr(args))
+	id, err := Add(argsToStr(args))
 	if err != nil {
 		return err
 	}
 
 	if c.ParentId != 0 {
-		err = todos.SetChild(c.ParentId, []int{id}, true)
+		err = SetChild(c.ParentId, []int{id}, true)
 		if err != nil {
 			return err
 		}
@@ -80,10 +73,10 @@ func (c *AddCommand) Execute(args []string) error {
 		if err != nil {
 			return err
 		}
-		todos.SetDeadline(id, ddl)
+		SetDeadline(id, ddl)
 	}
 
-	todos.Save()
+	Save()
 	return nil
 }
 
@@ -95,8 +88,8 @@ func (c *ModifyCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	todos.Modify(id, content)
-	todos.Save()
+	Modify(id, content)
+	Save()
 	return nil
 }
 
@@ -108,8 +101,8 @@ func (c *RemoveCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	todos.Delete(ids)
-	todos.Save()
+	Remove(ids)
+	Save()
 	return nil
 }
 
@@ -121,8 +114,8 @@ func (c *SetRemarkCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	todos.SetRemark(id, remark)
-	todos.Save()
+	SetRemark(id, remark)
+	Save()
 	return nil
 }
 
@@ -140,8 +133,8 @@ func (c *SetDeadlineCommand) Execute(args []string) error {
 		return err
 	}
 
-	todos.SetDeadline(id, ddl)
-	todos.Save()
+	SetDeadline(id, ddl)
+	Save()
 	return nil
 }
 
@@ -154,9 +147,9 @@ func (c *RemoveDeadlineCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		todos.SetDeadline(id, "")
+		SetDeadline(id, "")
 	}
-	todos.Save()
+	Save()
 	return nil
 }
 
@@ -173,11 +166,11 @@ func (c *SetRemindCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	err = todos.SetRemind(id, rmd, c.Loop)
+	err = SetRemind(id, rmd, c.Loop)
 	if err != nil {
 		return err
 	}
-	todos.Save()
+	Save()
 	return nil
 }
 
@@ -189,8 +182,8 @@ func (c *RemoveRemindCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	todos.RemoveRemind(ids)
-	todos.Save()
+	RemoveRemind(ids)
+	Save()
 	return nil
 }
 
@@ -198,14 +191,24 @@ type SetChildCommand struct {
 }
 
 func (c *SetChildCommand) Execute(args []string) error {
-	return setChild(args, false)
+	err := setChild(args, false)
+	if err != nil {
+		return err
+	}
+	Save()
+	return nil
 }
 
 type AddChildCommand struct {
 }
 
 func (c *AddChildCommand) Execute(args []string) error {
-	return setChild(args, true)
+	err := setChild(args, true)
+	if err != nil {
+		return err
+	}
+	Save()
+	return nil
 }
 
 func setChild(args []string, append bool) error {
@@ -214,15 +217,15 @@ func setChild(args []string, append bool) error {
 		return err
 	}
 	if len(ids) < 2 {
-		return &errs.InvalidInputError{
+		return &InvalidInputError{
 			Message: fmt.Sprintf("expect: scd [parentId] [childId], got: %v", args),
 		}
 	}
-	err = todos.SetChild(ids[0], ids[1:], append)
+	err = SetChild(ids[0], ids[1:], append)
 	if err != nil {
 		return err
 	}
-	todos.Save()
+	Save()
 	return nil
 }
 
@@ -235,9 +238,9 @@ func (c *SetPendingCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		todos.SetPending(id)
+		SetPending(id)
 	}
-	todos.Save()
+	Save()
 	return nil
 }
 
@@ -250,9 +253,9 @@ func (c *SetProcessingCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		todos.SetProcessing(id)
+		SetProcessing(id)
 	}
-	todos.Save()
+	Save()
 	return nil
 }
 
@@ -263,21 +266,21 @@ func (c *SetDoneCommand) Execute(args []string) error {
 	ids, err := argsToIds(args)
 	if err == nil {
 		for _, id := range ids {
-			todos.SetDone(id)
+			SetDone(id)
 		}
-		todos.Save()
+		Save()
 		return nil
 	}
 
 	id, remark, err := argsToIdAndStr(args)
 	if err == nil {
-		todos.SetDone(id)
-		todos.SetRemark(id, remark)
-		todos.Save()
+		SetDone(id)
+		SetRemark(id, remark)
+		Save()
 		return nil
 	}
 
-	return &errs.InvalidInputError{
+	return &InvalidInputError{
 		Message: fmt.Sprintf("expect: done [id1] [id2]... or done [id] [remark], got: %v", args),
 	}
 }
@@ -286,11 +289,11 @@ type ServerCommand struct {
 }
 
 func (c *ServerCommand) Execute([]string) error {
-	if conf.Data.DailyReport.Enabled {
-		task.StartDailyReport()
+	if Config.DailyReport.Enabled {
+		StartDailyReport()
 	}
-	if conf.Data.Reminder.Enabled {
-		task.StartReminder()
+	if Config.Reminder.Enabled {
+		StartReminder()
 	}
 	select {}
 }
@@ -299,14 +302,14 @@ type ReportCommand struct {
 }
 
 func (c *ReportCommand) Execute([]string) error {
-	return todos.Report()
+	return Report()
 }
 
 type RollbackCommand struct {
 }
 
 func (c *RollbackCommand) Execute([]string) error {
-	todos.Rollback()
+	Rollback()
 	return nil
 }
 
@@ -314,6 +317,6 @@ type TransferCommand struct {
 }
 
 func (c *TransferCommand) Execute([]string) error {
-	todos.Transfer()
+	Transfer()
 	return nil
 }
