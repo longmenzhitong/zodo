@@ -99,7 +99,7 @@ func Delete(ids []int) {
 	}
 }
 
-func DailyReport() error {
+func Report() error {
 	load()
 	var text string
 	for _, td := range list("", false) {

@@ -10,7 +10,7 @@ import (
 func StartDailyReport() {
 	c := cron.New()
 	err := c.AddFunc(conf.Data.DailyReport.Cron, func() {
-		err := todos.DailyReport()
+		err := todos.Report()
 		if err != nil {
 			fmt.Println(err.Error())
 		}

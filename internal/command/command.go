@@ -9,15 +9,12 @@ import (
 )
 
 type Option struct {
-	Server         ServerCommand         `command:"sv" description:"Enter server mode"`
+	// todos
 	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] <keyword>"`
 	Detail         DetailCommand         `command:"cat" description:"Show todo detail: cat <id>..."`
 	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] <content>"`
 	Modify         ModifyCommand         `command:"mod" description:"Modify todo: mod <id> <content>"`
 	Remove         RemoveCommand         `command:"rm" description:"Remove todo: rm <id>..."`
-	DailyReport    DailyReportCommand    `command:"dr" description:"Send daily report email"`
-	Rollback       RollbackCommand       `command:"rbk" description:"Rollback to last version"`
-	Transfer       TransferCommand       `command:"tr" description:"Transfer between file and redis"`
 	SetRemark      SetRemarkCommand      `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
 	SetDeadline    SetDeadlineCommand    `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
 	RemoveDeadline RemoveDeadlineCommand `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
@@ -28,19 +25,11 @@ type Option struct {
 	SetPending     SetPendingCommand     `command:"pend" description:"Mark todo status as pending: pend <id>..."`
 	SetProcessing  SetProcessingCommand  `command:"proc" description:"Mark todo status as processing: proc <id>..."`
 	SetDone        SetDoneCommand        `command:"done" description:"Mark todo status as done: done <id>..."`
-}
-
-type ServerCommand struct {
-}
-
-func (c *ServerCommand) Execute([]string) error {
-	if conf.Data.DailyReport.Enabled {
-		task.StartDailyReport()
-	}
-	if conf.Data.Reminder.Enabled {
-		task.StartReminder()
-	}
-	select {}
+	// others
+	Server   ServerCommand   `command:"server" description:"Enter server mode"`
+	Report   ReportCommand   `command:"report" description:"Send report email"`
+	Rollback RollbackCommand `command:"rollback" description:"Rollback to last version"`
+	Transfer TransferCommand `command:"transfer" description:"Transfer between file and redis"`
 }
 
 type ListCommand struct {
@@ -121,29 +110,6 @@ func (c *RemoveCommand) Execute(args []string) error {
 	}
 	todos.Delete(ids)
 	todos.Save()
-	return nil
-}
-
-type DailyReportCommand struct {
-}
-
-func (c *DailyReportCommand) Execute([]string) error {
-	return todos.DailyReport()
-}
-
-type RollbackCommand struct {
-}
-
-func (c *RollbackCommand) Execute([]string) error {
-	todos.Rollback()
-	return nil
-}
-
-type TransferCommand struct {
-}
-
-func (c *TransferCommand) Execute([]string) error {
-	todos.Transfer()
 	return nil
 }
 
@@ -314,4 +280,40 @@ func (c *SetDoneCommand) Execute(args []string) error {
 	return &errs.InvalidInputError{
 		Message: fmt.Sprintf("expect: done [id1] [id2]... or done [id] [remark], got: %v", args),
 	}
+}
+
+type ServerCommand struct {
+}
+
+func (c *ServerCommand) Execute([]string) error {
+	if conf.Data.DailyReport.Enabled {
+		task.StartDailyReport()
+	}
+	if conf.Data.Reminder.Enabled {
+		task.StartReminder()
+	}
+	select {}
+}
+
+type ReportCommand struct {
+}
+
+func (c *ReportCommand) Execute([]string) error {
+	return todos.Report()
+}
+
+type RollbackCommand struct {
+}
+
+func (c *RollbackCommand) Execute([]string) error {
+	todos.Rollback()
+	return nil
+}
+
+type TransferCommand struct {
+}
+
+func (c *TransferCommand) Execute([]string) error {
+	todos.Transfer()
+	return nil
 }
