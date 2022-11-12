@@ -62,7 +62,6 @@ func InitConfig() {
 
 	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
 		initYaml(configPath)
-		return
 	}
 
 	parseYaml(configPath)
@@ -71,17 +70,17 @@ func InitConfig() {
 func initYaml(path string) {
 	RewriteLinesToPath(path, []string{
 		"storage:",
-		"  type:",
+		"  type: file",
 		"  redis:",
 		"    address:",
 		"    password:",
 		"    db:",
 		"    localize:",
 		"dailyReport:",
-		"  enabled:",
+		"  enabled: false",
 		"  cron:",
 		"reminder:",
-		"  enabled:",
+		"  enabled: false",
 		"  cron:",
 		"email:",
 		"  server:",
@@ -90,7 +89,7 @@ func initYaml(path string) {
 		"  from:",
 		"  to:",
 		"table:",
-		"  maxLen:",
+		"  maxLen: 200",
 	})
 }
 
