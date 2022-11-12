@@ -9,15 +9,16 @@ type cache struct {
 }
 
 func (c *cache) refresh() {
-	c.data = make([]*todo, 0)
+	newData := make([]*todo, 0)
 	for _, line := range readTodoLines(Config.Storage.Type) {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
 			panic(err)
 		}
-		c.data = append(c.data, &td)
+		newData = append(newData, &td)
 	}
+	c.data = newData
 }
 
 func (c *cache) save() {
