@@ -22,7 +22,7 @@ type Option struct {
 	SetDone        SetDoneCommand        `command:"done" description:"Mark todo status as done: done <id>..."`
 	Server         ServerCommand         `command:"server" description:"Enter server mode"`
 	Report         ReportCommand         `command:"report" description:"Send report email"`
-	Rollback       RollbackCommand       `command:"Rollback" description:"Rollback to last version"`
+	Rollback       RollbackCommand       `command:"rollback" description:"Rollback to last version"`
 	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
 }
 
