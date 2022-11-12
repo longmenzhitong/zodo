@@ -39,9 +39,6 @@ type todo struct {
 }
 
 func (t *todo) getStatus(colorful bool) string {
-	if t.hasChildren() {
-		return ""
-	}
 	if colorful {
 		switch t.Status {
 		case statusPending:
@@ -60,12 +57,11 @@ func (t *todo) getRemainDays() (natureDays int, workDays int) {
 	if err != nil {
 		panic(err)
 	}
-
 	return CalcBetweenDays(time.Now(), ddlTime)
 }
 
 func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
-	if t.Deadline == "" || t.hasChildren() {
+	if t.Deadline == "" {
 		return "", ""
 	}
 
@@ -78,7 +74,7 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 		panic(err)
 	}
 
-	ddl = fmt.Sprintf("%s(%s)", t.Deadline, ddlTime.Weekday().String())
+	ddl = fmt.Sprintf("%s(%s)", t.Deadline, ddlTime.Weekday().String()[:3])
 	ddl = SimplifyTime(ddl)
 
 	nd, wd := t.getRemainDays()
@@ -97,6 +93,10 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 		}
 	}
 	return
+}
+
+func (t *todo) getRemindTime() string {
+	return SimplifyTime(t.RemindTime)
 }
 
 func (t *todo) getDoneTime() string {

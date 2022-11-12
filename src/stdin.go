@@ -37,9 +37,3 @@ func ReadInt(min int, max int, msg string) (int, error) {
 	}
 	return num, nil
 }
-
-func AskYes(format string, a ...interface{}) bool {
-	format += " [y/n]\n"
-	fmt.Printf(format, a...)
-	return strings.ToLower(readString()) == Yes
-}

@@ -44,7 +44,10 @@ func (c *DetailCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		Detail(id)
+		err = Detail(id)
+		if err != nil {
+			return err
+		}
 		fmt.Println()
 	}
 	return nil

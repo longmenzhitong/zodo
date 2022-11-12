@@ -13,11 +13,17 @@ func List(keyword string, all bool) {
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|-%s", padding(td.Level, "  "), content)
 		}
+		status := td.getStatus(true)
 		ddl, remain := td.getDeadLineAndRemain(true)
+		if td.hasChildren() {
+			status = ""
+			ddl = ""
+			remain = ""
+		}
 		rows = append(rows, table.Row{
 			td.Id,
 			content,
-			td.getStatus(true),
+			status,
 			ddl,
 			remain,
 		})
@@ -25,10 +31,13 @@ func List(keyword string, all bool) {
 	PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
 }
 
-func Detail(id int) {
+func Detail(id int) error {
 	td := cc._map()[id]
 	if td == nil {
-		return
+		return &NotFoundError{
+			Target:  "todo",
+			Message: fmt.Sprintf("id: %d", id),
+		}
 	}
 
 	rows := make([]table.Row, 0)
@@ -39,7 +48,7 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Deadline", ddl})
 	rows = append(rows, table.Row{"Remain", remain})
 	rows = append(rows, table.Row{"Remark", td.Remark})
-	rows = append(rows, table.Row{"RemindTime", td.RemindTime})
+	rows = append(rows, table.Row{"RemindTime", td.getRemindTime()})
 	rows = append(rows, table.Row{"RemindStatus", td.RemindStatus})
 	rows = append(rows, table.Row{"LoopType", td.LoopType})
 	rows = append(rows, table.Row{"DoneTime", td.getDoneTime()})
@@ -47,6 +56,7 @@ func Detail(id int) {
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
 	PrintTable(table.Row{"Item", "Val"}, rows)
+	return nil
 }
 
 func Add(content string) (int, error) {
@@ -178,21 +188,27 @@ func Report() error {
 	cc.refresh()
 	var text string
 	for _, td := range cc.list("", false) {
+		status := td.getStatus(false)
 		ddl, remain := td.getDeadLineAndRemain(false)
+		if td.hasChildren() {
+			status = ""
+			ddl = ""
+			remain = ""
+		}
 		if td.Level == 0 {
 			text += "\n"
 			if ddl != "" {
-				text += fmt.Sprintf("* %s  %s, deadline %s, remain %s\n", td.Content, td.getStatus(false), ddl, remain)
+				text += fmt.Sprintf("* %s  %s, deadline %s, remain %s\n", td.Content, status, ddl, remain)
 			} else {
-				text += fmt.Sprintf("* %s  %s\n", td.Content, td.getStatus(false))
+				text += fmt.Sprintf("* %s  %s\n", td.Content, status)
 			}
 		} else {
 			if ddl != "" {
 				text += fmt.Sprintf("%s  |- %s  %s, deadline %s, remain %s\n",
-					padding(td.Level, "    "), td.Content, td.getStatus(false), ddl, remain)
+					padding(td.Level, "    "), td.Content, status, ddl, remain)
 			} else {
 				text += fmt.Sprintf("%s  |- %s  %s\n",
-					padding(td.Level, "    "), td.Content, td.getStatus(false))
+					padding(td.Level, "    "), td.Content, status)
 			}
 		}
 	}
