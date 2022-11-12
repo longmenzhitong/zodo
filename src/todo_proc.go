@@ -11,7 +11,7 @@ func List(keyword string, all bool) {
 	for _, td := range cc.list(keyword, all) {
 		content := td.Content
 		if td.Level > 0 {
-			content = fmt.Sprintf("%s|-%s", padding(td.Level, "  "), content)
+			content = fmt.Sprintf("%s|-%s", padding(td.Level), content)
 		}
 		status := td.getStatus(true)
 		ddl, remain := td.getDeadLineAndRemain(true)
@@ -204,11 +204,9 @@ func Report() error {
 			}
 		} else {
 			if ddl != "" {
-				text += fmt.Sprintf("%s  |- %s  %s, deadline %s, remain %s\n",
-					padding(td.Level, "    "), td.Content, status, ddl, remain)
+				text += fmt.Sprintf("%s  |- %s  %s, deadline %s, remain %s\n", padding(td.Level), td.Content, status, ddl, remain)
 			} else {
-				text += fmt.Sprintf("%s  |- %s  %s\n",
-					padding(td.Level, "    "), td.Content, status)
+				text += fmt.Sprintf("%s  |- %s  %s\n", padding(td.Level), td.Content, status)
 			}
 		}
 	}
@@ -239,10 +237,14 @@ func Transfer() {
 	}
 }
 
-func padding(level int, unit string) string {
+func padding(level int) string {
+	var p string
+	for i := 0; i < Config.Table.Padding; i++ {
+		p += " "
+	}
 	var res string
 	for i := 0; i < level; i++ {
-		res += unit
+		res += p
 	}
 	return res
 }

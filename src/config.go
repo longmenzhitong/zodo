@@ -38,7 +38,8 @@ type config struct {
 		To     []string `yaml:"to"`
 	} `yaml:"email"`
 	Table struct {
-		MaxLen int `yaml:"maxLen"`
+		MaxLen  int `yaml:"maxLen"`
+		Padding int `yaml:"padding"`
 	} `yaml:"table"`
 }
 
@@ -90,6 +91,7 @@ func initYaml(path string) {
 		"  to:",
 		"table:",
 		"  maxLen: 200",
+		"  padding: 3",
 	})
 }
 
