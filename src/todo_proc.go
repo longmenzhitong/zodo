@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-func List(keyword string, all bool) {
+func List(keyword string, status []string, allStatus bool) {
 	rows := make([]table.Row, 0)
-	for _, td := range cc.list(keyword, all) {
+	for _, td := range cc.list(keyword, status, allStatus) {
 		content := td.Content
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|-%s", padding(td.Level), content)
@@ -201,7 +201,7 @@ func Save() {
 func Report() error {
 	cc.refresh()
 	var text string
-	for _, td := range cc.list("", false) {
+	for _, td := range cc.list("", []string{}, false) {
 		status := td.getStatus(false)
 		ddl, remain := td.getDeadLineAndRemain(false)
 		if td.hasChildren() {

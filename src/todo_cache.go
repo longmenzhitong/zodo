@@ -36,11 +36,11 @@ func (c *cache) save() {
 	writeTodoLines(lines, Config.Storage.Type)
 }
 
-func (c *cache) list(keyword string, all bool) []todo {
+func (c *cache) list(keyword string, status []string, allStatus bool) []todo {
 	tds := make([]todo, 0)
 	for _, td := range sortTodo(c.data) {
-		if td.ParentId == 0 && hitTodo(td, keyword, all) {
-			walkTodo(td, &tds, 0, all)
+		if td.ParentId == 0 && hitTodo(td, keyword) {
+			walkTodo(td, &tds, 0, status, allStatus)
 		}
 	}
 	return tds

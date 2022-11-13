@@ -92,7 +92,7 @@ func Remind() error {
 	cc.refresh()
 	var text string
 	m := cc._map()
-	for _, td := range cc.list("", false) {
+	for _, td := range cc.list("", []string{}, true) {
 		if !isNeedRemind(td.RemindTime, td.LoopType, td.RemindStatus, time.Now()) {
 			continue
 		}

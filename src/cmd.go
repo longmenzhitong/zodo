@@ -29,11 +29,12 @@ type Option struct {
 }
 
 type ListCommand struct {
-	All bool `short:"a" required:"false" description:"Show all todos"`
+	AllStatus bool     `short:"a" required:"false" description:"Show all status todos"`
+	Status    []string `short:"s" required:"false" description:"Search by status prefix"`
 }
 
 func (c *ListCommand) Execute(args []string) error {
-	List(argsToStr(args), c.All)
+	List(argsToStr(args), c.Status, c.AllStatus)
 	return nil
 }
 

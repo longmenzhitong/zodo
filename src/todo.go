@@ -130,10 +130,7 @@ func (t *todo) hasChildren() bool {
 	return t.Children != nil && len(t.Children) > 0
 }
 
-func (t *todo) isVisible(all bool) bool {
-	if all {
-		return true
-	}
+func (t *todo) isVisible() bool {
 	if t.Status == statusHiding {
 		return false
 	}
@@ -158,8 +155,8 @@ func init() {
 	backupPath = todoPath + ".backup"
 }
 
-func hitTodo(td *todo, keyword string, all bool) bool {
-	if td == nil || !td.isVisible(all) {
+func hitTodo(td *todo, keyword string) bool {
+	if td == nil {
 		return false
 	}
 	if keyword == "" {
@@ -187,7 +184,7 @@ func hitTodo(td *todo, keyword string, all bool) bool {
 	if td.hasChildren() {
 		m := cc._map()
 		for childId := range td.Children {
-			if hitTodo(m[childId], keyword, all) {
+			if hitTodo(m[childId], keyword) {
 				return true
 			}
 		}
@@ -196,8 +193,12 @@ func hitTodo(td *todo, keyword string, all bool) bool {
 	return false
 }
 
-func walkTodo(td *todo, tds *[]todo, level int, all bool) {
-	if td == nil || !td.isVisible(all) {
+func walkTodo(td *todo, tds *[]todo, level int, status []string, allStatus bool) {
+	if td == nil {
+		return
+	}
+
+	if !hitStatus(td, status, allStatus) {
 		return
 	}
 
@@ -224,7 +225,36 @@ func walkTodo(td *todo, tds *[]todo, level int, all bool) {
 	childList = sortTodo(childList)
 
 	for _, child := range childList {
-		walkTodo(child, tds, level+1, all)
+		walkTodo(child, tds, level+1, status, allStatus)
+	}
+}
+
+func hitStatus(td *todo, status []string, allStatus bool) bool {
+	if td == nil {
+		return false
+	}
+	if allStatus {
+		return true
+	}
+	if len(status) == 0 {
+		return td.isVisible()
+	}
+	if td.hasChildren() {
+		for childId := range td.Children {
+			if hitStatus(cc._map()[childId], status, allStatus) {
+				return true
+			}
+		}
+		return false
+	} else {
+		hit := false
+		for _, s := range status {
+			if strings.HasPrefix(strings.ToLower(td.Status), strings.ToLower(s)) {
+				hit = true
+				break
+			}
+		}
+		return hit
 	}
 }
 
