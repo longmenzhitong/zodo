@@ -14,9 +14,11 @@ const (
 	statusPending    = "Pending"
 	statusProcessing = "Processing"
 	statusDone       = "Done"
+	statusHiding     = "Hiding"
 )
 
 var statusPriority = map[string]int{
+	statusHiding:     -1,
 	statusDone:       0,
 	statusPending:    1,
 	statusProcessing: 2,
@@ -47,6 +49,8 @@ func (t *todo) getStatus(colorful bool) string {
 			return color.HiCyanString(t.Status)
 		case statusDone:
 			return color.HiBlueString(t.Status)
+		case statusHiding:
+			return color.HiBlackString(t.Status)
 		}
 	}
 	return t.Status
@@ -126,6 +130,19 @@ func (t *todo) hasChildren() bool {
 	return t.Children != nil && len(t.Children) > 0
 }
 
+func (t *todo) isVisible(all bool) bool {
+	if all {
+		return true
+	}
+	if t.Status == statusHiding {
+		return false
+	}
+	if t.Status == statusDone && !Config.Todo.ShowDone {
+		return false
+	}
+	return true
+}
+
 const (
 	todoFileName = "todo"
 	todoRedisKey = "zd:todo"
@@ -142,10 +159,7 @@ func init() {
 }
 
 func hitTodo(td *todo, keyword string, all bool) bool {
-	if td == nil {
-		return false
-	}
-	if !all && td.Status == statusDone {
+	if td == nil || !td.isVisible(all) {
 		return false
 	}
 	if keyword == "" {
@@ -183,10 +197,7 @@ func hitTodo(td *todo, keyword string, all bool) bool {
 }
 
 func walkTodo(td *todo, tds *[]todo, level int, all bool) {
-	if td == nil {
-		return
-	}
-	if !all && td.Status == statusDone {
+	if td == nil || !td.isVisible(all) {
 		return
 	}
 

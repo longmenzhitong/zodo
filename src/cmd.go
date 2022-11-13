@@ -20,6 +20,7 @@ type Option struct {
 	SetPending     SetPendingCommand     `command:"pend" description:"Mark todo status as pending: pend <id>..."`
 	SetProcessing  SetProcessingCommand  `command:"proc" description:"Mark todo status as processing: proc <id>..."`
 	SetDone        SetDoneCommand        `command:"done" description:"Mark todo status as done: done <id>..."`
+	SetHiding      SetHidingCommand      `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
 	Server         ServerCommand         `command:"server" description:"Enter server mode"`
 	Report         ReportCommand         `command:"report" description:"Send report email"`
 	Rollback       RollbackCommand       `command:"rollback" description:"Rollback to last version"`
@@ -286,6 +287,21 @@ func (c *SetDoneCommand) Execute(args []string) error {
 	return &InvalidInputError{
 		Message: fmt.Sprintf("expect: done [id1] [id2]... or done [id] [remark], got: %v", args),
 	}
+}
+
+type SetHidingCommand struct {
+}
+
+func (c *SetHidingCommand) Execute(args []string) error {
+	ids, err := argsToIds(args)
+	if err != nil {
+		return err
+	}
+	for _, id := range ids {
+		SetHiding(id)
+	}
+	Save()
+	return nil
 }
 
 type ServerCommand struct {

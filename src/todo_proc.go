@@ -180,6 +180,20 @@ func SetDone(id int) {
 	}
 }
 
+func SetHiding(id int) {
+	td := cc._map()[id]
+	if td == nil {
+		return
+	}
+	td.Status = statusHiding
+	if !td.hasChildren() {
+		return
+	}
+	for childId := range td.Children {
+		SetHiding(childId)
+	}
+}
+
 func Save() {
 	cc.save()
 }
@@ -239,7 +253,7 @@ func Transfer() {
 
 func padding(level int) string {
 	var p string
-	for i := 0; i < Config.Table.Padding; i++ {
+	for i := 0; i < Config.Todo.Padding; i++ {
 		p += " "
 	}
 	var res string

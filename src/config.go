@@ -13,6 +13,10 @@ const (
 )
 
 type config struct {
+	Todo struct {
+		Padding  int  `yaml:"padding"`
+		ShowDone bool `yaml:"showDone"`
+	} `yaml:"todo"`
 	Storage struct {
 		Type  string `yaml:"type"`
 		Redis struct {
@@ -38,8 +42,7 @@ type config struct {
 		To     []string `yaml:"to"`
 	} `yaml:"email"`
 	Table struct {
-		MaxLen  int `yaml:"maxLen"`
-		Padding int `yaml:"padding"`
+		MaxLen int `yaml:"maxLen"`
 	} `yaml:"table"`
 }
 
