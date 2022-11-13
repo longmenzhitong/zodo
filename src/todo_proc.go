@@ -251,6 +251,10 @@ func Transfer() {
 	}
 }
 
+func Clear() {
+	cc.clear()
+}
+
 func padding(level int) string {
 	var p string
 	for i := 0; i < Config.Todo.Padding; i++ {

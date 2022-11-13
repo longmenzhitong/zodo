@@ -25,6 +25,7 @@ type Option struct {
 	Report         ReportCommand         `command:"report" description:"Send report email"`
 	Rollback       RollbackCommand       `command:"rollback" description:"Rollback to last version"`
 	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
+	Clear          ClearCommand          `command:"clr" description:"Clear all done todos"`
 }
 
 type ListCommand struct {
@@ -337,5 +338,14 @@ type TransferCommand struct {
 
 func (c *TransferCommand) Execute([]string) error {
 	Transfer()
+	return nil
+}
+
+type ClearCommand struct {
+}
+
+func (c *ClearCommand) Execute([]string) error {
+	Clear()
+	Save()
 	return nil
 }

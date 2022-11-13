@@ -85,6 +85,14 @@ func (c *cache) remove(id int) {
 	}
 }
 
+func (c *cache) clear() {
+	for _, td := range c.data {
+		if td.Status == statusDone {
+			c.remove(td.Id)
+		}
+	}
+}
+
 var cc cache
 
 func InitCache() {
