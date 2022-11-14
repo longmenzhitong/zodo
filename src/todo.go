@@ -155,7 +155,7 @@ func init() {
 	backupPath = todoPath + ".backup"
 }
 
-func hitTodo(td *todo, keyword string) bool {
+func hitKeyword(td *todo, keyword string) bool {
 	if td == nil {
 		return false
 	}
@@ -184,7 +184,7 @@ func hitTodo(td *todo, keyword string) bool {
 	if td.hasChildren() {
 		m := cc._map()
 		for childId := range td.Children {
-			if hitTodo(m[childId], keyword) {
+			if hitKeyword(m[childId], keyword) {
 				return true
 			}
 		}

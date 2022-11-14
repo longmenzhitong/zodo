@@ -14,8 +14,9 @@ const (
 
 type config struct {
 	Todo struct {
-		Padding  int  `yaml:"padding"`
-		ShowDone bool `yaml:"showDone"`
+		Padding    int  `yaml:"padding"`
+		ShowDone   bool `yaml:"showDone"`
+		ShowParent bool `yaml:"showParent"`
 	} `yaml:"todo"`
 	Storage struct {
 		Type  string `yaml:"type"`
@@ -76,6 +77,7 @@ func initYaml(path string) {
 		"todo:",
 		"  padding: 3",
 		"  showDone: false",
+		"  showParent: false",
 		"storage:",
 		"  type: file",
 		"  redis:",

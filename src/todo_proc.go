@@ -13,17 +13,17 @@ func List(keyword string, status []string, allStatus bool) {
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|-%s", padding(td.Level), content)
 		}
-		status := td.getStatus(true)
+		stat := td.getStatus(true)
 		ddl, remain := td.getDeadLineAndRemain(true)
-		if td.hasChildren() {
-			status = ""
+		if td.hasChildren() && !Config.Todo.ShowParent {
+			stat = ""
 			ddl = ""
 			remain = ""
 		}
 		rows = append(rows, table.Row{
 			td.Id,
 			content,
-			status,
+			stat,
 			ddl,
 			remain,
 		})
@@ -204,7 +204,7 @@ func Report() error {
 	for _, td := range cc.list("", []string{}, false) {
 		status := td.getStatus(false)
 		ddl, remain := td.getDeadLineAndRemain(false)
-		if td.hasChildren() {
+		if td.hasChildren() && !Config.Todo.ShowParent {
 			status = ""
 			ddl = ""
 			remain = ""
