@@ -59,6 +59,7 @@ func (c *DetailCommand) Execute(args []string) error {
 type AddCommand struct {
 	ParentId int    `short:"p" required:"false" description:"parent-id"`
 	Deadline string `short:"d" required:"false" description:"deadline"`
+	Remind   string `short:"r" required:"false" description:"remind-time"`
 }
 
 func (c *AddCommand) Execute(args []string) error {
@@ -80,6 +81,17 @@ func (c *AddCommand) Execute(args []string) error {
 			return err
 		}
 		SetDeadline(id, ddl)
+	}
+
+	if c.Remind != "" {
+		rmd, err := validateRemind(c.Remind)
+		if err != nil {
+			return err
+		}
+		err = SetRemind(id, rmd, true)
+		if err != nil {
+			return err
+		}
 	}
 
 	Save()
