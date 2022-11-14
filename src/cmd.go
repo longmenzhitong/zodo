@@ -3,6 +3,7 @@ package zodo
 import (
 	"fmt"
 	"github.com/atotto/clipboard"
+	"gopkg.in/yaml.v3"
 	"strconv"
 )
 
@@ -27,7 +28,8 @@ type Option struct {
 	Report         ReportCommand         `command:"report" description:"Send report email"`
 	Rollback       RollbackCommand       `command:"rollback" description:"Rollback to last version"`
 	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
-	Clear          ClearCommand          `command:"clr" description:"Clear all done todos"`
+	Clear          ClearCommand          `command:"clr" description:"Clear done todos"`
+	Config         ConfigCommand         `command:"conf" description:"Show configs"`
 }
 
 type ListCommand struct {
@@ -374,5 +376,17 @@ func (c *ClearCommand) Execute([]string) error {
 		Save()
 	}
 	fmt.Printf("%d cleared.\n", count)
+	return nil
+}
+
+type ConfigCommand struct {
+}
+
+func (c *ConfigCommand) Execute([]string) error {
+	out, err := yaml.Marshal(Config)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(out))
 	return nil
 }
