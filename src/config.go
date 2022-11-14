@@ -73,6 +73,9 @@ func InitConfig() {
 
 func initYaml(path string) {
 	RewriteLinesToPath(path, []string{
+		"todo:",
+		"  padding: 3",
+		"  showDone: false",
 		"storage:",
 		"  type: file",
 		"  redis:",
@@ -94,7 +97,6 @@ func initYaml(path string) {
 		"  to:",
 		"table:",
 		"  maxLen: 200",
-		"  padding: 3",
 	})
 }
 
