@@ -251,8 +251,8 @@ func Transfer() {
 	}
 }
 
-func Clear() {
-	cc.clear()
+func Clear() int {
+	return cc.clear()
 }
 
 func padding(level int) string {

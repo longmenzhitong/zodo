@@ -2,6 +2,8 @@ package zodo
 
 import (
 	"fmt"
+	"github.com/atotto/clipboard"
+	"strconv"
 )
 
 type Option struct {
@@ -95,6 +97,15 @@ func (c *AddCommand) Execute(args []string) error {
 	}
 
 	Save()
+
+	if Config.Todo.CopyIdAfterAdd {
+		err = clipboard.WriteAll(strconv.Itoa(id))
+		if err != nil {
+			return err
+		} else {
+			fmt.Println("Id copied.")
+		}
+	}
 	return nil
 }
 
@@ -358,7 +369,10 @@ type ClearCommand struct {
 }
 
 func (c *ClearCommand) Execute([]string) error {
-	Clear()
-	Save()
+	count := Clear()
+	if count > 0 {
+		Save()
+	}
+	fmt.Printf("%d cleared.\n", count)
 	return nil
 }

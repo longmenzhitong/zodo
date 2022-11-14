@@ -3,6 +3,7 @@ module zodo
 go 1.17
 
 require (
+	github.com/atotto/clipboard v0.1.4
 	github.com/fatih/color v1.13.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-redis/redis v6.15.9+incompatible
