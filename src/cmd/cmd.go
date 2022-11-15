@@ -106,8 +106,6 @@ func (c *AddCommand) Execute(args []string) error {
 		err = clipboard.WriteAll(strconv.Itoa(id))
 		if err != nil {
 			return err
-		} else {
-			fmt.Println("Id copied.")
 		}
 	}
 	return nil
@@ -377,7 +375,6 @@ func (c *ClearCommand) Execute([]string) error {
 	if count > 0 {
 		todo.Save()
 	}
-	fmt.Printf("%d cleared.\n", count)
 	return nil
 }
 
