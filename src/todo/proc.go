@@ -1,9 +1,10 @@
-package zodo
+package todo
 
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
+	"zodo/src"
 )
 
 func List(keyword string, status []string, allStatus bool) {
@@ -15,7 +16,7 @@ func List(keyword string, status []string, allStatus bool) {
 		}
 		stat := td.getStatus(true)
 		ddl, remain := td.getDeadLineAndRemain(true)
-		if td.hasChildren() && !Config.Todo.ShowParent {
+		if td.hasChildren() && !zodo.Config.Todo.ShowParent {
 			stat = ""
 			ddl = ""
 			remain = ""
@@ -28,13 +29,13 @@ func List(keyword string, status []string, allStatus bool) {
 			remain,
 		})
 	}
-	PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
+	zodo.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
 }
 
 func Detail(id int) error {
 	td := cc._map()[id]
 	if td == nil {
-		return &NotFoundError{
+		return &zodo.NotFoundError{
 			Target:  "todo",
 			Message: fmt.Sprintf("id: %d", id),
 		}
@@ -55,22 +56,22 @@ func Detail(id int) error {
 	rows = append(rows, table.Row{"CreateTime", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
-	PrintTable(table.Row{"Item", "Val"}, rows)
+	zodo.PrintTable(table.Row{"Item", "Val"}, rows)
 	return nil
 }
 
 func Add(content string) (int, error) {
 	if content == "" {
-		return -1, &InvalidInputError{
+		return -1, &zodo.InvalidInputError{
 			Message: fmt.Sprint("empty content"),
 		}
 	}
-	id := Id(Config.Storage.Type)
+	id := zodo.Id(zodo.Config.Storage.Type)
 	cc.add(todo{
 		Id:         id,
 		Content:    content,
 		Status:     statusPending,
-		CreateTime: time.Now().Format(LayoutDateTime),
+		CreateTime: time.Now().Format(zodo.LayoutDateTime),
 	})
 	return id, nil
 }
@@ -109,7 +110,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 	m := cc._map()
 	parent := m[parentId]
 	if parent == nil {
-		return &NotFoundError{
+		return &zodo.NotFoundError{
 			Target:  "parent",
 			Message: fmt.Sprintf("parentId: %d", parentId),
 		}
@@ -118,7 +119,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 		for childId := range parent.Children {
 			child := m[childId]
 			if child == nil {
-				fmt.Println(&NotFoundError{
+				fmt.Println(&zodo.NotFoundError{
 					Target:  "child",
 					Message: fmt.Sprintf("childId: %d", childId),
 				})
@@ -133,7 +134,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 	for _, childId := range childIds {
 		child := m[childId]
 		if child == nil {
-			fmt.Println(&NotFoundError{
+			fmt.Println(&zodo.NotFoundError{
 				Target:  "child",
 				Message: fmt.Sprintf("childId: %d", childId),
 			})
@@ -171,7 +172,7 @@ func SetDone(id int) {
 		return
 	}
 	td.Status = statusDone
-	td.DoneTime = time.Now().Format(LayoutDateTime)
+	td.DoneTime = time.Now().Format(zodo.LayoutDateTime)
 	if !td.hasChildren() {
 		return
 	}
@@ -204,7 +205,7 @@ func Report() error {
 	for _, td := range cc.list("", []string{}, false) {
 		status := td.getStatus(false)
 		ddl, remain := td.getDeadLineAndRemain(false)
-		if td.hasChildren() && !Config.Todo.ShowParent {
+		if td.hasChildren() && !zodo.Config.Todo.ShowParent {
 			status = ""
 			ddl = ""
 			remain = ""
@@ -225,28 +226,28 @@ func Report() error {
 		}
 	}
 	if text != "" {
-		return SendEmail("Daily Report", text)
+		return zodo.SendEmail("Daily Report", text)
 	}
 	return nil
 }
 
 func Rollback() {
-	writeTodoLines(ReadLinesFromPath(backupPath), Config.Storage.Type)
+	writeTodoLines(zodo.ReadLinesFromPath(backupPath), zodo.Config.Storage.Type)
 }
 
 func Transfer() {
-	switch Config.Storage.Type {
-	case StorageTypeFile:
-		writeTodoLines(readTodoLines(StorageTypeRedis), StorageTypeFile)
-		SetId(GetId(StorageTypeRedis)+1, StorageTypeFile)
+	switch zodo.Config.Storage.Type {
+	case zodo.StorageTypeFile:
+		writeTodoLines(readTodoLines(zodo.StorageTypeRedis), zodo.StorageTypeFile)
+		zodo.SetId(zodo.GetId(zodo.StorageTypeRedis)+1, zodo.StorageTypeFile)
 		return
-	case StorageTypeRedis:
-		writeTodoLines(readTodoLines(StorageTypeFile), StorageTypeRedis)
-		SetId(GetId(StorageTypeFile)+1, StorageTypeRedis)
+	case zodo.StorageTypeRedis:
+		writeTodoLines(readTodoLines(zodo.StorageTypeFile), zodo.StorageTypeRedis)
+		zodo.SetId(zodo.GetId(zodo.StorageTypeFile)+1, zodo.StorageTypeRedis)
 		return
 	default:
-		panic(&InvalidConfigError{
-			Message: fmt.Sprintf("storage.type: %s", Config.Storage.Type),
+		panic(&zodo.InvalidConfigError{
+			Message: fmt.Sprintf("storage.type: %s", zodo.Config.Storage.Type),
 		})
 	}
 }
@@ -257,7 +258,7 @@ func Clear() int {
 
 func padding(level int) string {
 	var p string
-	for i := 0; i < Config.Todo.Padding; i++ {
+	for i := 0; i < zodo.Config.Todo.Padding; i++ {
 		p += " "
 	}
 	var res string

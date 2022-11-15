@@ -1,8 +1,9 @@
-package zodo
+package todo
 
 import (
 	"testing"
 	"time"
+	"zodo/src"
 )
 
 func Test_isNeedRemind(t *testing.T) {
@@ -108,7 +109,7 @@ func Test_isNeedRemind(t *testing.T) {
 }
 
 func getCheckTime(t string) time.Time {
-	ct, err := time.ParseInLocation(LayoutDateTime, t, time.Local)
+	ct, err := time.ParseInLocation(zodo.LayoutDateTime, t, time.Local)
 	if err != nil {
 		panic(err)
 	}

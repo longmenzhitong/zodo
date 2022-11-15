@@ -1,9 +1,10 @@
-package zodo
+package todo
 
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
+	"zodo/src"
 )
 
 const (
@@ -40,7 +41,7 @@ var loopTypes = []string{
 func SetRemind(id int, rmdTime string, loop bool) error {
 	td := cc._map()[id]
 	if td == nil {
-		return &NotFoundError{
+		return &zodo.NotFoundError{
 			Target:  "todo",
 			Message: fmt.Sprintf("id: %d", id),
 		}
@@ -51,8 +52,8 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 		for i := 0; i < len(loopTypes); i++ {
 			rows = append(rows, table.Row{i, loopTypes[i]})
 		}
-		PrintTable(table.Row{"Num", "Type"}, rows)
-		num, err := ReadInt(0, len(loopTypes), "Enter number of remind type:")
+		zodo.PrintTable(table.Row{"Num", "Type"}, rows)
+		num, err := zodo.ReadInt(0, len(loopTypes), "Enter number of remind type:")
 		if err != nil {
 			return err
 		}
@@ -64,11 +65,11 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 	if td.LoopType == loopOnce {
 		td.RemindTime = rmdTime
 	} else {
-		t, err := time.ParseInLocation(LayoutYearMonthDayHourMinute, rmdTime, time.Local)
+		t, err := time.ParseInLocation(zodo.LayoutYearMonthDayHourMinute, rmdTime, time.Local)
 		if err != nil {
 			return err
 		}
-		td.RemindTime = t.Format(LayoutHourMinute)
+		td.RemindTime = t.Format(zodo.LayoutHourMinute)
 	}
 
 	td.RemindStatus = rmdStatusWaiting
@@ -110,7 +111,7 @@ func Remind() error {
 		}
 	}
 	if text != "" {
-		err := SendEmail("Reminder", text)
+		err := zodo.SendEmail("Reminder", text)
 		if err != nil {
 			return err
 		}
@@ -127,13 +128,13 @@ func isNeedRemind(rmdTime, loopType, rmdStatus string, checkTime time.Time) bool
 		return false
 	}
 	if loopType == loopOnce {
-		t, err := time.ParseInLocation(LayoutYearMonthDayHourMinute, rmdTime, time.Local)
+		t, err := time.ParseInLocation(zodo.LayoutYearMonthDayHourMinute, rmdTime, time.Local)
 		if err != nil {
 			panic(err)
 		}
 		return checkTime.Equal(t) || checkTime.After(t)
 	}
-	t, err := time.ParseInLocation(LayoutHourMinute, rmdTime, time.Local)
+	t, err := time.ParseInLocation(zodo.LayoutHourMinute, rmdTime, time.Local)
 	if err != nil {
 		panic(err)
 	}
@@ -161,7 +162,7 @@ func isNeedRemind(rmdTime, loopType, rmdStatus string, checkTime time.Time) bool
 	case loopPerSunday:
 		return wd == time.Sunday
 	}
-	panic(&InvalidInputError{
+	panic(&zodo.InvalidInputError{
 		Message: fmt.Sprintf("remindTime: %s, loopType: %s, remindStatus: %s, checkTime: %v",
 			rmdTime, loopType, rmdStatus, checkTime),
 	})

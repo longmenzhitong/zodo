@@ -1,4 +1,4 @@
-package zodo
+package todo
 
 import (
 	"reflect"

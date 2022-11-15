@@ -1,10 +1,12 @@
-package zodo
+package cmd
 
 import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"gopkg.in/yaml.v3"
 	"strconv"
+	"zodo/src"
+	"zodo/src/todo"
 )
 
 type Option struct {
@@ -38,7 +40,7 @@ type ListCommand struct {
 }
 
 func (c *ListCommand) Execute(args []string) error {
-	List(argsToStr(args), c.Status, c.AllStatus)
+	todo.List(argsToStr(args), c.Status, c.AllStatus)
 	return nil
 }
 
@@ -51,7 +53,7 @@ func (c *DetailCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		err = Detail(id)
+		err = todo.Detail(id)
 		if err != nil {
 			return err
 		}
@@ -67,13 +69,13 @@ type AddCommand struct {
 }
 
 func (c *AddCommand) Execute(args []string) error {
-	id, err := Add(argsToStr(args))
+	id, err := todo.Add(argsToStr(args))
 	if err != nil {
 		return err
 	}
 
 	if c.ParentId != 0 {
-		err = SetChild(c.ParentId, []int{id}, true)
+		err = todo.SetChild(c.ParentId, []int{id}, true)
 		if err != nil {
 			return err
 		}
@@ -84,7 +86,7 @@ func (c *AddCommand) Execute(args []string) error {
 		if err != nil {
 			return err
 		}
-		SetDeadline(id, ddl)
+		todo.SetDeadline(id, ddl)
 	}
 
 	if c.Remind != "" {
@@ -92,15 +94,15 @@ func (c *AddCommand) Execute(args []string) error {
 		if err != nil {
 			return err
 		}
-		err = SetRemind(id, rmd, true)
+		err = todo.SetRemind(id, rmd, true)
 		if err != nil {
 			return err
 		}
 	}
 
-	Save()
+	todo.Save()
 
-	if Config.Todo.CopyIdAfterAdd {
+	if zodo.Config.Todo.CopyIdAfterAdd {
 		err = clipboard.WriteAll(strconv.Itoa(id))
 		if err != nil {
 			return err
@@ -119,8 +121,8 @@ func (c *ModifyCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	Modify(id, content)
-	Save()
+	todo.Modify(id, content)
+	todo.Save()
 	return nil
 }
 
@@ -132,8 +134,8 @@ func (c *RemoveCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	Remove(ids)
-	Save()
+	todo.Remove(ids)
+	todo.Save()
 	return nil
 }
 
@@ -145,8 +147,8 @@ func (c *SetRemarkCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	SetRemark(id, remark)
-	Save()
+	todo.SetRemark(id, remark)
+	todo.Save()
 	return nil
 }
 
@@ -164,8 +166,8 @@ func (c *SetDeadlineCommand) Execute(args []string) error {
 		return err
 	}
 
-	SetDeadline(id, ddl)
-	Save()
+	todo.SetDeadline(id, ddl)
+	todo.Save()
 	return nil
 }
 
@@ -178,9 +180,9 @@ func (c *RemoveDeadlineCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		SetDeadline(id, "")
+		todo.SetDeadline(id, "")
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -197,11 +199,11 @@ func (c *SetRemindCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	err = SetRemind(id, rmd, c.Loop)
+	err = todo.SetRemind(id, rmd, c.Loop)
 	if err != nil {
 		return err
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -213,8 +215,8 @@ func (c *RemoveRemindCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	RemoveRemind(ids)
-	Save()
+	todo.RemoveRemind(ids)
+	todo.Save()
 	return nil
 }
 
@@ -226,7 +228,7 @@ func (c *SetChildCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -238,7 +240,7 @@ func (c *AddChildCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -248,15 +250,15 @@ func setChild(args []string, append bool) error {
 		return err
 	}
 	if len(ids) < 2 {
-		return &InvalidInputError{
+		return &zodo.InvalidInputError{
 			Message: fmt.Sprintf("expect: scd [parentId] [childId], got: %v", args),
 		}
 	}
-	err = SetChild(ids[0], ids[1:], append)
+	err = todo.SetChild(ids[0], ids[1:], append)
 	if err != nil {
 		return err
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -269,9 +271,9 @@ func (c *SetPendingCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		SetPending(id)
+		todo.SetPending(id)
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -284,9 +286,9 @@ func (c *SetProcessingCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		SetProcessing(id)
+		todo.SetProcessing(id)
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -297,21 +299,21 @@ func (c *SetDoneCommand) Execute(args []string) error {
 	ids, err := argsToIds(args)
 	if err == nil {
 		for _, id := range ids {
-			SetDone(id)
+			todo.SetDone(id)
 		}
-		Save()
+		todo.Save()
 		return nil
 	}
 
 	id, remark, err := argsToIdAndStr(args)
 	if err == nil {
-		SetDone(id)
-		SetRemark(id, remark)
-		Save()
+		todo.SetDone(id)
+		todo.SetRemark(id, remark)
+		todo.Save()
 		return nil
 	}
 
-	return &InvalidInputError{
+	return &zodo.InvalidInputError{
 		Message: fmt.Sprintf("expect: done [id1] [id2]... or done [id] [remark], got: %v", args),
 	}
 }
@@ -325,9 +327,9 @@ func (c *SetHidingCommand) Execute(args []string) error {
 		return err
 	}
 	for _, id := range ids {
-		SetHiding(id)
+		todo.SetHiding(id)
 	}
-	Save()
+	todo.Save()
 	return nil
 }
 
@@ -335,11 +337,11 @@ type ServerCommand struct {
 }
 
 func (c *ServerCommand) Execute([]string) error {
-	if Config.DailyReport.Enabled {
-		StartDailyReport()
+	if zodo.Config.DailyReport.Enabled {
+		todo.StartDailyReport()
 	}
-	if Config.Reminder.Enabled {
-		StartReminder()
+	if zodo.Config.Reminder.Enabled {
+		todo.StartReminder()
 	}
 	select {}
 }
@@ -348,14 +350,14 @@ type ReportCommand struct {
 }
 
 func (c *ReportCommand) Execute([]string) error {
-	return Report()
+	return todo.Report()
 }
 
 type RollbackCommand struct {
 }
 
 func (c *RollbackCommand) Execute([]string) error {
-	Rollback()
+	todo.Rollback()
 	return nil
 }
 
@@ -363,7 +365,7 @@ type TransferCommand struct {
 }
 
 func (c *TransferCommand) Execute([]string) error {
-	Transfer()
+	todo.Transfer()
 	return nil
 }
 
@@ -371,9 +373,9 @@ type ClearCommand struct {
 }
 
 func (c *ClearCommand) Execute([]string) error {
-	count := Clear()
+	count := todo.Clear()
 	if count > 0 {
-		Save()
+		todo.Save()
 	}
 	fmt.Printf("%d cleared.\n", count)
 	return nil
@@ -383,7 +385,7 @@ type ConfigCommand struct {
 }
 
 func (c *ConfigCommand) Execute([]string) error {
-	out, err := yaml.Marshal(Config)
+	out, err := yaml.Marshal(zodo.Config)
 	if err != nil {
 		return err
 	}

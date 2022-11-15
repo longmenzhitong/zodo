@@ -1,7 +1,8 @@
-package zodo
+package todo
 
 import (
 	"encoding/json"
+	"zodo/src"
 )
 
 type cache struct {
@@ -10,7 +11,7 @@ type cache struct {
 
 func (c *cache) refresh() {
 	newData := make([]*todo, 0)
-	for _, line := range readTodoLines(Config.Storage.Type) {
+	for _, line := range readTodoLines(zodo.Config.Storage.Type) {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
@@ -23,7 +24,7 @@ func (c *cache) refresh() {
 
 func (c *cache) save() {
 	// backup first
-	RewriteLinesToPath(backupPath, readTodoLines(Config.Storage.Type))
+	zodo.RewriteLinesToPath(backupPath, readTodoLines(zodo.Config.Storage.Type))
 
 	lines := make([]string, 0)
 	for _, td := range c.data {
@@ -33,7 +34,7 @@ func (c *cache) save() {
 		}
 		lines = append(lines, string(js))
 	}
-	writeTodoLines(lines, Config.Storage.Type)
+	writeTodoLines(lines, zodo.Config.Storage.Type)
 }
 
 func (c *cache) list(keyword string, status []string, allStatus bool) []todo {

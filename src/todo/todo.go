@@ -1,4 +1,4 @@
-package zodo
+package todo
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"zodo/src"
 )
 
 const (
@@ -57,11 +58,11 @@ func (t *todo) getStatus(colorful bool) string {
 }
 
 func (t *todo) getRemainDays() (natureDays int, workDays int) {
-	ddlTime, err := time.Parse(LayoutYearMonthDay, t.Deadline)
+	ddlTime, err := time.Parse(zodo.LayoutYearMonthDay, t.Deadline)
 	if err != nil {
 		panic(err)
 	}
-	return CalcBetweenDays(time.Now(), ddlTime)
+	return zodo.CalcBetweenDays(time.Now(), ddlTime)
 }
 
 func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
@@ -70,16 +71,16 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 	}
 
 	if t.Status == statusDone {
-		return SimplifyTime(t.Deadline), ""
+		return zodo.SimplifyTime(t.Deadline), ""
 	}
 
-	ddlTime, err := time.Parse(LayoutYearMonthDay, t.Deadline)
+	ddlTime, err := time.Parse(zodo.LayoutYearMonthDay, t.Deadline)
 	if err != nil {
 		panic(err)
 	}
 
 	ddl = fmt.Sprintf("%s(%s)", t.Deadline, ddlTime.Weekday().String()[:3])
-	ddl = SimplifyTime(ddl)
+	ddl = zodo.SimplifyTime(ddl)
 
 	nd, wd := t.getRemainDays()
 	remain = fmt.Sprintf("%dnd/%dwd", nd, wd)
@@ -100,15 +101,15 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 }
 
 func (t *todo) getRemindTime() string {
-	return SimplifyTime(t.RemindTime)
+	return zodo.SimplifyTime(t.RemindTime)
 }
 
 func (t *todo) getDoneTime() string {
-	return SimplifyTime(t.DoneTime)
+	return zodo.SimplifyTime(t.DoneTime)
 }
 
 func (t *todo) getCreateTime() string {
-	return SimplifyTime(t.CreateTime)
+	return zodo.SimplifyTime(t.CreateTime)
 }
 
 func (t *todo) getParentId() string {
@@ -134,7 +135,7 @@ func (t *todo) isVisible() bool {
 	if t.Status == statusHiding {
 		return false
 	}
-	if t.Status == statusDone && !Config.Todo.ShowDone {
+	if t.Status == statusDone && !zodo.Config.Todo.ShowDone {
 		return false
 	}
 	return true
@@ -151,7 +152,7 @@ var (
 )
 
 func init() {
-	todoPath = Path(todoFileName)
+	todoPath = zodo.Path(todoFileName)
 	backupPath = todoPath + ".backup"
 }
 
@@ -214,7 +215,7 @@ func walkTodo(td *todo, tds *[]todo, level int, status []string, allStatus bool)
 	for childId := range td.Children {
 		child := m[childId]
 		if child == nil {
-			fmt.Println(&NotFoundError{
+			fmt.Println(&zodo.NotFoundError{
 				Target:  "child",
 				Message: fmt.Sprintf("parentId: %d, childId: %d", td.Id, childId),
 			})
@@ -273,11 +274,11 @@ func sortTodo(tds []*todo) []*todo {
 
 		if a.Deadline != b.Deadline {
 			if a.Deadline != "" && b.Deadline != "" {
-				ta, err := time.Parse(LayoutYearMonthDay, a.Deadline)
+				ta, err := time.Parse(zodo.LayoutYearMonthDay, a.Deadline)
 				if err != nil {
 					panic(err)
 				}
-				tb, err := time.Parse(LayoutYearMonthDay, b.Deadline)
+				tb, err := time.Parse(zodo.LayoutYearMonthDay, b.Deadline)
 				if err != nil {
 					panic(err)
 				}
