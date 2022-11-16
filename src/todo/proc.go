@@ -109,45 +109,30 @@ func SetRemark(id int, remark string) {
 func SetChild(parentId int, childIds []int, append bool) error {
 	m := cc._map()
 	parent := m[parentId]
-	if parent == nil {
-		return &zodo.NotFoundError{
-			Target:  "parent",
-			Message: fmt.Sprintf("parentId: %d", parentId),
-		}
-	}
-	if parent.Children != nil && !append {
+	if !append && parent.hasChildren() {
 		for childId := range parent.Children {
-			child := m[childId]
-			if child == nil {
-				fmt.Println(&zodo.NotFoundError{
-					Target:  "child",
-					Message: fmt.Sprintf("childId: %d", childId),
-				})
-			} else {
-				child.ParentId = 0
-			}
+			m[childId].ParentId = 0
 		}
 	}
-	if parent.Children == nil || !append {
+	if !append || parent.Children == nil {
 		parent.Children = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
 		child := m[childId]
-		if child == nil {
-			fmt.Println(&zodo.NotFoundError{
-				Target:  "child",
-				Message: fmt.Sprintf("childId: %d", childId),
-			})
-			continue
-		}
-
-		oldParent := m[child.ParentId]
-		if oldParent != nil {
-			delete(oldParent.Children, childId)
+		if child.ParentId != 0 {
+			delete(m[child.ParentId].Children, childId)
 		}
 
 		child.ParentId = parentId
 		parent.Children[childId] = true
+
+		// for swap parent and child
+		if parent.ParentId == childId {
+			parent.ParentId = 0
+		}
+		if child.Children[parentId] {
+			delete(child.Children, parentId)
+		}
 	}
 	return nil
 }
