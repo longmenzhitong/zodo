@@ -222,24 +222,14 @@ type SetChildCommand struct {
 }
 
 func (c *SetChildCommand) Execute(args []string) error {
-	err := setChild(args, false)
-	if err != nil {
-		return err
-	}
-	todo.Save()
-	return nil
+	return setChild(args, false)
 }
 
 type AddChildCommand struct {
 }
 
 func (c *AddChildCommand) Execute(args []string) error {
-	err := setChild(args, true)
-	if err != nil {
-		return err
-	}
-	todo.Save()
-	return nil
+	return setChild(args, true)
 }
 
 func setChild(args []string, append bool) error {
