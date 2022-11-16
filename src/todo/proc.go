@@ -252,8 +252,12 @@ func Transfer() {
 	}
 }
 
-func Clear() int {
-	return cc.clear()
+func ClearDoneTodo() int {
+	return cc.clearDoneTodo()
+}
+
+func DefragId() int {
+	return cc.defragId()
 }
 
 func padding(level int) string {

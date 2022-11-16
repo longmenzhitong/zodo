@@ -2,6 +2,7 @@ package todo
 
 import (
 	"encoding/json"
+	"sort"
 	"zodo/src"
 )
 
@@ -86,7 +87,7 @@ func (c *cache) remove(id int) {
 	}
 }
 
-func (c *cache) clear() int {
+func (c *cache) clearDoneTodo() int {
 	count := 0
 	for _, td := range c.data {
 		if td.Status == statusDone {
@@ -95,6 +96,33 @@ func (c *cache) clear() int {
 		}
 	}
 	return count
+}
+
+func (c *cache) defragId() int {
+	sort.Slice(c.data, func(i, j int) bool {
+		return c.data[i].Id < c.data[j].Id
+	})
+	m := make(map[int]int, 0)
+	for i, td := range c.data {
+		m[td.Id] = i + 1
+	}
+	for _, td := range c.data {
+		td.Id = m[td.Id]
+		if td.ParentId != 0 {
+			td.ParentId = m[td.ParentId]
+		}
+		if td.hasChildren() {
+			newChildren := make(map[int]bool, 0)
+			for childId := range td.Children {
+				newChildren[m[childId]] = true
+			}
+			td.Children = newChildren
+		}
+	}
+	oldNextId := zodo.GetId(zodo.Config.Storage.Type)
+	newNextId := len(c.data) + 1
+	zodo.SetId(newNextId, zodo.Config.Storage.Type)
+	return oldNextId - newNextId
 }
 
 var cc cache

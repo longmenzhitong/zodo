@@ -30,7 +30,7 @@ type Option struct {
 	Report         ReportCommand         `command:"report" description:"Send report email"`
 	Rollback       RollbackCommand       `command:"rollback" description:"Rollback to last version"`
 	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
-	Clear          ClearCommand          `command:"clr" description:"Clear done todos"`
+	Tidy           TidyCommand           `command:"tidy" description:"Tidy data"`
 	Config         ConfigCommand         `command:"conf" description:"Show configs"`
 }
 
@@ -367,11 +367,20 @@ func (c *TransferCommand) Execute([]string) error {
 	return nil
 }
 
-type ClearCommand struct {
+type TidyCommand struct {
+	All      bool `short:"a" required:"false" description:"All tidy works"`
+	DoneTodo bool `short:"d" required:"false" description:"Clear done todos"`
+	Id       bool `short:"i" required:"false" description:"Defrag ids"`
 }
 
-func (c *ClearCommand) Execute([]string) error {
-	count := todo.Clear()
+func (c *TidyCommand) Execute([]string) error {
+	count := 0
+	if c.All || c.DoneTodo {
+		count += todo.ClearDoneTodo()
+	}
+	if c.All || c.Id {
+		count += todo.DefragId()
+	}
 	if count > 0 {
 		todo.Save()
 	}
