@@ -233,6 +233,7 @@ func Report() error {
 
 func Rollback() {
 	writeTodoLines(zodo.ReadLinesFromPath(backupPath), zodo.Config.Storage.Type)
+	zodo.RollbackId(zodo.Config.Storage.Type)
 }
 
 func Transfer() {
