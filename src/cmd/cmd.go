@@ -32,6 +32,7 @@ type Option struct {
 	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
 	Tidy           TidyCommand           `command:"tidy" description:"Tidy data"`
 	Config         ConfigCommand         `command:"conf" description:"Show configs"`
+	Info           InfoCommand           `command:"info" description:"Show infos"`
 }
 
 type ListCommand struct {
@@ -386,5 +387,13 @@ func (c *ConfigCommand) Execute([]string) error {
 		return err
 	}
 	fmt.Println(string(out))
+	return nil
+}
+
+type InfoCommand struct {
+}
+
+func (c *InfoCommand) Execute([]string) error {
+	todo.Info()
 	return nil
 }

@@ -2,6 +2,7 @@ package todo
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
 	"zodo/src"
@@ -256,4 +257,28 @@ func ClearDoneTodo() int {
 
 func DefragId() int {
 	return cc.defragId()
+}
+
+func Info() {
+	proc := 0
+	pend := 0
+	done := 0
+	for _, td := range cc.data {
+		switch td.Status {
+		case statusProcessing:
+			proc++
+		case statusPending:
+			pend++
+		case statusDone:
+			done++
+		}
+	}
+
+	rows := make([]table.Row, 0)
+	rows = append(rows, table.Row{"All", len(cc.data)})
+	rows = append(rows, table.Row{color.HiCyanString("Processing"), proc})
+	rows = append(rows, table.Row{color.HiMagentaString("Pending"), pend})
+	rows = append(rows, table.Row{color.HiBlueString("Done"), done})
+	rows = append(rows, table.Row{"NextId", zodo.GetId(zodo.Config.Storage.Type)})
+	zodo.PrintTable(table.Row{"Item", "Val"}, rows)
 }
