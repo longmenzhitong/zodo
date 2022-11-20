@@ -3,10 +3,9 @@ package zodo
 import "os"
 
 const (
-	Yes                          = "y"
 	PathSep                      = string(os.PathSeparator)
+	LayoutDate                   = "2006-01-02"
 	LayoutDateTime               = "2006-01-02 15:04:05"
-	LayoutYearMonthDay           = "2006-01-02"
 	LayoutMonthDay               = "01-02"
 	LayoutHourMinute             = "15:04"
 	LayoutMonthDayHourMinute     = "01-02 15:04"

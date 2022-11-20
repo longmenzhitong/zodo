@@ -16,7 +16,7 @@ func List(keyword string, status []string, allStatus bool) {
 		}
 		stat := td.getStatus(true)
 		ddl, remain := td.getDeadLineAndRemain(true)
-		if td.hasChildren() && !zodo.Config.Todo.ShowParent {
+		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {
 			stat = ""
 			ddl = ""
 			remain = ""
@@ -190,7 +190,7 @@ func Report() error {
 	for _, td := range cc.list("", []string{}, false) {
 		status := td.getStatus(false)
 		ddl, remain := td.getDeadLineAndRemain(false)
-		if td.hasChildren() && !zodo.Config.Todo.ShowParent {
+		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {
 			status = ""
 			ddl = ""
 			remain = ""
@@ -214,6 +214,18 @@ func Report() error {
 		return zodo.SendEmail("Daily Report", text)
 	}
 	return nil
+}
+
+func padding(level int) string {
+	var p string
+	for i := 0; i < zodo.Config.Todo.Padding; i++ {
+		p += " "
+	}
+	var res string
+	for i := 0; i < level; i++ {
+		res += p
+	}
+	return res
 }
 
 func Rollback() {
@@ -244,16 +256,4 @@ func ClearDoneTodo() int {
 
 func DefragId() int {
 	return cc.defragId()
-}
-
-func padding(level int) string {
-	var p string
-	for i := 0; i < zodo.Config.Todo.Padding; i++ {
-		p += " "
-	}
-	var res string
-	for i := 0; i < level; i++ {
-		res += p
-	}
-	return res
 }

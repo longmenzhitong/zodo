@@ -6,6 +6,8 @@ import (
 	"zodo/src"
 )
 
+var cc cache
+
 type cache struct {
 	data []*todo
 }
@@ -125,9 +127,6 @@ func (c *cache) defragId() int {
 	return oldNextId - newNextId
 }
 
-var cc cache
-
 func InitCache() {
-	cc = cache{}
 	cc.refresh()
 }

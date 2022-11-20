@@ -49,7 +49,7 @@ func argsToIdAndStr(args []string) (id int, str string, err error) {
 }
 
 func validateDeadline(ddl string) (string, error) {
-	_, err := time.Parse(zodo.LayoutYearMonthDay, ddl)
+	_, err := time.Parse(zodo.LayoutDate, ddl)
 	if err == nil {
 		return ddl, nil
 	}
@@ -57,7 +57,7 @@ func validateDeadline(ddl string) (string, error) {
 	t, err := time.Parse(zodo.LayoutMonthDay, ddl)
 	if err == nil {
 		d := time.Date(time.Now().Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
-		return d.Format(zodo.LayoutYearMonthDay), nil
+		return d.Format(zodo.LayoutDate), nil
 	}
 
 	return "", &zodo.InvalidInputError{

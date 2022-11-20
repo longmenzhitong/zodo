@@ -12,12 +12,16 @@ const (
 	StorageTypeFile  = "file"
 )
 
+const configFileName = "conf"
+
+var Config config
+
 type config struct {
 	Todo struct {
-		Padding        int  `yaml:"padding"`
-		ShowDone       bool `yaml:"showDone"`
-		ShowParent     bool `yaml:"showParent"`
-		CopyIdAfterAdd bool `yaml:"copyIdAfterAdd"`
+		Padding          int  `yaml:"padding"`
+		ShowDone         bool `yaml:"showDone"`
+		ShowParentStatus bool `yaml:"showParentStatus"`
+		CopyIdAfterAdd   bool `yaml:"copyIdAfterAdd"`
 	} `yaml:"todo"`
 	Storage struct {
 		Type  string `yaml:"type"`
@@ -48,14 +52,7 @@ type config struct {
 	} `yaml:"table"`
 }
 
-const configFileName = "conf"
-
-var (
-	configPath string
-	Config     config
-)
-
-func InitConfig() {
+func (c *config) Init() {
 	dir := ProjectDir()
 	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
 		err = os.Mkdir(dir, os.ModePerm)
@@ -64,56 +61,31 @@ func InitConfig() {
 		}
 	}
 
-	configPath = Path(configFileName)
-
+	configPath := Path(configFileName)
 	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
-		initYaml(configPath)
+		Config = config{}
+		Config.Todo.Padding = 3
+		Config.Todo.ShowDone = false
+		Config.Todo.ShowParentStatus = false
+		Config.Todo.CopyIdAfterAdd = true
+		Config.Storage.Type = StorageTypeFile
+		Config.DailyReport.Enabled = false
+		Config.Reminder.Enabled = false
+		Config.Table.MaxLen = 200
+		out, err := yaml.Marshal(Config)
+		if err != nil {
+			panic(err)
+		}
+		RewriteLinesToPath(configPath, []string{string(out)})
+		return
 	}
 
-	parseYaml(configPath)
-}
-
-func initYaml(path string) {
-	RewriteLinesToPath(path, []string{
-		"todo:",
-		"  padding: 3",
-		"  showDone: false",
-		"  showParent: false",
-		"  copyIdAfterAdd: true",
-		"storage:",
-		"  type: file",
-		"  redis:",
-		"    address:",
-		"    password:",
-		"    db:",
-		"    localize:",
-		"dailyReport:",
-		"  enabled: false",
-		"  cron:",
-		"reminder:",
-		"  enabled: false",
-		"  cron:",
-		"email:",
-		"  server:",
-		"  port:",
-		"  auth:",
-		"  from:",
-		"  to:",
-		"table:",
-		"  maxLen: 200",
-	})
-}
-
-func parseYaml(path string) {
-	f, err := ioutil.ReadFile(path)
+	f, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		panic(err)
 	}
-	err = yaml.Unmarshal(f, &Config)
+	err = yaml.Unmarshal(f, &c)
 	if err != nil {
 		panic(err)
-	}
-	if Config.Table.MaxLen == 0 {
-		Config.Table.MaxLen = 150
 	}
 }

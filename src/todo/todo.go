@@ -58,7 +58,7 @@ func (t *todo) getStatus(colorful bool) string {
 }
 
 func (t *todo) getRemainDays() (natureDays int, workDays int) {
-	ddlTime, err := time.Parse(zodo.LayoutYearMonthDay, t.Deadline)
+	ddlTime, err := time.Parse(zodo.LayoutDate, t.Deadline)
 	if err != nil {
 		panic(err)
 	}
@@ -74,7 +74,7 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 		return zodo.SimplifyTime(t.Deadline), ""
 	}
 
-	ddlTime, err := time.Parse(zodo.LayoutYearMonthDay, t.Deadline)
+	ddlTime, err := time.Parse(zodo.LayoutDate, t.Deadline)
 	if err != nil {
 		panic(err)
 	}
@@ -142,18 +142,18 @@ func (t *todo) isVisible() bool {
 }
 
 const (
-	todoFileName = "todo"
-	todoRedisKey = "zd:todo"
+	fileName = "todo"
+	redisKey = "zd:todo"
 )
 
 var (
-	todoPath   string
+	path       string
 	backupPath string
 )
 
 func init() {
-	todoPath = zodo.Path(todoFileName)
-	backupPath = todoPath + ".backup"
+	path = zodo.Path(fileName)
+	backupPath = path + ".backup"
 }
 
 func hitKeyword(td *todo, keyword string) bool {
@@ -274,11 +274,11 @@ func sortTodo(tds []*todo) []*todo {
 
 		if a.Deadline != b.Deadline {
 			if a.Deadline != "" && b.Deadline != "" {
-				ta, err := time.Parse(zodo.LayoutYearMonthDay, a.Deadline)
+				ta, err := time.Parse(zodo.LayoutDate, a.Deadline)
 				if err != nil {
 					panic(err)
 				}
-				tb, err := time.Parse(zodo.LayoutYearMonthDay, b.Deadline)
+				tb, err := time.Parse(zodo.LayoutDate, b.Deadline)
 				if err != nil {
 					panic(err)
 				}

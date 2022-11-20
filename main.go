@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	zodo.InitConfig()
+	zodo.Config.Init()
 	todo.InitCache()
 
 	var opt cmd.Option

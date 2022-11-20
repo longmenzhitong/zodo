@@ -11,10 +11,10 @@ import (
 func readTodoLines(storageType string) []string {
 	switch storageType {
 	case zodo.StorageTypeFile:
-		return zodo.ReadLinesFromPath(todoPath)
+		return zodo.ReadLinesFromPath(path)
 	case zodo.StorageTypeRedis:
 		var lines []string
-		cmd := zodo.Redis().Get(todoRedisKey)
+		cmd := zodo.Redis().Get(redisKey)
 		linesJson, err := cmd.Result()
 		if errors.Is(err, redis.Nil) {
 			return lines
@@ -37,14 +37,14 @@ func readTodoLines(storageType string) []string {
 func writeTodoLines(lines []string, storageType string) {
 	switch storageType {
 	case zodo.StorageTypeFile:
-		zodo.RewriteLinesToPath(todoPath, lines)
+		zodo.RewriteLinesToPath(path, lines)
 		return
 	case zodo.StorageTypeRedis:
 		linesJson, err := json.Marshal(lines)
 		if err != nil {
 			panic(err)
 		}
-		zodo.Redis().Set(todoRedisKey, linesJson, 0)
+		zodo.Redis().Set(redisKey, linesJson, 0)
 		if zodo.Config.Storage.Redis.Localize {
 			writeTodoLines(lines, zodo.StorageTypeFile)
 		}
