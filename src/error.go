@@ -7,7 +7,7 @@ type InvalidInputError struct {
 }
 
 func (e *InvalidInputError) Error() string {
-	return fmt.Sprintf("invalid input: %s, ", e.Message)
+	return fmt.Sprintf("invalid input: %s", e.Message)
 }
 
 type InvalidConfigError struct {
@@ -15,7 +15,7 @@ type InvalidConfigError struct {
 }
 
 func (e *InvalidConfigError) Error() string {
-	return fmt.Sprintf("invalid config: %s, ", e.Message)
+	return fmt.Sprintf("invalid config: %s", e.Message)
 }
 
 type NotFoundError struct {

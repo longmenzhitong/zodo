@@ -2,6 +2,7 @@ package todo
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 	"zodo/src"
 )
@@ -59,6 +60,10 @@ func (c *cache) _map() map[int]*todo {
 }
 
 func (c *cache) add(td todo) {
+	if c._map()[td.Id] != nil {
+		panic(&zodo.InvalidInputError{Message: fmt.Sprintf("id duplicated: %d", td.Id)})
+	}
+
 	c.data = append(c.data, &td)
 }
 
