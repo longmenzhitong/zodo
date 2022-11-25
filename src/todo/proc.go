@@ -139,45 +139,32 @@ func SetChild(parentId int, childIds []int, append bool) error {
 }
 
 func SetPending(id int) {
-	td := cc._map()[id]
-	if td != nil {
-		td.Status = statusPending
-	}
+	setStatus(id, statusPending)
 }
 
 func SetProcessing(id int) {
-	td := cc._map()[id]
-	if td != nil {
-		td.Status = statusProcessing
-	}
+	setStatus(id, statusProcessing)
 }
 
 func SetDone(id int) {
-	td := cc._map()[id]
-	if td == nil {
-		return
-	}
-	td.Status = statusDone
-	td.DoneTime = time.Now().Format(zodo.LayoutDateTime)
-	if !td.hasChildren() {
-		return
-	}
-	for childId := range td.Children {
-		SetDone(childId)
-	}
+	setStatus(id, statusDone)
 }
 
 func SetHiding(id int) {
+	setStatus(id, statusHiding)
+}
+
+func setStatus(id int, status string) {
 	td := cc._map()[id]
 	if td == nil {
 		return
 	}
-	td.Status = statusHiding
+	td.Status = status
 	if !td.hasChildren() {
 		return
 	}
 	for childId := range td.Children {
-		SetHiding(childId)
+		setStatus(childId, status)
 	}
 }
 
