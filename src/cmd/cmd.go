@@ -10,9 +10,9 @@ import (
 )
 
 type Option struct {
-	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] <keyword>"`
+	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] <keyword>"`
 	Detail         DetailCommand         `command:"cat" description:"Show todo detail: cat <id>..."`
-	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] <content>"`
+	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
 	Modify         ModifyCommand         `command:"mod" description:"Modify todo: mod <id> <content>"`
 	Remove         RemoveCommand         `command:"rm" description:"Remove todo: rm <id>..."`
 	SetRemark      SetRemarkCommand      `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
@@ -30,9 +30,9 @@ type Option struct {
 	Report         ReportCommand         `command:"report" description:"Send report email"`
 	Rollback       RollbackCommand       `command:"rollback" description:"Rollback to last version"`
 	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
-	Tidy           TidyCommand           `command:"tidy" description:"Tidy data"`
-	Config         ConfigCommand         `command:"conf" description:"Show configs"`
-	Info           InfoCommand           `command:"info" description:"Show infos"`
+	Tidy           TidyCommand           `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
+	Config         ConfigCommand         `command:"conf" description:"Show config"`
+	Info           InfoCommand           `command:"info" description:"Show info"`
 }
 
 type ListCommand struct {
