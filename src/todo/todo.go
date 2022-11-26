@@ -86,7 +86,7 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 	remain = fmt.Sprintf("%dnd/%dwd", nd, wd)
 
 	if colorful && (t.Status == statusPending || t.Status == statusProcessing) {
-		if wd == 0 && nd == 0 {
+		if wd <= 0 && nd <= 0 {
 			ddl = color.RedString(ddl)
 			remain = color.RedString(remain)
 		} else if wd == 1 || nd == 1 {
