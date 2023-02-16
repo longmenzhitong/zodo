@@ -33,6 +33,7 @@ type Option struct {
 	Tidy           TidyCommand           `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config         ConfigCommand         `command:"conf" description:"Show config"`
 	Info           InfoCommand           `command:"info" description:"Show info"`
+	SimplifySql    SimplifySqlCommand    `command:"ss" description:"Simplify sql for drawio"`
 }
 
 type ListCommand struct {
@@ -395,5 +396,14 @@ type InfoCommand struct {
 
 func (c *InfoCommand) Execute([]string) error {
 	todo.Info()
+	return nil
+}
+
+type SimplifySqlCommand struct {
+}
+
+func (c *SimplifySqlCommand) Execute(args []string) error {
+	path := argsToStr(args)
+	zodo.SimplifySql(path)
 	return nil
 }
