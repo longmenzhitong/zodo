@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"strconv"
 	"time"
 	"zodo/src"
 )
@@ -268,4 +269,50 @@ func Info() {
 	rows = append(rows, table.Row{color.HiBlueString("Done"), done})
 	rows = append(rows, table.Row{"NextId", zodo.GetId(zodo.Config.Storage.Type)})
 	zodo.PrintTable(table.Row{"Item", "Val"}, rows)
+}
+
+const teaRemindTaskContent = "Your tea is ready!"
+
+func Tea(minutes int) error {
+	teaRemindTask := findTeaRemindTask()
+	if teaRemindTask == nil {
+		_, err := Add(teaRemindTaskContent)
+		if err != nil {
+			return err
+		}
+		teaRemindTask = findTeaRemindTask()
+	}
+	id := teaRemindTask.Id
+
+	SetHiding(id)
+
+	// 设置提醒时间
+	rmd := time.Now().Add(time.Duration(minutes) * time.Minute).Format(zodo.LayoutYearMonthDayHourMinute)
+	err := SetRemind(id, rmd, false)
+	if err != nil {
+		return err
+	}
+
+	// 记录泡茶次数
+	remark := teaRemindTask.Remark
+	if remark == "" {
+		SetRemark(id, "1")
+	} else {
+		teaTimes, err := strconv.Atoi(remark)
+		if err != nil {
+			return err
+		}
+		SetRemark(id, string(rune(teaTimes+1)))
+	}
+
+	return nil
+}
+
+func findTeaRemindTask() *todo {
+	for _, td := range cc.data {
+		if td.Content == teaRemindTaskContent {
+			return td
+		}
+	}
+	return nil
 }

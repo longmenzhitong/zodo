@@ -34,6 +34,7 @@ type Option struct {
 	Config         ConfigCommand         `command:"conf" description:"Show config"`
 	Info           InfoCommand           `command:"info" description:"Show info"`
 	SimplifySql    SimplifySqlCommand    `command:"ss" description:"Simplify sql for drawio"`
+	Tea            TeaCommand            `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
 }
 
 type ListCommand struct {
@@ -405,5 +406,21 @@ type SimplifySqlCommand struct {
 func (c *SimplifySqlCommand) Execute(args []string) error {
 	path := argsToStr(args)
 	zodo.SimplifySql(path)
+	return nil
+}
+
+type TeaCommand struct {
+}
+
+func (c *TeaCommand) Execute(args []string) error {
+	minutes, err := strconv.Atoi(argsToStr(args))
+	if err != nil {
+		return err
+	}
+	err = todo.Tea(minutes)
+	if err != nil {
+		return err
+	}
+	todo.Save()
 	return nil
 }
