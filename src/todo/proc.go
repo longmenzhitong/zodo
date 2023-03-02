@@ -294,16 +294,16 @@ func Tea(minutes int) error {
 	}
 
 	// 记录泡茶次数
+	teaTimes := 0
 	remark := teaRemindTask.Remark
-	if remark == "" {
-		SetRemark(id, "1")
-	} else {
-		teaTimes, err := strconv.Atoi(remark)
-		if err != nil {
-			return err
+	if remark != "" {
+		n, err := strconv.Atoi(remark)
+		if err == nil {
+			teaTimes = n
 		}
-		SetRemark(id, string(rune(teaTimes+1)))
 	}
+	teaTimes+=1
+	SetRemark(id, strconv.Itoa(teaTimes))
 
 	return nil
 }
