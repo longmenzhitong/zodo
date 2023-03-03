@@ -66,22 +66,23 @@ func validateDeadline(ddl string) (string, error) {
 }
 
 func validateRemind(rmd string) (string, error) {
-	_, err := time.Parse(zodo.LayoutYearMonthDayHourMinute, rmd)
+	now := time.Now()
+	t, err := time.Parse(zodo.LayoutYearMonthDayHourMinute, rmd)
 	if err == nil {
-		return rmd, nil
+		d := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.Local)
+		return d.Format(zodo.LayoutDateTime), nil
 	}
 
-	now := time.Now()
-	t, err := time.Parse(zodo.LayoutMonthDayHourMinute, rmd)
+	t, err = time.Parse(zodo.LayoutMonthDayHourMinute, rmd)
 	if err == nil {
 		d := time.Date(now.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.Local)
-		return d.Format(zodo.LayoutYearMonthDayHourMinute), nil
+		return d.Format(zodo.LayoutDateTime), nil
 	}
 
 	t, err = time.Parse(zodo.LayoutHourMinute, rmd)
 	if err == nil {
 		d := time.Date(now.Year(), now.Month(), now.Day(), t.Hour(), t.Minute(), 0, 0, time.Local)
-		return d.Format(zodo.LayoutYearMonthDayHourMinute), nil
+		return d.Format(zodo.LayoutDateTime), nil
 	}
 
 	return "", &zodo.InvalidInputError{

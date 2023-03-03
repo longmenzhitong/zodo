@@ -287,7 +287,7 @@ func Tea(minutes int) error {
 	SetHiding(id)
 
 	// 设置提醒时间
-	rmd := time.Now().Add(time.Duration(minutes) * time.Minute).Format(zodo.LayoutYearMonthDayHourMinute)
+	rmd := time.Now().Add(time.Duration(minutes) * time.Minute).Format(zodo.LayoutDateTime)
 	err := SetRemind(id, rmd, false)
 	if err != nil {
 		return err
@@ -302,8 +302,7 @@ func Tea(minutes int) error {
 			teaTimes = n
 		}
 	}
-	teaTimes+=1
-	SetRemark(id, strconv.Itoa(teaTimes))
+	SetRemark(id, strconv.Itoa(teaTimes+1))
 
 	return nil
 }

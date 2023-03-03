@@ -62,16 +62,7 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 		td.LoopType = loopOnce
 	}
 
-	if td.LoopType == loopOnce {
-		td.RemindTime = rmdTime
-	} else {
-		t, err := time.ParseInLocation(zodo.LayoutYearMonthDayHourMinute, rmdTime, time.Local)
-		if err != nil {
-			return err
-		}
-		td.RemindTime = t.Format(zodo.LayoutHourMinute)
-	}
-
+	td.RemindTime = rmdTime
 	td.RemindStatus = rmdStatusWaiting
 
 	return nil
@@ -129,18 +120,14 @@ func isNeedRemind(rmdTime, loopType, rmdStatus string, checkTime time.Time) bool
 	if rmdStatus == rmdStatusFinished {
 		return false
 	}
-	if loopType == loopOnce {
-		t, err := time.ParseInLocation(zodo.LayoutYearMonthDayHourMinute, rmdTime, time.Local)
-		if err != nil {
-			panic(err)
-		}
-		return checkTime.Equal(t) || checkTime.After(t)
-	}
-	t, err := time.ParseInLocation(zodo.LayoutHourMinute, rmdTime, time.Local)
+	t, err := time.ParseInLocation(zodo.LayoutDateTime, rmdTime, time.Local)
 	if err != nil {
 		panic(err)
 	}
-	if t.Hour() != checkTime.Hour() || t.Minute() != checkTime.Minute() {
+	if loopType == loopOnce {
+		return checkTime.Equal(t) || checkTime.After(t)
+	}
+	if t.Hour() != checkTime.Hour() || t.Minute() != checkTime.Minute() || t.Second() != checkTime.Second() {
 		return false
 	}
 	wd := checkTime.Weekday()
