@@ -28,8 +28,8 @@ type Option struct {
 	SetHiding      SetHidingCommand      `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
 	Server         ServerCommand         `command:"server" description:"Enter server mode"`
 	Report         ReportCommand         `command:"report" description:"Send report email"`
-	Rollback       RollbackCommand       `command:"rollback" description:"Rollback to last version"`
-	Transfer       TransferCommand       `command:"transfer" description:"Transfer between file and redis"`
+	Rollback       RollbackCommand       `command:"rbk" description:"Rollback to last version"`
+	Transfer       TransferCommand       `command:"trans" description:"Transfer between file and redis"`
 	Tidy           TidyCommand           `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config         ConfigCommand         `command:"conf" description:"Show config"`
 	Info           InfoCommand           `command:"info" description:"Show info"`
