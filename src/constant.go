@@ -27,3 +27,7 @@ func ProjectDir() string {
 func Path(filename string) string {
 	return ProjectDir() + PathSep + filename
 }
+
+func CurrentPath(filename string) string {
+	return "." + PathSep + filename
+}

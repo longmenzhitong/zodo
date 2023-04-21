@@ -33,7 +33,7 @@ func SimplifySql(path string) {
 		}
 		handled = append(handled, sql)
 	}
-	writeLinesToPath(Path(fileName), handled, os.O_RDWR|os.O_TRUNC)
+	writeLinesToPath(CurrentPath(fileName), handled, os.O_RDWR|os.O_TRUNC)
 }
 
 func hasIgnorePrefix(sql string) bool {
