@@ -10,7 +10,7 @@ const fileName = "simplified.sql"
 const comment = "COMMENT"
 
 var ignorePrefixes = []string{
-	"INDEX", "UNIQUE INDEX", "KEY", "UNIQUE KEY", "create_time", "update_time", "deleted", "is_deleted",
+	"INDEX", "UNIQUE INDEX", "KEY", "UNIQUE KEY", "create_time", "update_time",
 }
 
 func SimplifySql(path string) {
