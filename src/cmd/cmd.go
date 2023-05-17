@@ -35,6 +35,7 @@ type Option struct {
 	Info           InfoCommand           `command:"info" description:"Show info"`
 	SimplifySql    SimplifySqlCommand    `command:"ss" description:"Simplify sql for drawio"`
 	Tea            TeaCommand            `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
+	Jenkins        JenkinsCommand        `command:"jk" description:"Deploy by the Jenkins: jk -s <service> -e <env> -b <branch> [-c]"`
 }
 
 type ListCommand struct {
@@ -423,4 +424,15 @@ func (c *TeaCommand) Execute(args []string) error {
 	}
 	todo.Save()
 	return nil
+}
+
+type JenkinsCommand struct {
+	Service   string `short:"s" required:"true" description:"Service name"`
+	Env       string `short:"e" required:"true" description:"Service environment"`
+	Branch    string `short:"b" required:"true" description:"Git branch"`
+	CheckCode bool   `short:"c" required:"false" description:"Check the code"`
+}
+
+func (c *JenkinsCommand) Execute([]string) error {
+	return zodo.Deploy(c.Service, c.Env, c.Branch, c.CheckCode)
 }

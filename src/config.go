@@ -3,7 +3,6 @@ package zodo
 import (
 	"errors"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 )
 
@@ -50,6 +49,11 @@ type config struct {
 	Table struct {
 		MaxLen int `yaml:"maxLen"`
 	} `yaml:"table"`
+	Jenkins struct {
+		Url      string `yaml:"url"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+	}
 }
 
 func (c *config) Init() {
@@ -80,7 +84,7 @@ func (c *config) Init() {
 		return
 	}
 
-	f, err := ioutil.ReadFile(configPath)
+	f, err := os.ReadFile(configPath)
 	if err != nil {
 		panic(err)
 	}
