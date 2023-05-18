@@ -13,15 +13,15 @@ func Deploy(service, env, branch string, checkCode bool) error {
 	fmt.Println("Check config...")
 	fmt.Printf("Url       : %s\n", boolToSymbol(Config.Jenkins.Url != ""))
 	if Config.Jenkins.Url == "" {
-		return &InvalidConfigError{Message: "url doesn't exist"}
+		return &InvalidConfigError{Message: "jenkins.url doesn't exist"}
 	}
 	fmt.Printf("Username  : %s\n", boolToSymbol(Config.Jenkins.Username != ""))
 	if Config.Jenkins.Username == "" {
-		return &InvalidConfigError{Message: "username doesn't exist"}
+		return &InvalidConfigError{Message: "jenkins.username doesn't exist"}
 	}
 	fmt.Printf("Password  : %s\n", boolToSymbol(Config.Jenkins.Password != ""))
 	if Config.Jenkins.Password == "" {
-		return &InvalidConfigError{Message: "password doesn't exist"}
+		return &InvalidConfigError{Message: "jenkins.password doesn't exist"}
 	}
 	fmt.Println("Check done.")
 	// 检查参数
