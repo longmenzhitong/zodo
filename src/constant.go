@@ -1,6 +1,9 @@
 package zodo
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 const (
 	PathSep                      = string(os.PathSeparator)
@@ -30,4 +33,13 @@ func Path(filename string) string {
 
 func CurrentPath(filename string) string {
 	return "." + PathSep + filename
+}
+
+func CurrentDirName() string {
+	pwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	i := strings.LastIndex(pwd, PathSep)
+	return pwd[i+1:]
 }
