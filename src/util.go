@@ -5,6 +5,8 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"os"
+	"os/exec"
+	"strings"
 )
 
 var redisClient *redis.Client
@@ -46,4 +48,14 @@ func PrintTable(header table.Row, rows []table.Row) {
 		t.AppendSeparator()
 	}
 	t.Render()
+}
+
+func CurrentGitBranch() (string, error) {
+	// 执行 git 命令来获取当前分支名称
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(output)), nil
 }

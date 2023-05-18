@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -89,14 +88,4 @@ func validateRemind(rmd string) (string, error) {
 	return "", &zodo.InvalidInputError{
 		Message: fmt.Sprintf("remind: %s", rmd),
 	}
-}
-
-func getCurrentGitBranch() (string, error) {
-	// 执行 git 命令来获取当前分支名称
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(output)), nil
 }

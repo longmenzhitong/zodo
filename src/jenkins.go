@@ -24,10 +24,28 @@ func Deploy(service, env, branch string, checkCode bool) error {
 		return &InvalidConfigError{Message: "jenkins.password doesn't exist"}
 	}
 	fmt.Println("Check done.")
+
 	// 检查参数
 	fmt.Println("Check params...")
+	if service == "" {
+		service = strings.ToUpper(CurrentDirName())
+	}
 	fmt.Printf("Service   : %s\n", service)
+	if env == "" {
+		fmt.Println("Please input the env:")
+		env = readString()
+		if env == "" {
+			return &InvalidInputError{Message: "env must not be empty"}
+		}
+	}
 	fmt.Printf("Env       : %s\n", env)
+	if branch == "" {
+		b, err := CurrentGitBranch()
+		if err != nil {
+			return err
+		}
+		branch = b
+	}
 	fmt.Printf("Branch    : %s\n", branch)
 	fmt.Printf("CheckCode : %v\n", checkCode)
 	fmt.Println("Check done.")
@@ -60,7 +78,12 @@ func Deploy(service, env, branch string, checkCode bool) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(resp.Body)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err

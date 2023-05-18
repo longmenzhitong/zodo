@@ -5,7 +5,6 @@ import (
 	"github.com/atotto/clipboard"
 	"gopkg.in/yaml.v3"
 	"strconv"
-	"strings"
 	"zodo/src"
 	"zodo/src/todo"
 )
@@ -36,7 +35,7 @@ type Option struct {
 	Info           InfoCommand           `command:"info" description:"Show info"`
 	SimplifySql    SimplifySqlCommand    `command:"ss" description:"Simplify sql for drawio"`
 	Tea            TeaCommand            `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
-	Jenkins        JenkinsCommand        `command:"jk" description:"Deploy by the Jenkins: jk -e <env> [-s <service>] [-b <branch>] [-c]"`
+	Jenkins        JenkinsCommand        `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c]"`
 }
 
 type ListCommand struct {
@@ -428,25 +427,12 @@ func (c *TeaCommand) Execute(args []string) error {
 }
 
 type JenkinsCommand struct {
-	Env       string `short:"e" required:"true" description:"Service environment"`
 	Service   string `short:"s" required:"false" description:"Service name or current dir name by default"`
+	Env       string `short:"e" required:"false" description:"Service environment"`
 	Branch    string `short:"b" required:"false" description:"Git branch or current git branch by default"`
 	CheckCode bool   `short:"c" required:"false" description:"Check code option"`
 }
 
 func (c *JenkinsCommand) Execute([]string) error {
-	if c.Service == "" {
-		c.Service = strings.ToUpper(zodo.CurrentDirName())
-	}
-	if c.Branch == "" {
-		b, err := getCurrentGitBranch()
-		if err != nil {
-			return err
-		}
-		if b == "" {
-			return &zodo.InvalidInputError{Message: "branch doesn't exist"}
-		}
-		c.Branch = b
-	}
 	return zodo.Deploy(c.Service, c.Env, c.Branch, c.CheckCode)
 }
