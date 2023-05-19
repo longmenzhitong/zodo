@@ -263,7 +263,6 @@ func Info() {
 	}
 
 	rows := make([]table.Row, 0)
-	rows = append(rows, table.Row{"All", len(cc.data)})
 	rows = append(rows, table.Row{color.HiCyanString("Processing"), proc})
 	rows = append(rows, table.Row{color.HiMagentaString("Pending"), pend})
 	rows = append(rows, table.Row{color.HiBlueString("Done"), done})
