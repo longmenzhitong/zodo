@@ -24,7 +24,7 @@ func homeDir() string {
 }
 
 func ProjectDir() string {
-	return homeDir() + PathSep + "zodo-data"
+	return homeDir() + PathSep + ".config" + PathSep + "zodo"
 }
 
 func Path(filename string) string {
