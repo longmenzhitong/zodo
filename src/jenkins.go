@@ -29,6 +29,8 @@ func Deploy(service, env, branch string, checkCode bool) error {
 	fmt.Println("Check params...")
 	if service == "" {
 		service = strings.ToUpper(CurrentDirName())
+	} else {
+		service = strings.ToUpper(service)
 	}
 	fmt.Printf("Service   : %s\n", service)
 	if env == "" {
@@ -59,7 +61,7 @@ func Deploy(service, env, branch string, checkCode bool) error {
 	fmt.Println("Start deploy...")
 
 	// 构建请求
-	jenkinsUrl := fmt.Sprintf("%s/job/%s/buildWithParameters", Config.Jenkins.Url, strings.ToUpper(service))
+	jenkinsUrl := fmt.Sprintf("%s/job/%s/buildWithParameters", Config.Jenkins.Url, service)
 	requestBody := url.Values{
 		"BUILD_BRANCH":  {branch},
 		"SERVERNAME":    {env},
@@ -93,6 +95,8 @@ func Deploy(service, env, branch string, checkCode bool) error {
 		fmt.Println(respBody)
 	} else {
 		fmt.Println("Deploy done.")
+		fmt.Println("To check the progress, visit:")
+		fmt.Printf("%s/job/%s\n", Config.Jenkins.Url, service)
 	}
 	return nil
 }
