@@ -9,9 +9,9 @@ import (
 const (
 	StorageTypeRedis = "redis"
 	StorageTypeFile  = "file"
-)
 
-const configFileName = "conf"
+	configFileName = "conf"
+)
 
 var Config config
 
@@ -50,9 +50,12 @@ type config struct {
 		MaxLen int `yaml:"maxLen"`
 	} `yaml:"table"`
 	Jenkins struct {
-		Url      string `yaml:"url"`
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
+		Url                   string `yaml:"url"`
+		Username              string `yaml:"username"`
+		Password              string `yaml:"password"`
+		PrintStatus           bool   `yaml:"printStatus"`
+		PollingIntervalSecond int    `yaml:"pollingIntervalSecond"`
+		StageCount            int    `yaml:"stageCount"`
 	}
 }
 
@@ -76,6 +79,8 @@ func (c *config) Init() {
 		Config.DailyReport.Enabled = false
 		Config.Reminder.Enabled = false
 		Config.Table.MaxLen = 200
+		Config.Jenkins.PrintStatus = true
+		Config.Jenkins.PollingIntervalSecond = 1
 		out, err := yaml.Marshal(Config)
 		if err != nil {
 			panic(err)
