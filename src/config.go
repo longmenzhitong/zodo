@@ -55,7 +55,7 @@ type config struct {
 		Password              string `yaml:"password"`
 		PrintStatus           bool   `yaml:"printStatus"`
 		PollingIntervalSecond int    `yaml:"pollingIntervalSecond"`
-		StageCount            int    `yaml:"stageCount"`
+		StageCount            int    `yaml:"stageCount"` // TODO 干掉这个配置，从jenkins获取
 	}
 }
 

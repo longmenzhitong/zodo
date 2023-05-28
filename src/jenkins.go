@@ -157,29 +157,53 @@ func printStatus(service string) error {
 	if Config.Jenkins.StageCount == 0 {
 		return &InvalidConfigError{Message: "jenkins.stageCount doesn't exist"}
 	}
-	bar := progressbar.Default(int64(Config.Jenkins.StageCount))
-	succeedStage := make(map[string]bool, 0)
+	bar := progressbar.NewOptions(
+		Config.Jenkins.StageCount,
+		progressbar.OptionFullWidth(),
+		progressbar.OptionShowCount(),
+		progressbar.OptionUseANSICodes(true),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Println()
+		}),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]=[reset]",
+			SaucerHead:    "[green]>[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+	)
+	inProgress := make(map[string]bool, 0)
+	succeed := make(map[string]bool, 0)
 	for {
 		build, err := getBuild(service)
 		if err != nil {
 			return err
 		}
 		for _, stage := range build.Stages {
-			//fmt.Printf("name: %s, status: %s\n", stage.Name, stage.Status)
-			if stage.Status == stageStatusSuccess {
-				if succeedStage[stage.Name] {
+			name := stage.Name
+			switch stage.Status {
+			case stageStatusSuccess:
+				if succeed[name] {
 					continue
 				}
-				succeedStage[stage.Name] = true
+				succeed[name] = true
 				err = bar.Add(1)
 				if err != nil {
 					return err
 				}
-			} else if stage.Status == stageStatusAborted {
+			case stageStatusInProgress:
+				if inProgress[name] {
+					continue
+				}
+				inProgress[name] = true
+				bar.Describe(name)
+			case stageStatusAborted:
 				return fmt.Errorf("\ndeploy aborted, please check: %s\n", getJenkinsUrl(service))
 			}
 		}
-		if len(succeedStage) == Config.Jenkins.StageCount {
+		if len(succeed) == Config.Jenkins.StageCount {
 			break
 		}
 		time.Sleep(time.Duration(Config.Jenkins.PollingIntervalSecond) * time.Second)
