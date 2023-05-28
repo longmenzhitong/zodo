@@ -139,7 +139,7 @@ func startBuild(service, env, branch string, checkCode bool) error {
 func waitDeploy(service string) error {
 	fmt.Println("Wait deploy...")
 	for {
-		build, err := getBuild(service)
+		build, err := getLastBuild(service, false)
 		if err != nil {
 			return err
 		}
@@ -154,11 +154,12 @@ func waitDeploy(service string) error {
 }
 
 func printStatus(service string) error {
-	if Config.Jenkins.StageCount == 0 {
-		return &InvalidConfigError{Message: "jenkins.stageCount doesn't exist"}
+	stageCount, err := getStageCount(service)
+	if err != nil {
+		return err
 	}
 	bar := progressbar.NewOptions(
-		Config.Jenkins.StageCount,
+		stageCount,
 		progressbar.OptionFullWidth(),
 		progressbar.OptionShowCount(),
 		progressbar.OptionUseANSICodes(true),
@@ -177,7 +178,7 @@ func printStatus(service string) error {
 	inProgress := make(map[string]bool, 0)
 	succeed := make(map[string]bool, 0)
 	for {
-		build, err := getBuild(service)
+		build, err := getLastBuild(service, false)
 		if err != nil {
 			return err
 		}
@@ -203,7 +204,7 @@ func printStatus(service string) error {
 				return fmt.Errorf("\ndeploy aborted, please check: %s\n", getJenkinsUrl(service))
 			}
 		}
-		if len(succeed) == Config.Jenkins.StageCount {
+		if len(succeed) == stageCount {
 			break
 		}
 		time.Sleep(time.Duration(Config.Jenkins.PollingIntervalSecond) * time.Second)
@@ -211,8 +212,21 @@ func printStatus(service string) error {
 	return nil
 }
 
-func getBuild(service string) (*JenkinsBuild, error) {
-	statusUrl := fmt.Sprintf("%s/job/%s/lastBuild/wfapi/describe", Config.Jenkins.Url, service)
+func getStageCount(service string) (int, error) {
+	build, err := getLastBuild(service, true)
+	if err != nil {
+		return -1, err
+	}
+	return len(build.Stages), nil
+}
+
+func getLastBuild(service string, successful bool) (*JenkinsBuild, error) {
+	var statusUrl string
+	if successful {
+		statusUrl = fmt.Sprintf("%s/job/%s/lastSuccessfulBuild/wfapi/describe", Config.Jenkins.Url, service)
+	} else {
+		statusUrl = fmt.Sprintf("%s/job/%s/lastBuild/wfapi/describe", Config.Jenkins.Url, service)
+	}
 	req, err := http.NewRequest("GET", statusUrl, nil)
 	if err != nil {
 		return nil, err
