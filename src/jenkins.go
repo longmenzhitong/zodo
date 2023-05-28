@@ -25,7 +25,7 @@ type JenkinsBuild struct {
 	} `json:"stages"`
 }
 
-func Deploy(service, env, branch string, checkCode bool) error {
+func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
 	// 检查配置
 	fmt.Println("Check config...")
 	fmt.Printf("Url       : %s\n", boolToSymbol(Config.Jenkins.Url != ""))
@@ -50,6 +50,11 @@ func Deploy(service, env, branch string, checkCode bool) error {
 		service = strings.ToUpper(service)
 	}
 	fmt.Printf("Service   : %s\n", service)
+	if statusOnly {
+		fmt.Println("Check done.")
+		err := printStatus(service)
+		return err
+	}
 	if env == "" {
 		fmt.Println("Please input the env:")
 		env = readString()
@@ -84,7 +89,7 @@ func Deploy(service, env, branch string, checkCode bool) error {
 
 	if Config.Jenkins.PrintStatus {
 		// 等待构建
-		err := waitDeploy(service)
+		err = waitDeploy(service)
 		if err != nil {
 			return err
 		}

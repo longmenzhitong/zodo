@@ -35,7 +35,7 @@ type Option struct {
 	Info           InfoCommand           `command:"info" description:"Show info"`
 	SimplifySql    SimplifySqlCommand    `command:"ss" description:"Simplify sql for drawio"`
 	Tea            TeaCommand            `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
-	Jenkins        JenkinsCommand        `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c]"`
+	Jenkins        JenkinsCommand        `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
 }
 
 type ListCommand struct {
@@ -427,12 +427,13 @@ func (c *TeaCommand) Execute(args []string) error {
 }
 
 type JenkinsCommand struct {
-	Service   string `short:"s" required:"false" description:"Service name or current dir name by default"`
-	Env       string `short:"e" required:"false" description:"Service environment"`
-	Branch    string `short:"b" required:"false" description:"Git branch or current git branch by default"`
-	CheckCode bool   `short:"c" required:"false" description:"Check code option"`
+	Service    string `short:"s" required:"false" description:"Service name or current dir name by default"`
+	Env        string `short:"e" required:"false" description:"Service environment"`
+	Branch     string `short:"b" required:"false" description:"Git branch or current git branch by default"`
+	CheckCode  bool   `short:"c" required:"false" description:"Check code option"`
+	StatusOnly bool   `short:"S" required:"false" description:"Print build status only"`
 }
 
 func (c *JenkinsCommand) Execute([]string) error {
-	return zodo.Deploy(c.Service, c.Env, c.Branch, c.CheckCode)
+	return zodo.Deploy(c.Service, c.Env, c.Branch, c.CheckCode, c.StatusOnly)
 }
