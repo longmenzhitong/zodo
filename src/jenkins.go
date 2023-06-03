@@ -15,6 +15,7 @@ const (
 	stageStatusSuccess    = "SUCCESS"
 	stageStatusInProgress = "IN_PROGRESS"
 	stageStatusAborted    = "ABORTED"
+	stageStatusFailed     = "FAILED"
 )
 
 type JenkinsBuild struct {
@@ -202,6 +203,10 @@ func printStatus(service string) error {
 				bar.Describe(name)
 			case stageStatusAborted:
 				return fmt.Errorf("\ndeploy aborted, please check: %s\n", getJenkinsUrl(service))
+			case stageStatusFailed:
+				return fmt.Errorf("\ndeploy failed, please check: %s\n", getJenkinsUrl(service))
+			default:
+				panic(fmt.Errorf("unexpected stage status: %s", stage.Status))
 			}
 		}
 		if len(succeed) == stageCount {
