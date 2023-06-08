@@ -10,32 +10,33 @@ import (
 )
 
 type Option struct {
-	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] <keyword>"`
-	Detail         DetailCommand         `command:"cat" description:"Show todo detail: cat <id>..."`
-	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
-	Modify         ModifyCommand         `command:"mod" description:"Modify todo: mod <id> <content>"`
-	Remove         RemoveCommand         `command:"rm" description:"Remove todo: rm <id>..."`
-	SetRemark      SetRemarkCommand      `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
-	SetDeadline    SetDeadlineCommand    `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
-	RemoveDeadline RemoveDeadlineCommand `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
-	SetRemind      SetRemindCommand      `command:"rmd" description:"Set remind of todo: rmd [-l] <id> <remind-time>"`
-	RemoveRemind   RemoveRemindCommand   `command:"rmd-" description:"Remove remind of todo: rmd- <id>..."`
-	SetChild       SetChildCommand       `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
-	AddChild       AddChildCommand       `command:"acd" description:"Add child of todo: acd <parent-id> <child-id>..."`
-	SetPending     SetPendingCommand     `command:"pend" description:"Mark todo status as pending: pend <id>..."`
-	SetProcessing  SetProcessingCommand  `command:"proc" description:"Mark todo status as processing: proc <id>..."`
-	SetDone        SetDoneCommand        `command:"done" description:"Mark todo status as done: done <id>..."`
-	SetHiding      SetHidingCommand      `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
-	Server         ServerCommand         `command:"server" description:"Enter server mode"`
-	Report         ReportCommand         `command:"report" description:"Send report email"`
-	Rollback       RollbackCommand       `command:"rbk" description:"Rollback to last version"`
-	Transfer       TransferCommand       `command:"trans" description:"Transfer between file and redis"`
-	Tidy           TidyCommand           `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
-	Config         ConfigCommand         `command:"conf" description:"Show config"`
-	Info           InfoCommand           `command:"info" description:"Show info"`
-	SimplifySql    SimplifySqlCommand    `command:"ss" description:"Simplify sql for drawio"`
-	Tea            TeaCommand            `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
-	Jenkins        JenkinsCommand        `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
+	List             ListCommand             `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] <keyword>"`
+	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
+	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
+	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
+	Remove           RemoveCommand           `command:"rm" description:"Remove todo: rm <id>..."`
+	SetRemark        SetRemarkCommand        `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
+	SetDeadline      SetDeadlineCommand      `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
+	RemoveDeadline   RemoveDeadlineCommand   `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
+	SetRemind        SetRemindCommand        `command:"rmd" description:"Set remind of todo: rmd [-l] <id> <remind-time>"`
+	RemoveRemind     RemoveRemindCommand     `command:"rmd-" description:"Remove remind of todo: rmd- <id>..."`
+	SetChild         SetChildCommand         `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
+	AddChild         AddChildCommand         `command:"acd" description:"Add child of todo: acd <parent-id> <child-id>..."`
+	SetPending       SetPendingCommand       `command:"pend" description:"Mark todo status as pending: pend <id>..."`
+	SetProcessing    SetProcessingCommand    `command:"proc" description:"Mark todo status as processing: proc <id>..."`
+	SetDone          SetDoneCommand          `command:"done" description:"Mark todo status as done: done <id>..."`
+	SetHiding        SetHidingCommand        `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
+	Server           ServerCommand           `command:"server" description:"Enter server mode"`
+	Report           ReportCommand           `command:"report" description:"Send report email"`
+	Rollback         RollbackCommand         `command:"rbk" description:"Rollback to last version"`
+	Transfer         TransferCommand         `command:"trans" description:"Transfer between file and redis"`
+	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
+	Config           ConfigCommand           `command:"conf" description:"Show config"`
+	Info             InfoCommand             `command:"info" description:"Show info"`
+	SimplifySql      SimplifySqlCommand      `command:"ss" description:"Simplify sql for drawio"`
+	Tea              TeaCommand              `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
+	Jenkins          JenkinsCommand          `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
+	MybatisGenerator MybatisGeneratorCommand `command:"mbg" description:"Generate MyBatis code: mbg -p <path>"`
 }
 
 type ListCommand struct {
@@ -436,4 +437,12 @@ type JenkinsCommand struct {
 
 func (c *JenkinsCommand) Execute([]string) error {
 	return zodo.Deploy(c.Service, c.Env, c.Branch, c.CheckCode, c.StatusOnly)
+}
+
+type MybatisGeneratorCommand struct {
+	Path string `short:"p" required:"true" descriptoin:"POJO path"`
+}
+
+func (c *MybatisGeneratorCommand) Execute([]string) error {
+	return zodo.GenerateMybatisCode(c.Path)
 }
