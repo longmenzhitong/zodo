@@ -36,7 +36,7 @@ type Option struct {
 	SimplifySql      SimplifySqlCommand      `command:"ss" description:"Simplify sql for drawio"`
 	Tea              TeaCommand              `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
 	Jenkins          JenkinsCommand          `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
-	MybatisGenerator MybatisGeneratorCommand `command:"mbg" description:"Generate MyBatis code: mbg -p <path>"`
+	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"Generate MyBatis result map and column: mg <path>"`
 }
 
 type ListCommand struct {
@@ -440,9 +440,8 @@ func (c *JenkinsCommand) Execute([]string) error {
 }
 
 type MybatisGeneratorCommand struct {
-	Path string `short:"p" required:"true" descriptoin:"POJO path"`
 }
 
-func (c *MybatisGeneratorCommand) Execute([]string) error {
-	return zodo.GenerateMybatisCode(c.Path)
+func (c *MybatisGeneratorCommand) Execute(args []string) error {
+	return zodo.GenerateMybatisCode(argsToStr(args))
 }
