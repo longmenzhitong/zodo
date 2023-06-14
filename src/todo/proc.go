@@ -2,7 +2,6 @@ package todo
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
 	"zodo/src"
@@ -273,9 +272,9 @@ func Info() {
 	}
 
 	rows := make([]table.Row, 0)
-	rows = append(rows, table.Row{color.HiCyanString("Processing"), proc})
-	rows = append(rows, table.Row{color.HiMagentaString("Pending"), pend})
-	rows = append(rows, table.Row{color.HiBlueString("Done"), done})
+	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Color.Status.Processing, "Processing"), proc})
+	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Color.Status.Pending, "Pending"), pend})
+	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Color.Status.Done, "Done"), done})
 	rows = append(rows, table.Row{"NextId", zodo.GetId(zodo.Config.Storage.Type)})
 	zodo.PrintTable(table.Row{"Item", "Val"}, rows)
 }

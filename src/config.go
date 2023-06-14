@@ -9,9 +9,28 @@ import (
 const (
 	StorageTypeRedis = "redis"
 	StorageTypeFile  = "file"
-
-	configFileName = "conf"
 )
+
+const (
+	ColorBlack     = "black"
+	ColorRed       = "red"
+	ColorGreen     = "green"
+	ColorYellow    = "yellow"
+	ColorBlue      = "blue"
+	ColorMagenta   = "magenta"
+	ColorCyan      = "cyan"
+	ColorWhite     = "white"
+	ColorHiBlack   = "hiBlack"
+	ColorHiRed     = "hiRed"
+	ColorHiGreen   = "hiGreen"
+	ColorHiYellow  = "hiYellow"
+	ColorHiBlue    = "hiBlue"
+	ColorHiMagenta = "hiMagenta"
+	ColorHiCyan    = "hiCyan"
+	ColorHiWhite   = "hiWhite"
+)
+
+const configFileName = "conf"
 
 var Config config
 
@@ -22,6 +41,22 @@ type config struct {
 		ShowParentStatus bool `yaml:"showParentStatus"`
 		CopyIdAfterAdd   bool `yaml:"copyIdAfterAdd"`
 	} `yaml:"todo"`
+	Table struct {
+		MaxLen int `yaml:"maxLen"`
+	} `yaml:"table"`
+	Color struct {
+		Status struct {
+			Pending    string `yaml:"pending"`
+			Processing string `yaml:"processing"`
+			Done       string `yaml:"done"`
+			Hiding     string `yaml:"hiding"`
+		} `yaml:"status"`
+		Deadline struct {
+			Normal  string `yaml:"normal"`
+			Nervous string `yaml:"nervous"`
+			Overdue string `yaml:"overdue"`
+		} `yaml:"deadline"`
+	} `yaml:"color"`
 	Storage struct {
 		Type  string `yaml:"type"`
 		Redis struct {
@@ -46,9 +81,6 @@ type config struct {
 		From   string   `yaml:"from"`
 		To     []string `yaml:"to"`
 	} `yaml:"email"`
-	Table struct {
-		MaxLen int `yaml:"maxLen"`
-	} `yaml:"table"`
 	Jenkins struct {
 		Url                   string `yaml:"url"`
 		Username              string `yaml:"username"`

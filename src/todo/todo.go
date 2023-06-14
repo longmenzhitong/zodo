@@ -2,7 +2,6 @@ package todo
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/mozillazg/go-pinyin"
 	"sort"
 	"strconv"
@@ -45,13 +44,13 @@ func (t *todo) getStatus(colorful bool) string {
 	if colorful {
 		switch t.Status {
 		case statusPending:
-			return color.HiMagentaString(t.Status)
+			return zodo.ColoredString(zodo.Config.Color.Status.Pending, t.Status)
 		case statusProcessing:
-			return color.HiCyanString(t.Status)
+			return zodo.ColoredString(zodo.Config.Color.Status.Processing, t.Status)
 		case statusDone:
-			return color.HiBlueString(t.Status)
+			return zodo.ColoredString(zodo.Config.Color.Status.Done, t.Status)
 		case statusHiding:
-			return color.HiBlackString(t.Status)
+			return zodo.ColoredString(zodo.Config.Color.Status.Hiding, t.Status)
 		}
 	}
 	return t.Status
@@ -87,14 +86,14 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 
 	if colorful && (t.Status == statusPending || t.Status == statusProcessing) {
 		if wd <= 0 && nd <= 0 {
-			ddl = color.RedString(ddl)
-			remain = color.RedString(remain)
+			ddl = zodo.ColoredString(zodo.Config.Color.Deadline.Overdue, ddl)
+			remain = zodo.ColoredString(zodo.Config.Color.Deadline.Overdue, remain)
 		} else if wd == 1 || nd == 1 {
-			ddl = color.HiYellowString(ddl)
-			remain = color.HiYellowString(remain)
+			ddl = zodo.ColoredString(zodo.Config.Color.Deadline.Nervous, ddl)
+			remain = zodo.ColoredString(zodo.Config.Color.Deadline.Nervous, remain)
 		} else {
-			ddl = color.GreenString(ddl)
-			remain = color.GreenString(remain)
+			ddl = zodo.ColoredString(zodo.Config.Color.Deadline.Normal, ddl)
+			remain = zodo.ColoredString(zodo.Config.Color.Deadline.Normal, remain)
 		}
 	}
 	return
