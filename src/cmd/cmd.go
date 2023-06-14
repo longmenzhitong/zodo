@@ -28,14 +28,12 @@ type Option struct {
 	SetDone          SetDoneCommand          `command:"done" description:"Mark todo status as done: done <id>..."`
 	SetHiding        SetHidingCommand        `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
 	Server           ServerCommand           `command:"server" description:"Enter server mode"`
-	Report           ReportCommand           `command:"report" description:"Send report email"`
 	Rollback         RollbackCommand         `command:"rbk" description:"Rollback to last version"`
 	Transfer         TransferCommand         `command:"trans" description:"Transfer between file and redis"`
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config           ConfigCommand           `command:"conf" description:"Show config"`
 	Info             InfoCommand             `command:"info" description:"Show info"`
 	SimplifySql      SimplifySqlCommand      `command:"ss" description:"Simplify sql for drawio"`
-	Tea              TeaCommand              `command:"tea" description:"Wait for a tea: tea <minutes-to-wait>"`
 	Jenkins          JenkinsCommand          `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"Generate MyBatis result map and column: mg <path>"`
 }
@@ -340,13 +338,6 @@ func (c *ServerCommand) Execute([]string) error {
 	select {}
 }
 
-type ReportCommand struct {
-}
-
-func (c *ReportCommand) Execute([]string) error {
-	return todo.Report()
-}
-
 type RollbackCommand struct {
 }
 
@@ -409,22 +400,6 @@ type SimplifySqlCommand struct {
 func (c *SimplifySqlCommand) Execute(args []string) error {
 	path := argsToStr(args)
 	dev.SimplifySql(path)
-	return nil
-}
-
-type TeaCommand struct {
-}
-
-func (c *TeaCommand) Execute(args []string) error {
-	minutes, err := strconv.Atoi(argsToStr(args))
-	if err != nil {
-		return err
-	}
-	err = todo.Tea(minutes)
-	if err != nil {
-		return err
-	}
-	todo.Save()
 	return nil
 }
 
