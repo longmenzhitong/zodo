@@ -10,27 +10,38 @@ import (
 
 func List(keyword string, status []string, allStatus bool) {
 	rows := make([]table.Row, 0)
+	showDeadline := false
 	for _, td := range cc.list(keyword, status, allStatus) {
 		content := td.Content
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|-%s", padding(td.Level), content)
 		}
 		stat := td.getStatus(true)
+
 		ddl, remain := td.getDeadLineAndRemain(true)
 		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {
 			stat = ""
 			ddl = ""
 			remain = ""
 		}
-		rows = append(rows, table.Row{
-			td.Id,
-			content,
-			stat,
-			ddl,
-			remain,
-		})
+		if ddl != "" {
+			showDeadline = true
+		}
+
+		row := table.Row{td.Id, content, stat}
+		if showDeadline {
+			row = append(row, ddl)
+			row = append(row, remain)
+		}
+		rows = append(rows, row)
 	}
-	zodo.PrintTable(table.Row{"Id", "Content", "Status", "Deadline", "Remain"}, rows)
+
+	title := table.Row{"Id", "Content", "Status"}
+	if showDeadline {
+		title = append(title, "Deadline")
+		title = append(title, "Remain")
+	}
+	zodo.PrintTable(title, rows)
 }
 
 func Detail(id int) error {
