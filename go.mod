@@ -11,6 +11,7 @@ require (
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/robfig/cron v1.2.0
+	github.com/schollz/progressbar/v3 v3.13.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -23,7 +24,6 @@ require (
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.23.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/schollz/progressbar/v3 v3.13.1 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/term v0.8.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
