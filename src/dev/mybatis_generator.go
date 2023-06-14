@@ -1,10 +1,11 @@
-package zodo
+package dev
 
 import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"regexp"
 	"strings"
+	"zodo/src"
 )
 
 const (
@@ -18,7 +19,7 @@ func GenerateMybatisCode(path string) error {
 	var className string
 	fieldNameMap := make(map[string]string)
 
-	lines := ReadLinesFromPath(path)
+	lines := zodo.ReadLinesFromPath(path)
 	for _, line := range lines {
 		if strings.HasPrefix(line, "import") {
 			continue

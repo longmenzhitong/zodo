@@ -38,10 +38,10 @@ func readLinesFromFile(f *os.File) []string {
 }
 
 func RewriteLinesToPath(path string, lines []string) {
-	writeLinesToPath(path, lines, os.O_RDWR|os.O_TRUNC)
+	WriteLinesToPath(path, lines, os.O_RDWR|os.O_TRUNC)
 }
 
-func writeLinesToPath(path string, lines []string, mod int) {
+func WriteLinesToPath(path string, lines []string, mod int) {
 	ensureExist(path)
 	f, err := os.OpenFile(path, mod, 0)
 	if err != nil {

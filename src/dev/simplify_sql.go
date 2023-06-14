@@ -1,8 +1,9 @@
-package zodo
+package dev
 
 import (
 	"os"
 	"strings"
+	"zodo/src"
 )
 
 const fileName = "simplified.sql"
@@ -14,7 +15,7 @@ var ignorePrefixes = []string{
 }
 
 func SimplifySql(path string) {
-	sqls := ReadLinesFromPath(path)
+	sqls := zodo.ReadLinesFromPath(path)
 	handled := make([]string, 0)
 	for _, sql := range sqls {
 		sql = strings.TrimSpace(sql)
@@ -33,7 +34,7 @@ func SimplifySql(path string) {
 		}
 		handled = append(handled, sql)
 	}
-	writeLinesToPath(CurrentPath(fileName), handled, os.O_RDWR|os.O_TRUNC)
+	zodo.WriteLinesToPath(zodo.CurrentPath(fileName), handled, os.O_RDWR|os.O_TRUNC)
 }
 
 func hasIgnorePrefix(sql string) bool {

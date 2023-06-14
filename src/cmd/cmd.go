@@ -6,6 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"strconv"
 	"zodo/src"
+	"zodo/src/dev"
 	"zodo/src/todo"
 )
 
@@ -407,7 +408,7 @@ type SimplifySqlCommand struct {
 
 func (c *SimplifySqlCommand) Execute(args []string) error {
 	path := argsToStr(args)
-	zodo.SimplifySql(path)
+	dev.SimplifySql(path)
 	return nil
 }
 
@@ -436,12 +437,12 @@ type JenkinsCommand struct {
 }
 
 func (c *JenkinsCommand) Execute([]string) error {
-	return zodo.Deploy(c.Service, c.Env, c.Branch, c.CheckCode, c.StatusOnly)
+	return dev.Deploy(c.Service, c.Env, c.Branch, c.CheckCode, c.StatusOnly)
 }
 
 type MybatisGeneratorCommand struct {
 }
 
 func (c *MybatisGeneratorCommand) Execute(args []string) error {
-	return zodo.GenerateMybatisCode(argsToStr(args))
+	return dev.GenerateMybatisCode(argsToStr(args))
 }

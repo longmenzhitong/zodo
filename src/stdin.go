@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func readString() string {
+func ReadString() string {
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
 		panic(err)
@@ -26,7 +26,7 @@ func ReadInt(min int, max int, msg string) (int, error) {
 	}
 
 	fmt.Println(msg)
-	input := readString()
+	input := ReadString()
 	if input == "" {
 		return -1, &CancelledError{}
 	}

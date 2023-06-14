@@ -1,4 +1,4 @@
-package zodo
+package dev
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"zodo/src"
 )
 
 const (
@@ -29,24 +30,24 @@ type JenkinsBuild struct {
 func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
 	// 检查配置
 	fmt.Println("Check config...")
-	fmt.Printf("Url       : %s\n", boolToSymbol(Config.Jenkins.Url != ""))
-	if Config.Jenkins.Url == "" {
-		return &InvalidConfigError{Message: "jenkins.url doesn't exist"}
+	fmt.Printf("Url       : %s\n", boolToSymbol(zodo.Config.Jenkins.Url != ""))
+	if zodo.Config.Jenkins.Url == "" {
+		return &zodo.InvalidConfigError{Message: "jenkins.url doesn't exist"}
 	}
-	fmt.Printf("Username  : %s\n", boolToSymbol(Config.Jenkins.Username != ""))
-	if Config.Jenkins.Username == "" {
-		return &InvalidConfigError{Message: "jenkins.username doesn't exist"}
+	fmt.Printf("Username  : %s\n", boolToSymbol(zodo.Config.Jenkins.Username != ""))
+	if zodo.Config.Jenkins.Username == "" {
+		return &zodo.InvalidConfigError{Message: "jenkins.username doesn't exist"}
 	}
-	fmt.Printf("Password  : %s\n", boolToSymbol(Config.Jenkins.Password != ""))
-	if Config.Jenkins.Password == "" {
-		return &InvalidConfigError{Message: "jenkins.password doesn't exist"}
+	fmt.Printf("Password  : %s\n", boolToSymbol(zodo.Config.Jenkins.Password != ""))
+	if zodo.Config.Jenkins.Password == "" {
+		return &zodo.InvalidConfigError{Message: "jenkins.password doesn't exist"}
 	}
 	fmt.Println("Check done.")
 
 	// 检查参数
 	fmt.Println("Check params...")
 	if service == "" {
-		service = strings.ToUpper(CurrentDirName())
+		service = strings.ToUpper(zodo.CurrentDirName())
 	} else {
 		service = strings.ToUpper(service)
 	}
@@ -58,14 +59,14 @@ func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
 	}
 	if env == "" {
 		fmt.Println("Please input the env:")
-		env = readString()
+		env = zodo.ReadString()
 		if env == "" {
-			return &InvalidInputError{Message: "env must not be empty"}
+			return &zodo.InvalidInputError{Message: "env must not be empty"}
 		}
 	}
 	fmt.Printf("Env       : %s\n", env)
 	if branch == "" {
-		b, err := CurrentGitBranch()
+		b, err := zodo.CurrentGitBranch()
 		if err != nil {
 			return err
 		}
@@ -77,9 +78,9 @@ func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
 
 	// 确认构建
 	fmt.Println("Sure to deploy? [y/n]")
-	input := strings.ToLower(readString())
+	input := strings.ToLower(zodo.ReadString())
 	if input != "y" {
-		return &CancelledError{}
+		return &zodo.CancelledError{}
 	}
 
 	// 发起构建
@@ -88,7 +89,7 @@ func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
 		return err
 	}
 
-	if Config.Jenkins.PrintStatus {
+	if zodo.Config.Jenkins.PrintStatus {
 		// 等待构建
 		err = waitDeploy(service)
 		if err != nil {
@@ -109,7 +110,7 @@ func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
 }
 
 func startBuild(service, env, branch string, checkCode bool) error {
-	buildUrl := fmt.Sprintf("%s/job/%s/buildWithParameters", Config.Jenkins.Url, service)
+	buildUrl := fmt.Sprintf("%s/job/%s/buildWithParameters", zodo.Config.Jenkins.Url, service)
 	requestBody := url.Values{
 		"BUILD_BRANCH":  {branch},
 		"SERVERNAME":    {env},
@@ -120,7 +121,7 @@ func startBuild(service, env, branch string, checkCode bool) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-	req.SetBasicAuth(Config.Jenkins.Username, Config.Jenkins.Password)
+	req.SetBasicAuth(zodo.Config.Jenkins.Username, zodo.Config.Jenkins.Password)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -150,7 +151,7 @@ func waitDeploy(service string) error {
 				return nil
 			}
 		}
-		time.Sleep(time.Duration(Config.Jenkins.PollingIntervalSecond) * time.Second)
+		time.Sleep(time.Duration(zodo.Config.Jenkins.PollingIntervalSecond) * time.Second)
 	}
 }
 
@@ -212,7 +213,7 @@ func printStatus(service string) error {
 		if len(succeed) == stageCount {
 			break
 		}
-		time.Sleep(time.Duration(Config.Jenkins.PollingIntervalSecond) * time.Second)
+		time.Sleep(time.Duration(zodo.Config.Jenkins.PollingIntervalSecond) * time.Second)
 	}
 	return nil
 }
@@ -228,15 +229,15 @@ func getStageCount(service string) (int, error) {
 func getLastBuild(service string, successful bool) (*JenkinsBuild, error) {
 	var statusUrl string
 	if successful {
-		statusUrl = fmt.Sprintf("%s/job/%s/lastSuccessfulBuild/wfapi/describe", Config.Jenkins.Url, service)
+		statusUrl = fmt.Sprintf("%s/job/%s/lastSuccessfulBuild/wfapi/describe", zodo.Config.Jenkins.Url, service)
 	} else {
-		statusUrl = fmt.Sprintf("%s/job/%s/lastBuild/wfapi/describe", Config.Jenkins.Url, service)
+		statusUrl = fmt.Sprintf("%s/job/%s/lastBuild/wfapi/describe", zodo.Config.Jenkins.Url, service)
 	}
 	req, err := http.NewRequest("GET", statusUrl, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(Config.Jenkins.Username, Config.Jenkins.Password)
+	req.SetBasicAuth(zodo.Config.Jenkins.Username, zodo.Config.Jenkins.Password)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -254,7 +255,7 @@ func getLastBuild(service string, successful bool) (*JenkinsBuild, error) {
 }
 
 func getJenkinsUrl(service string) string {
-	return fmt.Sprintf("%s/job/%s\n", Config.Jenkins.Url, service)
+	return fmt.Sprintf("%s/job/%s\n", zodo.Config.Jenkins.Url, service)
 }
 
 func boolToSymbol(b bool) string {
