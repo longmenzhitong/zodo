@@ -13,34 +13,15 @@ const (
 )
 
 const (
-	ColorBlack     = "black"
-	ColorRed       = "red"
-	ColorGreen     = "green"
-	ColorYellow    = "yellow"
-	ColorBlue      = "blue"
-	ColorMagenta   = "magenta"
-	ColorCyan      = "cyan"
-	ColorWhite     = "white"
-	ColorHiBlack   = "hiBlack"
-	ColorHiRed     = "hiRed"
-	ColorHiGreen   = "hiGreen"
-	ColorHiYellow  = "hiYellow"
-	ColorHiBlue    = "hiBlue"
-	ColorHiMagenta = "hiMagenta"
-	ColorHiCyan    = "hiCyan"
-	ColorHiWhite   = "hiWhite"
-)
-
-const (
 	defaultPadding               = 2
 	defaultTableMaxLength        = 200
-	defaultPendingStatusColor    = "magenta"
-	defaultProcessingStatusColor = "cyan"
-	defaultDoneStatusColor       = "blue"
-	defaultHidingStatusColor     = "black"
-	defaultNormalDeadlineColor   = "green"
-	defaultNervousDeadlineColor  = "yellow"
-	defaultOverdueDeadlineColor  = "red"
+	defaultPendingStatusColor    = ColorMagenta
+	defaultProcessingStatusColor = ColorCyan
+	defaultDoneStatusColor       = ColorBlue
+	defaultHidingStatusColor     = ColorBlack
+	defaultNormalDeadlineColor   = ColorGreen
+	defaultNervousDeadlineColor  = ColorYellow
+	defaultOverdueDeadlineColor  = ColorRed
 	defaultPollingIntervalSecond = 1
 )
 
