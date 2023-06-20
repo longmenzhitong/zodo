@@ -62,7 +62,7 @@ func SendEmail(title, text string) error {
 func PrintTable(header table.Row, rows []table.Row) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.SetAllowedRowLength(Config.Table.MaxLen)
+	t.SetAllowedRowLength(Config.Todo.TableMaxLength)
 	t.AppendHeader(header)
 	for _, row := range rows {
 		t.AppendRow(row)

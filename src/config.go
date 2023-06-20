@@ -2,8 +2,9 @@ package zodo
 
 import (
 	"errors"
-	"gopkg.in/yaml.v3"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -30,33 +31,44 @@ const (
 	ColorHiWhite   = "hiWhite"
 )
 
+const (
+	defaultPadding               = 2
+	defaultTableMaxLength        = 200
+	defaultPendingStatusColor    = "magenta"
+	defaultProcessingStatusColor = "cyan"
+	defaultDoneStatusColor       = "blue"
+	defaultHidingStatusColor     = "black"
+	defaultNormalDeadlineColor   = "green"
+	defaultNervousDeadlineColor  = "yellow"
+	defaultOverdueDeadlineColor  = "red"
+	defaultPollingIntervalSecond = 1
+)
+
 const configFileName = "conf"
 
 var Config config
 
 type config struct {
 	Todo struct {
-		Padding          int  `yaml:"padding"`
+		Padding        int `yaml:"padding"`
+		TableMaxLength int `yaml:"tableMaxLength"`
+		Color          struct {
+			Status struct {
+				Pending    string `yaml:"pending"`
+				Processing string `yaml:"processing"`
+				Done       string `yaml:"done"`
+				Hiding     string `yaml:"hiding"`
+			} `yaml:"status"`
+			Deadline struct {
+				Normal  string `yaml:"normal"`
+				Nervous string `yaml:"nervous"`
+				Overdue string `yaml:"overdue"`
+			} `yaml:"deadline"`
+		} `yaml:"color"`
 		ShowDone         bool `yaml:"showDone"`
 		ShowParentStatus bool `yaml:"showParentStatus"`
 		CopyIdAfterAdd   bool `yaml:"copyIdAfterAdd"`
 	} `yaml:"todo"`
-	Table struct {
-		MaxLen int `yaml:"maxLen"`
-	} `yaml:"table"`
-	Color struct {
-		Status struct {
-			Pending    string `yaml:"pending"`
-			Processing string `yaml:"processing"`
-			Done       string `yaml:"done"`
-			Hiding     string `yaml:"hiding"`
-		} `yaml:"status"`
-		Deadline struct {
-			Normal  string `yaml:"normal"`
-			Nervous string `yaml:"nervous"`
-			Overdue string `yaml:"overdue"`
-		} `yaml:"deadline"`
-	} `yaml:"color"`
 	Storage struct {
 		Type  string `yaml:"type"`
 		Redis struct {
@@ -87,7 +99,7 @@ type config struct {
 		Password              string `yaml:"password"`
 		PrintStatus           bool   `yaml:"printStatus"`
 		PollingIntervalSecond int    `yaml:"pollingIntervalSecond"`
-	}
+	} `yaml:"jenkins"`
 }
 
 func (c *config) Init() {
@@ -102,16 +114,7 @@ func (c *config) Init() {
 	configPath := Path(configFileName)
 	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
 		Config = config{}
-		Config.Todo.Padding = 3
-		Config.Todo.ShowDone = false
-		Config.Todo.ShowParentStatus = false
-		Config.Todo.CopyIdAfterAdd = true
-		Config.Storage.Type = StorageTypeFile
-		Config.DailyReport.Enabled = false
-		Config.Reminder.Enabled = false
-		Config.Table.MaxLen = 200
-		Config.Jenkins.PrintStatus = true
-		Config.Jenkins.PollingIntervalSecond = 1
+		Config.check()
 		out, err := yaml.Marshal(Config)
 		if err != nil {
 			panic(err)
@@ -127,5 +130,44 @@ func (c *config) Init() {
 	err = yaml.Unmarshal(f, &c)
 	if err != nil {
 		panic(err)
+	}
+	c.check()
+}
+
+func (c *config) check() {
+	if c.Todo.Padding <= 0 {
+		c.Todo.Padding = defaultPadding
+	}
+	if c.Todo.TableMaxLength <= 0 {
+		c.Todo.TableMaxLength = defaultTableMaxLength
+	}
+	if c.Todo.Color.Status.Pending == "" {
+		c.Todo.Color.Status.Pending = defaultPendingStatusColor
+	}
+	if c.Todo.Color.Status.Processing == "" {
+		c.Todo.Color.Status.Processing = defaultProcessingStatusColor
+	}
+	if c.Todo.Color.Status.Done == "" {
+		c.Todo.Color.Status.Done = defaultDoneStatusColor
+	}
+	if c.Todo.Color.Status.Hiding == "" {
+		c.Todo.Color.Status.Hiding = defaultHidingStatusColor
+	}
+	if c.Todo.Color.Deadline.Normal == "" {
+		c.Todo.Color.Deadline.Normal = defaultNormalDeadlineColor
+	}
+	if c.Todo.Color.Deadline.Nervous == "" {
+		c.Todo.Color.Deadline.Nervous = defaultNervousDeadlineColor
+	}
+	if c.Todo.Color.Deadline.Overdue == "" {
+		c.Todo.Color.Deadline.Overdue = defaultOverdueDeadlineColor
+	}
+
+	if c.Storage.Type == "" {
+		c.Storage.Type = StorageTypeFile
+	}
+
+	if c.Jenkins.PollingIntervalSecond <= 0 {
+		c.Jenkins.PollingIntervalSecond = defaultPollingIntervalSecond
 	}
 }

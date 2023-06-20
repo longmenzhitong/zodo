@@ -2,12 +2,13 @@ package todo
 
 import (
 	"fmt"
-	"github.com/mozillazg/go-pinyin"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"zodo/src"
+	zodo "zodo/src"
+
+	"github.com/mozillazg/go-pinyin"
 )
 
 const (
@@ -44,13 +45,13 @@ func (t *todo) getStatus(colorful bool) string {
 	if colorful {
 		switch t.Status {
 		case statusPending:
-			return zodo.ColoredString(zodo.Config.Color.Status.Pending, t.Status)
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, t.Status)
 		case statusProcessing:
-			return zodo.ColoredString(zodo.Config.Color.Status.Processing, t.Status)
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Processing, t.Status)
 		case statusDone:
-			return zodo.ColoredString(zodo.Config.Color.Status.Done, t.Status)
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, t.Status)
 		case statusHiding:
-			return zodo.ColoredString(zodo.Config.Color.Status.Hiding, t.Status)
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Hiding, t.Status)
 		}
 	}
 	return t.Status
@@ -86,14 +87,14 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 
 	if colorful && (t.Status == statusPending || t.Status == statusProcessing) {
 		if wd <= 0 && nd <= 0 {
-			ddl = zodo.ColoredString(zodo.Config.Color.Deadline.Overdue, ddl)
-			remain = zodo.ColoredString(zodo.Config.Color.Deadline.Overdue, remain)
+			ddl = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Overdue, ddl)
+			remain = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Overdue, remain)
 		} else if wd == 1 || nd == 1 {
-			ddl = zodo.ColoredString(zodo.Config.Color.Deadline.Nervous, ddl)
-			remain = zodo.ColoredString(zodo.Config.Color.Deadline.Nervous, remain)
+			ddl = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Nervous, ddl)
+			remain = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Nervous, remain)
 		} else {
-			ddl = zodo.ColoredString(zodo.Config.Color.Deadline.Normal, ddl)
-			remain = zodo.ColoredString(zodo.Config.Color.Deadline.Normal, remain)
+			ddl = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Normal, ddl)
+			remain = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Normal, remain)
 		}
 	}
 	return
