@@ -7,11 +7,7 @@ import (
 	zodo "zodo/src"
 )
 
-const (
-	packageNamePattern  = `package\s+([\w.]+)\s*;`
-	classNamePattern    = `class\s+([\w.]+)\s*{`
-	camelToSnakePattern = `([A-Z])`
-)
+const classNameKeyword = "class"
 
 func GenerateMybatisCode(path string) error {
 	var packageName string
@@ -24,19 +20,12 @@ func GenerateMybatisCode(path string) error {
 			continue
 		}
 
-		var name string
 		if strings.HasPrefix(line, "package") {
-			name = parseName(packageNamePattern, line)
-			if name != "" {
-				packageName = name
-			}
-		} else if strings.Contains(line, "class") {
-			name = parseName(classNamePattern, line)
-			if name != "" {
-				className = name
-			}
+			packageName = parsePackageName(line)
+		} else if isClassNameLine(line) {
+			className = parseClassName(line)
 		} else {
-			name = parseFieldName(line)
+			name := parseFieldName(line)
 			if name != "" {
 				fieldNameMap[name] = camelToSnake(name)
 			}
@@ -45,14 +34,14 @@ func GenerateMybatisCode(path string) error {
 
 	result := make([]string, 0)
 	// result map
-	result = append(result, fmt.Sprintf("<resultMap id=\"%s\" type=\"%s.%s\">", className, packageName, className))
+	result = append(result, fmt.Sprintf("<resultMap id=\"%sResultMap\" type=\"%s.%s\">", className, packageName, className))
 	for p, c := range fieldNameMap {
 		result = append(result, fmt.Sprintf("%s<result column=\"%s\" property=\"%s\"/>", indent(), c, p))
 	}
 	result = append(result, fmt.Sprintf("</resultMap>"))
 	// result column
 	result = append(result, "")
-	result = append(result, fmt.Sprintf("<sql id=\"%s_Column_List\">", className))
+	result = append(result, fmt.Sprintf("<sql id=\"%sResultColumn\">", className))
 	var columns string
 	for _, c := range fieldNameMap {
 		columns += fmt.Sprintf("`%s`, ", c)
@@ -67,13 +56,24 @@ func GenerateMybatisCode(path string) error {
 	return nil
 }
 
-func parseName(pattern, line string) string {
-	r := regexp.MustCompile(pattern)
+func parsePackageName(line string) string {
+	r := regexp.MustCompile(`package\s+([\w.]+)\s*;`)
 	m := r.FindStringSubmatch(line)
 	if len(m) > 1 {
 		return m[1]
 	}
 	return ""
+}
+
+func isClassNameLine(line string) bool {
+	return strings.Contains(line, classNameKeyword) && strings.Contains(line, "{")
+}
+
+func parseClassName(line string) string {
+	i := strings.Index(line, classNameKeyword)
+	s := line[i+len(classNameKeyword)+1:]
+	j := strings.Index(s, " ")
+	return s[:j]
 }
 
 func parseFieldName(line string) string {
@@ -89,7 +89,7 @@ func parseFieldName(line string) string {
 }
 
 func camelToSnake(camel string) string {
-	re := regexp.MustCompile(camelToSnakePattern)
+	re := regexp.MustCompile(`([A-Z])`)
 	converted := re.ReplaceAllString(camel, "_$1")
 	return strings.ToLower(converted)
 }
