@@ -2,10 +2,9 @@ package dev
 
 import (
 	"fmt"
-	"github.com/atotto/clipboard"
 	"regexp"
 	"strings"
-	"zodo/src"
+	zodo "zodo/src"
 )
 
 const (
@@ -64,17 +63,7 @@ func GenerateMybatisCode(path string) error {
 		fmt.Println(s)
 	}
 
-	// 复制到剪切板
-	var text string
-	for _, s := range result {
-		text += s + "\n"
-	}
-	err := clipboard.WriteAll(text)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("\n(Copied.)\n")
+	zodo.WriteToClipboard(result)
 	return nil
 }
 

@@ -1,10 +1,12 @@
 package zodo
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/atotto/clipboard"
 	"github.com/go-gomail/gomail"
 	"github.com/go-redis/redis"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -59,4 +61,18 @@ func CurrentGitBranch() (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(string(output)), nil
+}
+
+func WriteToClipboard(lines []string) error {
+	var text string
+	for _, line := range lines {
+		text += line + "\n"
+	}
+	err := clipboard.WriteAll(text)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("\n(Copied.)\n")
+	return nil
 }
