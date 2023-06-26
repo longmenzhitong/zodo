@@ -9,7 +9,7 @@ import (
 
 const fileName = "simplified.sql"
 
-const comment = "COMMENT"
+const commentKeyword = "COMMENT"
 
 var ignoreKeywords = []string{
 	"INDEX", "UNIQUE INDEX", "KEY", "UNIQUE KEY", "create_time", "update_time",
@@ -28,7 +28,7 @@ func SimplifySql(path string) {
 		if isCreateTableLine(sql) {
 			createTableLineNum = len(handled)
 		} else if isTableNameLine(sql) {
-			if strings.Contains(sql, comment) {
+			if strings.Contains(sql, commentKeyword) {
 				tableName := getTableName(sql)
 				handled[createTableLineNum] = appendTableName(handled[createTableLineNum], tableName)
 			}
@@ -36,11 +36,11 @@ func SimplifySql(path string) {
 		} else if strings.HasPrefix(sql, "`") {
 			sql = strings.TrimPrefix(sql, "`")
 			i := strings.Index(sql, "`")
-			if !strings.Contains(sql, comment) {
+			if !strings.Contains(sql, commentKeyword) {
 				sql = sql[:i] + ","
 			} else {
-				j := strings.Index(sql, comment)
-				sql = sql[:i] + sql[j+len(comment):]
+				j := strings.Index(sql, commentKeyword)
+				sql = sql[:i] + sql[j+len(commentKeyword):]
 			}
 		}
 
