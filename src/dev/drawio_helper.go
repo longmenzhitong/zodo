@@ -25,17 +25,15 @@ func SimplifySql(path string) {
 			continue
 		}
 
-		// 处理表名
 		if isCreateTableLine(sql) {
 			createTableLineNum = len(handled)
-		}
-		if isTableNameLine(sql) {
-			tableName := getTableName(sql)
-			handled[createTableLineNum] = appendTableName(handled[createTableLineNum], tableName)
-		}
-
-		// 处理字段
-		if strings.HasPrefix(sql, "`") {
+		} else if isTableNameLine(sql) {
+			if strings.Contains(sql, comment) {
+				tableName := getTableName(sql)
+				handled[createTableLineNum] = appendTableName(handled[createTableLineNum], tableName)
+			}
+			sql += "\n"
+		} else if strings.HasPrefix(sql, "`") {
 			sql = strings.TrimPrefix(sql, "`")
 			i := strings.Index(sql, "`")
 			if !strings.Contains(sql, comment) {
@@ -80,5 +78,5 @@ func getTableName(sql string) string {
 
 func appendTableName(sql, tableName string) string {
 	i := strings.LastIndex(sql, "`")
-	return fmt.Sprintf("%s(%s)%s", sql[:i-1], tableName, sql[i:])
+	return fmt.Sprintf("%s(%s)%s", sql[:i], tableName, sql[i:])
 }
