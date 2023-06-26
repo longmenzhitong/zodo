@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/atotto/clipboard"
-	"gopkg.in/yaml.v3"
 	"strconv"
-	"zodo/src"
+	zodo "zodo/src"
 	"zodo/src/dev"
 	"zodo/src/todo"
+
+	"github.com/atotto/clipboard"
+	"gopkg.in/yaml.v3"
 )
 
 type Option struct {
@@ -33,9 +34,9 @@ type Option struct {
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config           ConfigCommand           `command:"conf" description:"Show config"`
 	Info             InfoCommand             `command:"info" description:"Show info"`
-	SimplifySql      SimplifySqlCommand      `command:"ss" description:"Simplify sql for drawio"`
-	Jenkins          JenkinsCommand          `command:"jk" description:"Deploy by the Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
-	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"Generate MyBatis result map and column: mg <path>"`
+	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
+	Jenkins          JenkinsCommand          `command:"jk" description:"Jenkins: deploy by Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
+	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 }
 
 type ListCommand struct {
@@ -394,10 +395,10 @@ func (c *InfoCommand) Execute([]string) error {
 	return nil
 }
 
-type SimplifySqlCommand struct {
+type DrawioHelperCommand struct {
 }
 
-func (c *SimplifySqlCommand) Execute(args []string) error {
+func (c *DrawioHelperCommand) Execute(args []string) error {
 	path := argsToStr(args)
 	dev.SimplifySql(path)
 	return nil
