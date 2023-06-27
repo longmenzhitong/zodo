@@ -262,6 +262,9 @@ func Info() {
 	pend := 0
 	done := 0
 	for _, td := range cc.data {
+		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {
+			continue
+		}
 		switch td.Status {
 		case statusProcessing:
 			proc++
