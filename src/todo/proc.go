@@ -45,7 +45,7 @@ func List(keyword string, status []string, allStatus bool) {
 }
 
 func Detail(id int) error {
-	td := cc._map()[id]
+	td := cc.get(id)
 	if td == nil {
 		return &zodo.NotFoundError{
 			Target:  "todo",
@@ -92,15 +92,15 @@ func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
-	td := cc._map()[id]
+	td := cc.get(id)
 	if td != nil {
 		td.Content = content
 	}
 }
 
 func Join(toId, fromId int) {
-	to := cc._map()[toId]
-	from := cc._map()[fromId]
+	to := cc.get(toId)
+	from := cc.get(fromId)
 	// 合并内容
 	to.Content = fmt.Sprintf("%s: %s", to.Content, from.Content)
 	// 合并备注
@@ -121,34 +121,33 @@ func Remove(ids []int) {
 }
 
 func SetDeadline(id int, deadline string) {
-	td := cc._map()[id]
+	td := cc.get(id)
 	if td != nil {
 		td.Deadline = deadline
 	}
 }
 
 func SetRemark(id int, remark string) {
-	td := cc._map()[id]
+	td := cc.get(id)
 	if td != nil {
 		td.Remark = remark
 	}
 }
 
 func SetChild(parentId int, childIds []int, append bool) error {
-	m := cc._map()
-	parent := m[parentId]
+	parent := cc.get(parentId)
 	if !append && parent.hasChildren() {
 		for childId := range parent.Children {
-			m[childId].ParentId = 0
+			cc.get(childId).ParentId = 0
 		}
 	}
 	if !append || parent.Children == nil {
 		parent.Children = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
-		child := m[childId]
+		child := cc.get(childId)
 		if child.ParentId != 0 {
-			delete(m[child.ParentId].Children, childId)
+			delete(cc.get(child.ParentId).Children, childId)
 		}
 
 		child.ParentId = parentId
@@ -182,7 +181,7 @@ func SetHiding(id int) {
 }
 
 func setStatus(id int, status string) {
-	td := cc._map()[id]
+	td := cc.get(id)
 	if td == nil {
 		return
 	}

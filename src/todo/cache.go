@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-	"zodo/src"
+	zodo "zodo/src"
 )
 
 var cc cache
@@ -51,16 +51,17 @@ func (c *cache) list(keyword string, status []string, allStatus bool) []todo {
 	return tds
 }
 
-func (c *cache) _map() map[int]*todo {
-	m := make(map[int]*todo, 0)
+func (c *cache) get(id int) *todo {
 	for _, td := range c.data {
-		m[td.Id] = td
+		if td.Id == id {
+			return td
+		}
 	}
-	return m
+	return nil
 }
 
 func (c *cache) add(td todo) {
-	if c._map()[td.Id] != nil {
+	if c.get(td.Id) != nil {
 		panic(&zodo.InvalidInputError{Message: fmt.Sprintf("id duplicated: %d", td.Id)})
 	}
 
@@ -68,8 +69,7 @@ func (c *cache) add(td todo) {
 }
 
 func (c *cache) remove(id int) {
-	m := c._map()
-	toRemove := m[id]
+	toRemove := cc.get(id)
 	if toRemove == nil {
 		return
 	}
@@ -82,7 +82,7 @@ func (c *cache) remove(id int) {
 	}
 	c.data = newList
 
-	parent := m[toRemove.ParentId]
+	parent := cc.get(toRemove.ParentId)
 	if parent != nil {
 		delete(parent.Children, id)
 	}

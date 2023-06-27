@@ -2,9 +2,10 @@ package todo
 
 import (
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/table"
 	"time"
-	"zodo/src"
+	zodo "zodo/src"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 const (
@@ -39,7 +40,7 @@ var loopTypes = []string{
 }
 
 func SetRemind(id int, rmdTime string, loop bool) error {
-	td := cc._map()[id]
+	td := cc.get(id)
 	if td == nil {
 		return &zodo.NotFoundError{
 			Target:  "todo",
@@ -69,9 +70,8 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 }
 
 func RemoveRemind(ids []int) {
-	m := cc._map()
 	for _, id := range ids {
-		td := m[id]
+		td := cc.get(id)
 		if td != nil {
 			td.RemindTime = ""
 			td.RemindStatus = ""
@@ -83,14 +83,13 @@ func RemoveRemind(ids []int) {
 func Remind() error {
 	cc.refresh()
 	var text string
-	m := cc._map()
 	for _, td := range cc.list("", []string{}, true) {
 		if !isNeedRemind(td.RemindTime, td.LoopType, td.RemindStatus, time.Now()) {
 			continue
 		}
 
 		if td.LoopType == loopOnce {
-			m[td.Id].RemindStatus = rmdStatusFinished
+			cc.get(td.Id).RemindStatus = rmdStatusFinished
 		}
 
 		ddl, remain := td.getDeadLineAndRemain(false)

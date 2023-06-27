@@ -183,9 +183,8 @@ func hitKeyword(td *todo, keyword string) bool {
 	}
 
 	if td.hasChildren() {
-		m := cc._map()
 		for childId := range td.Children {
-			if hitKeyword(m[childId], keyword) {
+			if hitKeyword(cc.get(childId), keyword) {
 				return true
 			}
 		}
@@ -210,10 +209,9 @@ func walkTodo(td *todo, tds *[]todo, level int, status []string, allStatus bool)
 		return
 	}
 
-	m := cc._map()
 	childList := make([]*todo, 0)
 	for childId := range td.Children {
-		child := m[childId]
+		child := cc.get(childId)
 		if child == nil {
 			fmt.Println(&zodo.NotFoundError{
 				Target:  "child",
@@ -242,7 +240,7 @@ func hitStatus(td *todo, status []string, allStatus bool) bool {
 	}
 	if td.hasChildren() {
 		for childId := range td.Children {
-			if hitStatus(cc._map()[childId], status, allStatus) {
+			if hitStatus(cc.get(childId), status, allStatus) {
 				return true
 			}
 		}
