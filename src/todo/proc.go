@@ -14,7 +14,7 @@ func List(keyword string, status []string, allStatus bool) {
 	for _, td := range cc.list(keyword, status, allStatus) {
 		content := td.Content
 		if td.Level > 0 {
-			content = fmt.Sprintf("%s|-%s", padding(td.Level), content)
+			content = fmt.Sprintf("%s|- %s", padding(td.Level), content)
 		}
 		stat := td.getStatus(true)
 
