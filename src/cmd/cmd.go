@@ -16,6 +16,7 @@ type Option struct {
 	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
 	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
 	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
+	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
 	Remove           RemoveCommand           `command:"rm" description:"Remove todo: rm <id>..."`
 	SetRemark        SetRemarkCommand        `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
 	SetDeadline      SetDeadlineCommand      `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
@@ -125,6 +126,25 @@ func (c *ModifyCommand) Execute(args []string) error {
 		return err
 	}
 	todo.Modify(id, content)
+	todo.Save()
+	return nil
+}
+
+type JoinCommand struct {
+}
+
+func (c *JoinCommand) Execute(args []string) error {
+	ids, err := argsToIds(args)
+	if err != nil {
+		return err
+	}
+
+	if len(ids) != 2 {
+		return &zodo.InvalidInputError{
+			Message: "there must be two ids",
+		}
+	}
+	todo.Join(ids[0], ids[1])
 	todo.Save()
 	return nil
 }

@@ -98,6 +98,22 @@ func Modify(id int, content string) {
 	}
 }
 
+func Join(toId, fromId int) {
+	to := cc._map()[toId]
+	from := cc._map()[fromId]
+	// 合并内容
+	to.Content = fmt.Sprintf("%s: %s", to.Content, from.Content)
+	// 合并备注
+	if from.Remark != "" {
+		if to.Remark == "" {
+			to.Remark = from.Remark
+		} else {
+			to.Remark = fmt.Sprintf("%s: %s", to.Remark, from.Remark)
+		}
+	}
+	cc.remove(fromId)
+}
+
 func Remove(ids []int) {
 	for _, id := range ids {
 		cc.remove(id)
