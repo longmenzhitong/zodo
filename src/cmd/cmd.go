@@ -38,6 +38,7 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	Jenkins          JenkinsCommand          `command:"jk" description:"Jenkins: deploy by Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
+	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class by excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
 }
 
 type ListCommand struct {
@@ -441,4 +442,17 @@ type MybatisGeneratorCommand struct {
 
 func (c *MybatisGeneratorCommand) Execute(args []string) error {
 	return dev.GenerateMybatisCode(argsToStr(args))
+}
+
+type ExcelHelperCommand struct {
+	Path       string `short:"p" required:"true" description:"Path of excel template"`
+	Name       string `short:"n" required:"false" description:"Name of java class, default is: ExportDTO"`
+	SheetIndex int    `short:"i" required:"false" description:"Index of excel sheet, default is: 0"`
+}
+
+func (c *ExcelHelperCommand) Execute(args []string) error {
+	if c.Name == "" {
+		c.Name = "ExportDTO"
+	}
+	return dev.GenerateJavaCode(c.Path, c.Name, c.SheetIndex)
 }
