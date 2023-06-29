@@ -7,10 +7,14 @@ import (
 	zodo "zodo/src"
 )
 
-var cc cache
+var Cache cache
 
 type cache struct {
 	data []*todo
+}
+
+func (c *cache) Init() {
+	c.refresh()
 }
 
 func (c *cache) refresh() {
@@ -69,7 +73,7 @@ func (c *cache) add(td todo) {
 }
 
 func (c *cache) remove(id int) {
-	toRemove := cc.get(id)
+	toRemove := c.get(id)
 	if toRemove == nil {
 		return
 	}
@@ -82,7 +86,7 @@ func (c *cache) remove(id int) {
 	}
 	c.data = newList
 
-	parent := cc.get(toRemove.ParentId)
+	parent := c.get(toRemove.ParentId)
 	if parent != nil {
 		delete(parent.Children, id)
 	}
@@ -130,8 +134,4 @@ func (c *cache) defragId() int {
 	newNextId := len(c.data) + 1
 	zodo.SetId(newNextId, zodo.Config.Storage.Type)
 	return oldNextId - newNextId
-}
-
-func InitCache() {
-	cc.refresh()
 }

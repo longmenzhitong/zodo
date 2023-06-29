@@ -40,7 +40,7 @@ var loopTypes = []string{
 }
 
 func SetRemind(id int, rmdTime string, loop bool) error {
-	td := cc.get(id)
+	td := Cache.get(id)
 	if td == nil {
 		return &zodo.NotFoundError{
 			Target:  "todo",
@@ -71,7 +71,7 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 
 func RemoveRemind(ids []int) {
 	for _, id := range ids {
-		td := cc.get(id)
+		td := Cache.get(id)
 		if td != nil {
 			td.RemindTime = ""
 			td.RemindStatus = ""
@@ -81,15 +81,15 @@ func RemoveRemind(ids []int) {
 }
 
 func Remind() error {
-	cc.refresh()
+	Cache.refresh()
 	var text string
-	for _, td := range cc.list("", []string{}, true) {
+	for _, td := range Cache.list("", []string{}, true) {
 		if !isNeedRemind(td.RemindTime, td.LoopType, td.RemindStatus, time.Now()) {
 			continue
 		}
 
 		if td.LoopType == loopOnce {
-			cc.get(td.Id).RemindStatus = rmdStatusFinished
+			Cache.get(td.Id).RemindStatus = rmdStatusFinished
 		}
 
 		ddl, remain := td.getDeadLineAndRemain(false)
@@ -107,7 +107,7 @@ func Remind() error {
 		if err != nil {
 			return err
 		}
-		cc.save()
+		Cache.save()
 	}
 	return nil
 }

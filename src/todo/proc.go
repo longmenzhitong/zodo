@@ -11,7 +11,7 @@ import (
 func List(keyword string, status []string, allStatus bool) {
 	rows := make([]table.Row, 0)
 	showDeadline := false
-	for _, td := range cc.list(keyword, status, allStatus) {
+	for _, td := range Cache.list(keyword, status, allStatus) {
 		content := td.Content
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|- %s", padding(td.Level), content)
@@ -45,7 +45,7 @@ func List(keyword string, status []string, allStatus bool) {
 }
 
 func Detail(id int) error {
-	td := cc.get(id)
+	td := Cache.get(id)
 	if td == nil {
 		return &zodo.NotFoundError{
 			Target:  "todo",
@@ -79,7 +79,7 @@ func Add(content string) (int, error) {
 		}
 	}
 	id := zodo.Id(zodo.Config.Storage.Type)
-	cc.add(todo{
+	Cache.add(todo{
 		Id:         id,
 		Content:    content,
 		Status:     statusPending,
@@ -92,15 +92,15 @@ func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
-	td := cc.get(id)
+	td := Cache.get(id)
 	if td != nil {
 		td.Content = content
 	}
 }
 
 func Join(toId, fromId int) {
-	to := cc.get(toId)
-	from := cc.get(fromId)
+	to := Cache.get(toId)
+	from := Cache.get(fromId)
 	// 合并内容
 	to.Content = fmt.Sprintf("%s: %s", to.Content, from.Content)
 	// 合并备注
@@ -111,43 +111,43 @@ func Join(toId, fromId int) {
 			to.Remark = fmt.Sprintf("%s: %s", to.Remark, from.Remark)
 		}
 	}
-	cc.remove(fromId)
+	Cache.remove(fromId)
 }
 
 func Remove(ids []int) {
 	for _, id := range ids {
-		cc.remove(id)
+		Cache.remove(id)
 	}
 }
 
 func SetDeadline(id int, deadline string) {
-	td := cc.get(id)
+	td := Cache.get(id)
 	if td != nil {
 		td.Deadline = deadline
 	}
 }
 
 func SetRemark(id int, remark string) {
-	td := cc.get(id)
+	td := Cache.get(id)
 	if td != nil {
 		td.Remark = remark
 	}
 }
 
 func SetChild(parentId int, childIds []int, append bool) error {
-	parent := cc.get(parentId)
+	parent := Cache.get(parentId)
 	if !append && parent.hasChildren() {
 		for childId := range parent.Children {
-			cc.get(childId).ParentId = 0
+			Cache.get(childId).ParentId = 0
 		}
 	}
 	if !append || parent.Children == nil {
 		parent.Children = make(map[int]bool, 0)
 	}
 	for _, childId := range childIds {
-		child := cc.get(childId)
+		child := Cache.get(childId)
 		if child.ParentId != 0 {
-			delete(cc.get(child.ParentId).Children, childId)
+			delete(Cache.get(child.ParentId).Children, childId)
 		}
 
 		child.ParentId = parentId
@@ -181,7 +181,7 @@ func SetHiding(id int) {
 }
 
 func setStatus(id int, status string) {
-	td := cc.get(id)
+	td := Cache.get(id)
 	if td == nil {
 		return
 	}
@@ -195,13 +195,13 @@ func setStatus(id int, status string) {
 }
 
 func Save() {
-	cc.save()
+	Cache.save()
 }
 
 func Report() error {
-	cc.refresh()
+	Cache.refresh()
 	var text string
-	for _, td := range cc.list("", []string{}, false) {
+	for _, td := range Cache.list("", []string{}, false) {
 		status := td.getStatus(false)
 		ddl, remain := td.getDeadLineAndRemain(false)
 		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {
@@ -265,18 +265,18 @@ func Transfer() {
 }
 
 func ClearDoneTodo() int {
-	return cc.clearDoneTodo()
+	return Cache.clearDoneTodo()
 }
 
 func DefragId() int {
-	return cc.defragId()
+	return Cache.defragId()
 }
 
 func Info() {
 	proc := 0
 	pend := 0
 	done := 0
-	for _, td := range cc.data {
+	for _, td := range Cache.data {
 		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {
 			continue
 		}
