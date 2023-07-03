@@ -3,13 +3,14 @@ package dev
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/schollz/progressbar/v3"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-	"zodo/src"
+	zodo "zodo/src"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 const (
@@ -27,7 +28,7 @@ type JenkinsBuild struct {
 	} `json:"stages"`
 }
 
-func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
+func Deploy(service, env, branch string, checkCode, checkStatus bool) error {
 	// 检查配置
 	fmt.Println("Check config...")
 	fmt.Printf("Url       : %s\n", boolToSymbol(zodo.Config.Jenkins.Url != ""))
@@ -52,7 +53,7 @@ func Deploy(service, env, branch string, checkCode, statusOnly bool) error {
 		service = strings.ToUpper(service)
 	}
 	fmt.Printf("Service   : %s\n", service)
-	if statusOnly {
+	if checkStatus {
 		fmt.Println("Check done.")
 		err := printStatus(service)
 		return err

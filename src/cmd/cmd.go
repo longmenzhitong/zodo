@@ -12,7 +12,7 @@ import (
 )
 
 type Option struct {
-	List             ListCommand             `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] <keyword>"`
+	List             ListCommand             `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] [<keyword>]"`
 	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
 	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
 	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
@@ -29,7 +29,7 @@ type Option struct {
 	SetProcessing    SetProcessingCommand    `command:"proc" description:"Mark todo status as processing: proc <id>..."`
 	SetDone          SetDoneCommand          `command:"done" description:"Mark todo status as done: done <id>..."`
 	SetHiding        SetHidingCommand        `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
-	Server           ServerCommand           `command:"server" description:"Enter server mode"`
+	Server           ServerCommand           `command:"server" description:"Server mode on"`
 	Rollback         RollbackCommand         `command:"rbk" description:"Rollback to last version"`
 	Transfer         TransferCommand         `command:"trans" description:"Transfer between file and redis"`
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
@@ -38,7 +38,7 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	Jenkins          JenkinsCommand          `command:"jk" description:"Jenkins: deploy by Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
-	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class by excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
+	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
 }
 
 type ListCommand struct {
@@ -70,9 +70,9 @@ func (c *DetailCommand) Execute(args []string) error {
 }
 
 type AddCommand struct {
-	ParentId int    `short:"p" required:"false" description:"parent-id"`
-	Deadline string `short:"d" required:"false" description:"deadline"`
-	Remind   string `short:"r" required:"false" description:"remind-time"`
+	ParentId int    `short:"p" required:"false" description:"Specify parent id for new todo"`
+	Deadline string `short:"d" required:"false" description:"Specify deadline for new todo, format: yyyy-MM-dd | MM-dd"`
+	Remind   string `short:"r" required:"false" description:"Specify remind time for new todo, format: yyyy-MM-dd HH:mm | MM-dd HH:mm | HH:mm"`
 }
 
 func (c *AddCommand) Execute(args []string) error {
@@ -377,7 +377,7 @@ func (c *TransferCommand) Execute([]string) error {
 }
 
 type TidyCommand struct {
-	All      bool `short:"a" required:"false" description:"All tidy works"`
+	All      bool `short:"a" required:"false" description:"Execute all tidy works"`
 	DoneTodo bool `short:"d" required:"false" description:"Clear done todos"`
 	Id       bool `short:"i" required:"false" description:"Defrag ids"`
 }
@@ -426,15 +426,15 @@ func (c *DrawioHelperCommand) Execute(args []string) error {
 }
 
 type JenkinsCommand struct {
-	Service    string `short:"s" required:"false" description:"Service name or current dir name by default"`
-	Env        string `short:"e" required:"false" description:"Service environment"`
-	Branch     string `short:"b" required:"false" description:"Git branch or current git branch by default"`
-	CheckCode  bool   `short:"c" required:"false" description:"Check code option"`
-	StatusOnly bool   `short:"S" required:"false" description:"Print build status only"`
+	Service     string `short:"s" required:"false" description:"Jenkins job name in build URL, default: name of current directory"`
+	Env         string `short:"e" required:"false" description:"Jenkins parameter [SERVERNAME]"`
+	Branch      string `short:"b" required:"false" description:"Jenkins parameter [BUILD_BRANCH], default: branch of current directory"`
+	CheckCode   bool   `short:"c" required:"false" description:"Jenkins parameter [IS_CHECK_CODE]"`
+	CheckStatus bool   `short:"C" required:"false" description:"Check build status"`
 }
 
 func (c *JenkinsCommand) Execute([]string) error {
-	return dev.Deploy(c.Service, c.Env, c.Branch, c.CheckCode, c.StatusOnly)
+	return dev.Deploy(c.Service, c.Env, c.Branch, c.CheckCode, c.CheckStatus)
 }
 
 type MybatisGeneratorCommand struct {
@@ -446,8 +446,8 @@ func (c *MybatisGeneratorCommand) Execute(args []string) error {
 
 type ExcelHelperCommand struct {
 	Path       string `short:"p" required:"true" description:"Path of excel template"`
-	Name       string `short:"n" required:"false" description:"Name of java class, default is: ExportDTO"`
-	SheetIndex int    `short:"i" required:"false" description:"Index of excel sheet, default is: 0"`
+	Name       string `short:"n" required:"false" description:"Name of java class, default: ExportDTO"`
+	SheetIndex int    `short:"i" required:"false" description:"Index of excel sheet, default: 0"`
 }
 
 func (c *ExcelHelperCommand) Execute(args []string) error {
