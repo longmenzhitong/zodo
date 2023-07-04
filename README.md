@@ -71,4 +71,31 @@ zodo --help
 
 这里值得一提的是 storeage.redis.localize 这个配置，它决定了在向 Redis 写数据时是否会也向本地文件写数据。这个配置默认是打开的，而且我建议你没有特殊的理由不要关闭，因为它可以保证你的本地数据永远是最新的，一旦你的 Redis 连接出了问题，你只需要将存储方式切换成本地文件就可以正常使用 zodo。如果你真的关闭了这个配置，但你又想在本地文件和 Redis 服务器间同步数据，那么 trans 子命令可以满足你的需求，虽然大多数情况下它没有什么用。
 
+## 文本颜色
+
+目前有三个字段的文本支持设置颜色：status、deadline 和 remain，其中 remain 是根据 deadline 自动计算的，因此和 deadline 使用相同的配置。文本颜色的配置在 todo.color 下面。zodo 目前支持以下几种颜色：
+
+- black
+- red
+- green
+- yellow
+- blue
+- magenta
+- cyan
+- white
+- hiBlack
+- hiRed
+- hiGreen
+- hiYellow
+- hiBlue
+- hiMagenta
+- hiCyan
+- hiWhite
+
+## 子任务
+
+// TODO
+
+## 服务器模式
+
 // TODO
