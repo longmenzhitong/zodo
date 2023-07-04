@@ -2,6 +2,7 @@ package dev
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	zodo "zodo/src"
 
@@ -26,9 +27,7 @@ func GenerateJavaCode(path, name string, sheetIndex int) error {
 
 	for _, row := range rows {
 		for _, cell := range row {
-			if strings.HasPrefix(cell, "{.") {
-				fields = append(fields, cell[2:len(cell)-1])
-			}
+			fields = append(fields, parseField(cell)...)
 		}
 	}
 
@@ -46,17 +45,16 @@ func GenerateJavaCode(path, name string, sheetIndex int) error {
 	codeLines = append(codeLines, fmt.Sprintf("public class %s {", name))
 	codeLines = append(codeLines, "")
 	for _, field := range fields {
-		var javaType string
-		var dateFormat string
-		if strings.Contains(strings.ToLower(field), "time") {
+		javaType := "String"
+		dateFormat := ""
+		if strings.HasSuffix(field, "Time") {
 			javaType = "Date"
 			dateFormat = "yyyy-MM-dd HH:mm:ss"
-		} else if strings.Contains(strings.ToLower(field), "date") {
+		} else if strings.HasSuffix(field, "Date") {
 			javaType = "Date"
 			dateFormat = "yyyy-MM-dd"
-		} else {
-			javaType = "String"
-			dateFormat = ""
+		} else if strings.HasSuffix(field, "Count") {
+			javaType = "Integer"
 		}
 		if dateFormat != "" {
 			if !dateHandled {
@@ -81,4 +79,18 @@ func GenerateJavaCode(path, name string, sheetIndex int) error {
 	zodo.WriteToClipboard(lines)
 
 	return nil
+}
+
+func parseField(str string) []string {
+	pattern := `\{\.(\w+)\}`
+	re := regexp.MustCompile(pattern)
+
+	matches := re.FindAllStringSubmatch(str, -1)
+	result := make([]string, len(matches))
+
+	for i, match := range matches {
+		result[i] = match[1]
+	}
+
+	return result
 }
