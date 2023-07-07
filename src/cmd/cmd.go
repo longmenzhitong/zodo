@@ -36,7 +36,7 @@ type Option struct {
 	Config           ConfigCommand           `command:"conf" description:"Show config"`
 	Info             InfoCommand             `command:"info" description:"Show info"`
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
-	Jenkins          JenkinsCommand          `command:"jk" description:"Jenkins: deploy by Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S]"`
+	Jenkins          JenkinsCommand          `command:"jk" description:"Jenkins: deploy by Jenkins: jk [-s <service>] [-e <env>] [-b <branch>] [-c] [-S] [-H]"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
 }
@@ -431,9 +431,13 @@ type JenkinsCommand struct {
 	Branch      string `short:"b" required:"false" description:"Jenkins parameter [BUILD_BRANCH], default: branch of current directory"`
 	CheckCode   bool   `short:"c" required:"false" description:"Jenkins parameter [IS_CHECK_CODE]"`
 	CheckStatus bool   `short:"C" required:"false" description:"Check build status"`
+	History     bool   `short:"H" required:"false" description:"Show build history"`
 }
 
 func (c *JenkinsCommand) Execute([]string) error {
+	if c.History {
+		return dev.History(c.Service)
+	}
 	return dev.Deploy(c.Service, c.Env, c.Branch, c.CheckCode, c.CheckStatus)
 }
 

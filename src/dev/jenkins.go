@@ -2,6 +2,7 @@ package dev
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"time"
 	zodo "zodo/src"
 
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -271,4 +273,190 @@ func boolToText(b bool) string {
 		return "yes"
 	}
 	return "no"
+}
+
+type Job struct {
+	Builds []Build `xml:"build"`
+}
+
+type Build struct {
+	XMLName xml.Name `xml:"build"`
+	Class   string   `xml:"_class,attr"`
+	Number  int      `xml:"number"`
+	URL     string   `xml:"url"`
+}
+
+type BuildInfo struct {
+	XMLName           xml.Name      `xml:"workflowRun"`
+	Class             string        `xml:"_class,attr"`
+	Actions           []BuildAction `xml:"action"`
+	Building          bool          `xml:"building"`
+	Description       string        `xml:"description"`
+	DisplayName       string        `xml:"displayName"`
+	Duration          int           `xml:"duration"`
+	EstimatedDuration int           `xml:"estimatedDuration"`
+	FullDisplayName   string        `xml:"fullDisplayName"`
+	ID                int           `xml:"id"`
+	KeepLog           bool          `xml:"keepLog"`
+	Number            int           `xml:"number"`
+	QueueID           int           `xml:"queueId"`
+	Result            string        `xml:"result"`
+	Timestamp         int64         `xml:"timestamp"`
+	URL               string        `xml:"url"`
+}
+
+type BuildAction struct {
+	Class      string           `xml:"_class,attr"`
+	Parameters []BuildParameter `xml:"parameter,omitempty"`
+	Cause      BuildCause       `xml:"cause,omitempty"`
+}
+
+type BuildParameter struct {
+	Class string `xml:"_class,attr"`
+	Name  string `xml:"name"`
+	Value string `xml:"value"`
+}
+
+type BuildCause struct {
+	Class            string `xml:"_class,attr"`
+	ShortDescription string `xml:"shortDescription"`
+	UserID           string `xml:"userId"`
+	UserName         string `xml:"userName"`
+}
+
+// TODO 把这几个name定义成常量，把这几个方法合并在一起
+func (b *BuildInfo) getBuildBranch() string {
+	for _, a := range b.Actions {
+		if a.Class == "hudson.model.ParametersAction" {
+			for _, p := range a.Parameters {
+				if p.Name == "BUILD_BRANCH" {
+					return p.Value
+				}
+			}
+		}
+	}
+	return ""
+}
+
+func (b *BuildInfo) getDeployEnv() string {
+	for _, a := range b.Actions {
+		if a.Class == "hudson.model.ParametersAction" {
+			for _, p := range a.Parameters {
+				if p.Name == "DEPLOYENV" {
+					return p.Value
+				}
+			}
+		}
+	}
+	return ""
+}
+
+func (b *BuildInfo) getServerName() string {
+	for _, a := range b.Actions {
+		if a.Class == "hudson.model.ParametersAction" {
+			for _, p := range a.Parameters {
+				if p.Name == "SERVERNAME" {
+					return p.Value
+				}
+			}
+		}
+	}
+	return ""
+}
+
+func (b *BuildInfo) getBuildUser() string {
+	for _, a := range b.Actions {
+		if a.Class == "hudson.model.CauseAction" {
+			return a.Cause.UserName
+		}
+	}
+	return ""
+}
+
+func History(job string) error {
+	allBuildUrl := fmt.Sprintf("%s/job/%s/api/xml", zodo.Config.Jenkins.Url, job)
+	req, err := http.NewRequest("GET", allBuildUrl, nil)
+	if err != nil {
+		return err
+	}
+	req.SetBasicAuth(zodo.Config.Jenkins.Username, zodo.Config.Jenkins.Password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http status not ok: %d, resp body: %s", resp.StatusCode, resp.Body)
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	var workflowJob Job
+	err = xml.Unmarshal(b, &workflowJob)
+	if err != nil {
+		return err
+	}
+
+	limit := 5
+	buildUrls := make([]string, 0)
+	for _, b := range workflowJob.Builds {
+		buildUrls = append(buildUrls, b.URL+"api/xml")
+	}
+	buildUrls = buildUrls[:limit]
+
+	rows := make([]table.Row, 0)
+
+	for _, url := range buildUrls {
+		buildInfo, err := getBuildInfo(url)
+		if err != nil {
+			return err
+		}
+
+		row := table.Row{
+			time.Unix(buildInfo.Timestamp/1000, 0).Format(zodo.LayoutDateTime),
+			buildInfo.getDeployEnv(),
+			buildInfo.getServerName(),
+			buildInfo.getBuildBranch(),
+			buildInfo.Result,
+			buildInfo.Building,
+			buildInfo.getBuildUser(),
+		}
+		rows = append(rows, row)
+	}
+
+	title := table.Row{"时间", "环境", "服务器", "分支", "结果", "正在构建", "发起用户"}
+	zodo.PrintTable(title, rows)
+	return nil
+}
+
+func getBuildInfo(url string) (*BuildInfo, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.SetBasicAuth(zodo.Config.Jenkins.Username, zodo.Config.Jenkins.Password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status not ok: %d, resp body: %s", resp.StatusCode, resp.Body)
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var buildInfo BuildInfo
+	err = xml.Unmarshal(b, &buildInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return &buildInfo, nil
 }
