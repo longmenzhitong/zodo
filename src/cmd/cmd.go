@@ -17,6 +17,7 @@ type Option struct {
 	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
 	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
 	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
+	ModifyByAppend   ModifyByAppendCommand   `command:"moda" description:"Modify todo by append: moda [-o <offset>] <id> <content>"`
 	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
 	Remove           RemoveCommand           `command:"rm" description:"Remove todo: rm <id>..."`
 	SetRemark        SetRemarkCommand        `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
@@ -129,7 +130,27 @@ func (c *ModifyCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	todo.Modify(id, content)
+	todo.Save()
+	return nil
+}
+
+type ModifyByAppendCommand struct {
+	Offset int `short:"o" required:"false" description:"Offset to append new content, range from 0(tail) to len(<old-content>)(head), especially -1 == len(<old-content>)"`
+}
+
+func (c *ModifyByAppendCommand) Execute(args []string) error {
+	id, content, err := argsToIdAndStr(args)
+	if err != nil {
+		return err
+	}
+
+	err = todo.ModifyByAppend(id, content, c.Offset)
+	if err != nil {
+		return err
+	}
+
 	todo.Save()
 	return nil
 }

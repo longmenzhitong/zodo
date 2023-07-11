@@ -92,10 +92,42 @@ func Modify(id int, content string) {
 	if content == "" {
 		return
 	}
+
 	td := Cache.get(id)
 	if td != nil {
 		td.Content = content
 	}
+}
+
+func ModifyByAppend(id int, content string, offset int) error {
+	if content == "" {
+		return nil
+	}
+
+	td := Cache.get(id)
+	if td == nil {
+		return nil
+	}
+
+	oldContent := td.Content
+	if offset == -1 {
+		offset = len(oldContent)
+	} else if offset < 0 || offset > len(oldContent) {
+		return &zodo.InvalidInputError{
+			Message: fmt.Sprintf("offset must range from 0 to %d(or -1 instead)", len(oldContent)),
+		}
+	}
+
+	if offset == 0 {
+		td.Content = oldContent + content
+	} else if offset == len(oldContent) {
+		td.Content = content + oldContent
+	} else {
+		i := len(oldContent) - offset
+		td.Content = oldContent[:i] + content + oldContent[i:]
+	}
+
+	return nil
 }
 
 func Join(toId, fromId int) {
