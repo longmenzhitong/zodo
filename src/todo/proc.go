@@ -99,6 +99,13 @@ func Modify(id int, content string) {
 	}
 }
 
+func ModifyHelp(id int) {
+	td := Cache.get(id)
+	if td != nil {
+		zodo.WriteToClipboard([]string{fmt.Sprintf("zodo mod %d '%s'", id, td.Content)})
+	}
+}
+
 func ModifyByAppend(id int, content string, offset int) error {
 	if content == "" {
 		return nil

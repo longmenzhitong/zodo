@@ -65,8 +65,11 @@ func CurrentGitBranch() (string, error) {
 
 func WriteToClipboard(lines []string) error {
 	var text string
-	for _, line := range lines {
-		text += line + "\n"
+	for i, line := range lines {
+		text += line
+		if i != len(lines)-1 {
+			text += "\n"
+		}
 	}
 	err := clipboard.WriteAll(text)
 	if err != nil {
