@@ -304,7 +304,7 @@ func DefragId() int {
 	return Cache.defragId()
 }
 
-func Info() {
+func Statistics() {
 	proc := 0
 	pend := 0
 	done := 0
@@ -327,5 +327,5 @@ func Info() {
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, "Pending"), pend})
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, "Done"), done})
 	rows = append(rows, table.Row{"NextId", zodo.GetId(zodo.Config.Storage.Type)})
-	zodo.PrintTable(table.Row{"Item", "Val"}, rows)
+	zodo.PrintTable(table.Row{"Item", "Value"}, rows)
 }

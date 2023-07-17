@@ -36,7 +36,7 @@ type Option struct {
 	Transfer         TransferCommand         `command:"trans" description:"Transfer between file and redis"`
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config           ConfigCommand           `command:"conf" description:"Show config"`
-	Info             InfoCommand             `command:"info" description:"Show info"`
+	Statistics       StatisticsCommand       `command:"stat" description:"Show statistics of todos"`
 	JenkinsDeploy    JenkinsDeployCommand    `command:"jd" description:"Jenkins deploy: jd [-j <job-name>] [-s <server-name>] [-b <build-branch>] [-c]"`
 	JenkinsStatus    JenkinsStatusCommand    `command:"js" description:"Jenkins status: js [-j <job-name>]"`
 	JenkinsHistory   JenkinsHistoryCommand   `command:"jh" description:"Jenkins history: jh [-j <job-name>] [-c <history-count>]"`
@@ -432,11 +432,11 @@ func (c *ConfigCommand) Execute([]string) error {
 	return nil
 }
 
-type InfoCommand struct {
+type StatisticsCommand struct {
 }
 
-func (c *InfoCommand) Execute([]string) error {
-	todo.Info()
+func (c *StatisticsCommand) Execute([]string) error {
+	todo.Statistics()
 	return nil
 }
 
