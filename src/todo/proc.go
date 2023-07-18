@@ -122,12 +122,12 @@ func Join(toId, fromId int) {
 			to.Remark = fmt.Sprintf("%s: %s", to.Remark, from.Remark)
 		}
 	}
-	Cache.remove(fromId)
+	Cache.remove(fromId, true)
 }
 
-func Remove(ids []int) {
+func Remove(ids []int, recursively bool) {
 	for _, id := range ids {
-		Cache.remove(id)
+		Cache.remove(id, recursively)
 	}
 }
 

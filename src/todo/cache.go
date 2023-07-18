@@ -72,7 +72,7 @@ func (c *cache) add(td todo) {
 	c.data = append(c.data, &td)
 }
 
-func (c *cache) remove(id int) {
+func (c *cache) remove(id int, recursively bool) {
 	toRemove := c.get(id)
 	if toRemove == nil {
 		return
@@ -93,7 +93,15 @@ func (c *cache) remove(id int) {
 
 	if toRemove.hasChildren() {
 		for childId := range toRemove.Children {
-			c.remove(childId)
+			if recursively {
+				c.remove(childId, true)
+			} else {
+				child := c.get(childId)
+				child.ParentId = toRemove.ParentId
+				if parent != nil {
+					parent.Children[childId] = true
+				}
+			}
 		}
 	}
 }
@@ -102,7 +110,7 @@ func (c *cache) clearDoneTodo() int {
 	count := 0
 	for _, td := range c.data {
 		if td.Status == statusDone {
-			c.remove(td.Id)
+			c.remove(td.Id, true)
 			count++
 		}
 	}

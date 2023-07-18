@@ -18,7 +18,7 @@ type Option struct {
 	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
 	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
 	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
-	Remove           RemoveCommand           `command:"rm" description:"Remove todo: rm <id>..."`
+	Remove           RemoveCommand           `command:"rm" description:"Remove todos: rm [-r] <id>..."`
 	SetRemark        SetRemarkCommand        `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
 	SetDeadline      SetDeadlineCommand      `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
 	RemoveDeadline   RemoveDeadlineCommand   `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
@@ -165,6 +165,7 @@ func (c *JoinCommand) Execute(args []string) error {
 }
 
 type RemoveCommand struct {
+	Recursively bool `short:"r" required:"false" description:"Remove child todo recursively"`
 }
 
 func (c *RemoveCommand) Execute(args []string) error {
@@ -172,7 +173,7 @@ func (c *RemoveCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	todo.Remove(ids)
+	todo.Remove(ids, c.Recursively)
 	todo.Save()
 	return nil
 }
