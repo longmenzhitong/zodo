@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"zodo/src"
+	zodo "zodo/src"
 )
 
 func argsToStr(args []string) string {

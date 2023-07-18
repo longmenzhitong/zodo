@@ -102,10 +102,10 @@ func Modify(id int, content string) {
 	}
 }
 
-func ModifyHelp(id int) {
+func CopyContent(id int) {
 	td := Cache.get(id)
 	if td != nil {
-		zodo.WriteToClipboard([]string{fmt.Sprintf("zodo mod %d '%s'", id, td.Content)})
+		zodo.WriteToClipboard([]string{td.Content})
 	}
 }
 
@@ -142,6 +142,13 @@ func SetRemark(id int, remark string) {
 	td := Cache.get(id)
 	if td != nil {
 		td.Remark = remark
+	}
+}
+
+func CopyRemark(id int) {
+	td := Cache.get(id)
+	if td != nil {
+		zodo.WriteToClipboard([]string{td.Remark})
 	}
 }
 

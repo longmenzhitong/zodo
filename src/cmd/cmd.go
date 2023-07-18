@@ -131,7 +131,7 @@ func (c *ModifyCommand) Execute(args []string) error {
 			return err
 		}
 
-		todo.ModifyHelp(id)
+		todo.CopyContent(id)
 		return nil
 	}
 
@@ -182,6 +182,16 @@ type SetRemarkCommand struct {
 }
 
 func (c *SetRemarkCommand) Execute(args []string) error {
+	if len(args) == 1 {
+		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			return err
+		}
+
+		todo.CopyRemark(id)
+		return nil
+	}
+
 	id, remark, err := argsToIdAndStr(args)
 	if err != nil {
 		return err
