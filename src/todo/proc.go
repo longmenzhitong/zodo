@@ -13,6 +13,9 @@ func List(keyword string, status []string, allStatus bool) {
 	showDeadline := false
 	for _, td := range Cache.list(keyword, status, allStatus) {
 		content := td.Content
+		if td.Remark != "" {
+			content += zodo.ColoredString(zodo.ColorBlue, "*")
+		}
 		if td.Level > 0 {
 			content = fmt.Sprintf("%s|- %s", padding(td.Level), content)
 		}
