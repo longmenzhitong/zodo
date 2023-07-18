@@ -131,8 +131,7 @@ func (c *ModifyCommand) Execute(args []string) error {
 			return err
 		}
 
-		todo.CopyContent(id)
-		return nil
+		return todo.CopyContent(id)
 	}
 
 	id, content, err := argsToIdAndStr(args)
@@ -188,8 +187,7 @@ func (c *SetRemarkCommand) Execute(args []string) error {
 			return err
 		}
 
-		todo.CopyRemark(id)
-		return nil
+		return todo.CopyRemark(id)
 	}
 
 	id, remark, err := argsToIdAndStr(args)

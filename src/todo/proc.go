@@ -102,11 +102,12 @@ func Modify(id int, content string) {
 	}
 }
 
-func CopyContent(id int) {
+func CopyContent(id int) error {
 	td := Cache.get(id)
 	if td != nil {
-		zodo.WriteToClipboard([]string{td.Content})
+		return zodo.WriteLineToClipboard(td.Content)
 	}
+	return nil
 }
 
 func Join(toId, fromId int) {
@@ -145,11 +146,12 @@ func SetRemark(id int, remark string) {
 	}
 }
 
-func CopyRemark(id int) {
+func CopyRemark(id int) error {
 	td := Cache.get(id)
 	if td != nil {
-		zodo.WriteToClipboard([]string{td.Remark})
+		return zodo.WriteLineToClipboard(td.Remark)
 	}
+	return nil
 }
 
 func SetChild(parentId int, childIds []int, append bool) error {

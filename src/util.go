@@ -63,7 +63,7 @@ func CurrentGitBranch() (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func WriteToClipboard(lines []string) error {
+func WriteLinesToClipboard(lines []string) error {
 	var text string
 	for i, line := range lines {
 		text += line
@@ -76,6 +76,10 @@ func WriteToClipboard(lines []string) error {
 		return err
 	}
 
-	fmt.Printf("\n(Copied.)\n")
+	fmt.Println("(Copied.)")
 	return nil
+}
+
+func WriteLineToClipboard(line string) error {
+	return WriteLinesToClipboard([]string{line})
 }

@@ -50,7 +50,7 @@ func SimplifySql(path string) {
 	for _, s := range handled {
 		fmt.Println(s)
 	}
-	zodo.WriteToClipboard(handled)
+	zodo.WriteLinesToClipboard(handled)
 }
 
 func hasIngnoreKeyword(sql string) bool {

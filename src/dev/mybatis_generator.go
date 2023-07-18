@@ -52,8 +52,7 @@ func GenerateMybatisCode(path string) error {
 		fmt.Println(s)
 	}
 
-	zodo.WriteToClipboard(result)
-	return nil
+	return zodo.WriteLinesToClipboard(result)
 }
 
 func parsePackageName(line string) string {

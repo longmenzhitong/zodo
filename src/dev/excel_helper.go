@@ -76,9 +76,8 @@ func GenerateJavaCode(path, name string, sheetIndex int) error {
 	for _, line := range lines {
 		fmt.Println(line)
 	}
-	zodo.WriteToClipboard(lines)
 
-	return nil
+	return zodo.WriteLinesToClipboard(lines)
 }
 
 func parseField(str string) []string {
