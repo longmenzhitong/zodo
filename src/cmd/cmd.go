@@ -15,7 +15,7 @@ import (
 type Option struct {
 	List             ListCommand             `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] [<keyword>]"`
 	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
-	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] <content>"`
+	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] [-R <remark>] <content>"`
 	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
 	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
 	Remove           RemoveCommand           `command:"rm" description:"Remove todos: rm [-r] <id>..."`
@@ -73,9 +73,10 @@ func (c *DetailCommand) Execute(args []string) error {
 }
 
 type AddCommand struct {
-	ParentId int    `short:"p" required:"false" description:"Specify parent id for new todo"`
-	Deadline string `short:"d" required:"false" description:"Specify deadline for new todo, format: yyyy-MM-dd | MM-dd"`
-	Remind   string `short:"r" required:"false" description:"Specify remind time for new todo, format: yyyy-MM-dd HH:mm | MM-dd HH:mm | HH:mm"`
+	ParentId int    `short:"p" required:"false" description:"Set parent id for new todo"`
+	Deadline string `short:"d" required:"false" description:"Set deadline for new todo, format: yyyy-MM-dd | MM-dd"`
+	Remind   string `short:"r" required:"false" description:"Set remind time for new todo, format: yyyy-MM-dd HH:mm | MM-dd HH:mm | HH:mm"`
+	Remark   string `short:"R" required:"false" description:"Set remark for new todo"`
 }
 
 func (c *AddCommand) Execute(args []string) error {
@@ -108,6 +109,10 @@ func (c *AddCommand) Execute(args []string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	if c.Remark != "" {
+		todo.SetRemark(id, c.Remark)
 	}
 
 	todo.Save()
