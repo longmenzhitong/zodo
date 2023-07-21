@@ -4,21 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	zodo "zodo/src"
 )
-
-func DefaultJob() string {
-	return strings.ToUpper(zodo.CurrentDirName())
-}
-
-func DefaultBranch() (string, error) {
-	b, err := zodo.CurrentGitBranch()
-	if err != nil {
-		return "", err
-	}
-	return b, nil
-}
 
 type LastBuild struct {
 	Stages []struct {
@@ -65,11 +52,4 @@ func boolToSymbol(b bool) string {
 		return "✅"
 	}
 	return "❌"
-}
-
-func boolToText(b bool) string {
-	if b {
-		return "yes"
-	}
-	return "no"
 }

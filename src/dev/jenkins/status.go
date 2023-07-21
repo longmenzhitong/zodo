@@ -8,8 +8,13 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-func Status(job string) error {
-	stageCount, err := getStageCount(job)
+func Status() error {
+	p, err := GetParam(false)
+	if err != nil {
+		return err
+	}
+
+	stageCount, err := getStageCount(p.Job)
 	if err != nil {
 		return err
 	}
@@ -33,7 +38,7 @@ func Status(job string) error {
 	inProgress := make(map[string]bool, 0)
 	succeed := make(map[string]bool, 0)
 	for {
-		build, err := getLastBuild(job, false)
+		build, err := getLastBuild(p.Job, false)
 		if err != nil {
 			return err
 		}
@@ -56,9 +61,9 @@ func Status(job string) error {
 				inProgress[name] = true
 				bar.Describe(name)
 			case stageStatusAborted:
-				return fmt.Errorf("\ndeploy aborted, please check: %s\n", getJenkinsUrl(job))
+				return fmt.Errorf("\ndeploy aborted, please check: %s\n", getJenkinsUrl(p.Job))
 			case stageStatusFailed:
-				return fmt.Errorf("\ndeploy failed, please check: %s\n", getJenkinsUrl(job))
+				return fmt.Errorf("\ndeploy failed, please check: %s\n", getJenkinsUrl(p.Job))
 			default:
 				panic(fmt.Errorf("unexpected stage status: %s", stage.Status))
 			}

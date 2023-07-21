@@ -100,9 +100,14 @@ func (b *Build) getResult() string {
 	return result
 }
 
-func History(jobName string, count int) error {
+func History(count int) error {
+	p, err := GetParam(false)
+	if err != nil {
+		return err
+	}
+
 	// 获取Job信息
-	jobUrl := fmt.Sprintf("%s/job/%s/api/xml", zodo.Config.Jenkins.Url, jobName)
+	jobUrl := fmt.Sprintf("%s/job/%s/api/xml", zodo.Config.Jenkins.Url, p.Job)
 	req, err := http.NewRequest("GET", jobUrl, nil)
 	if err != nil {
 		return err

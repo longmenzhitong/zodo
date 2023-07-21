@@ -17,18 +17,18 @@ const (
 	stageStatusFailed     = "FAILED"
 )
 
-func Deploy(job, server, branch string, checkCode bool) error {
+func Deploy() error {
 	// 检查配置
 	fmt.Println("Check config...")
-	fmt.Printf("Url       : %s\n", boolToSymbol(zodo.Config.Jenkins.Url != ""))
+	fmt.Printf("Url: %s\n", boolToSymbol(zodo.Config.Jenkins.Url != ""))
 	if zodo.Config.Jenkins.Url == "" {
 		return &zodo.InvalidConfigError{Message: "jenkins.url doesn't exist"}
 	}
-	fmt.Printf("Username  : %s\n", boolToSymbol(zodo.Config.Jenkins.Username != ""))
+	fmt.Printf("Username: %s\n", boolToSymbol(zodo.Config.Jenkins.Username != ""))
 	if zodo.Config.Jenkins.Username == "" {
 		return &zodo.InvalidConfigError{Message: "jenkins.username doesn't exist"}
 	}
-	fmt.Printf("Password  : %s\n", boolToSymbol(zodo.Config.Jenkins.Password != ""))
+	fmt.Printf("Password: %s\n", boolToSymbol(zodo.Config.Jenkins.Password != ""))
 	if zodo.Config.Jenkins.Password == "" {
 		return &zodo.InvalidConfigError{Message: "jenkins.password doesn't exist"}
 	}
@@ -36,17 +36,14 @@ func Deploy(job, server, branch string, checkCode bool) error {
 
 	// 检查参数
 	fmt.Println("Check params...")
-	fmt.Printf("Job       : %s\n", job)
-	if server == "" {
-		fmt.Println("Please input server:")
-		server = zodo.ReadString()
-		if server == "" {
-			return &zodo.InvalidInputError{Message: "server must not be empty"}
-		}
+	p, err := GetParam(true)
+	if err != nil {
+		return err
 	}
-	fmt.Printf("Server    : %s\n", server)
-	fmt.Printf("Branch    : %s\n", branch)
-	fmt.Printf("CheckCode : %v\n", checkCode)
+	fmt.Printf("Job: %s\n", p.Job)
+	for k, v := range p.BuildParams {
+		fmt.Printf("%s: %s\n", k, v)
+	}
 	fmt.Println("Check done.")
 
 	// 确认构建
@@ -57,37 +54,36 @@ func Deploy(job, server, branch string, checkCode bool) error {
 	}
 
 	// 发起构建
-	err := startBuild(job, server, branch, checkCode)
+	err = startBuild(p)
 	if err != nil {
 		return err
 	}
 
 	if zodo.Config.Jenkins.PrintStatus {
 		// 等待构建
-		err = waitDeploy(job)
+		err = waitDeploy(p.Job)
 		if err != nil {
 			return err
 		}
 
 		// 打印状态
-		err = Status(job)
+		err = Status()
 		if err != nil {
 			return err
 		}
 	} else {
-		fmt.Printf("To check the progress, please visit: %s", getJenkinsUrl(job))
+		fmt.Printf("To check the progress, please visit: %s", getJenkinsUrl(p.Job))
 	}
 
 	fmt.Println("🍺 Deploy done!")
 	return nil
 }
 
-func startBuild(job, server, branch string, checkCode bool) error {
-	buildUrl := fmt.Sprintf("%s/job/%s/buildWithParameters", zodo.Config.Jenkins.Url, job)
-	requestBody := url.Values{
-		"BUILD_BRANCH":  {branch},
-		"SERVERNAME":    {server},
-		"IS_CHECK_CODE": {strings.ToUpper(boolToText(checkCode))},
+func startBuild(p *param) error {
+	buildUrl := fmt.Sprintf("%s/job/%s/buildWithParameters", zodo.Config.Jenkins.Url, p.Job)
+	requestBody := url.Values{}
+	for k, v := range p.BuildParams {
+		requestBody.Add(k, v)
 	}
 	req, err := http.NewRequest("POST", buildUrl, strings.NewReader(requestBody.Encode()))
 	if err != nil {

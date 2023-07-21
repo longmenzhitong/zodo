@@ -36,9 +36,9 @@ type Option struct {
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config           ConfigCommand           `command:"conf" description:"Show config"`
 	Statistics       StatisticsCommand       `command:"stat" description:"Show statistics of todos"`
-	JenkinsDeploy    JenkinsDeployCommand    `command:"jd" description:"Jenkins deploy: jd [-j <job-name>] [-s <server-name>] [-b <build-branch>] [-c]"`
-	JenkinsStatus    JenkinsStatusCommand    `command:"js" description:"Jenkins status: js [-j <job-name>]"`
-	JenkinsHistory   JenkinsHistoryCommand   `command:"jh" description:"Jenkins history: jh [-j <job-name>] [-c <history-count>]"`
+	JenkinsDeploy    JenkinsDeployCommand    `command:"jd" description:"Jenkins deploy: jd"`
+	JenkinsStatus    JenkinsStatusCommand    `command:"js" description:"Jenkins status: js"`
+	JenkinsHistory   JenkinsHistoryCommand   `command:"jh" description:"Jenkins history: jh [-c <history-count>]"`
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
@@ -454,50 +454,28 @@ func (c *DrawioHelperCommand) Execute(args []string) error {
 }
 
 type JenkinsDeployCommand struct {
-	Job       string `short:"j" required:"false" description:"Jenkins job, default: name of current directory"`
-	Server    string `short:"s" required:"false" description:"Jenkins parameter [SERVERNAME]"`
-	Branch    string `short:"b" required:"false" description:"Jenkins parameter [BUILD_BRANCH], default: branch of current directory"`
-	CheckCode bool   `short:"c" required:"false" description:"Jenkins parameter [IS_CHECK_CODE]"`
 }
 
 func (c *JenkinsDeployCommand) Execute([]string) error {
-	if c.Job == "" {
-		c.Job = jenkins.DefaultJob()
-	}
-	if c.Branch == "" {
-		b, err := jenkins.DefaultBranch()
-		if err != nil {
-			return err
-		}
-		c.Branch = b
-	}
-	return jenkins.Deploy(c.Job, c.Server, c.Branch, c.CheckCode)
+	return jenkins.Deploy()
 }
 
 type JenkinsStatusCommand struct {
-	Job string `short:"j" required:"false" description:"Jenkins job, default: name of current directory"`
 }
 
 func (c *JenkinsStatusCommand) Execute([]string) error {
-	if c.Job == "" {
-		c.Job = jenkins.DefaultJob()
-	}
-	return jenkins.Status(c.Job)
+	return jenkins.Status()
 }
 
 type JenkinsHistoryCommand struct {
-	Job   string `short:"j" required:"false" description:"Jenkins job, default: name of current directory"`
-	Count int    `short:"c" required:"false" description:"History count, default: 5"`
+	Count int `short:"c" required:"false" description:"History count, default: 5"`
 }
 
 func (c *JenkinsHistoryCommand) Execute([]string) error {
-	if c.Job == "" {
-		c.Job = jenkins.DefaultJob()
-	}
 	if c.Count <= 0 {
 		c.Count = 5
 	}
-	return jenkins.History(c.Job, c.Count)
+	return jenkins.History(c.Count)
 }
 
 type MybatisGeneratorCommand struct {
