@@ -158,7 +158,7 @@ func History(count int) error {
 	}
 
 	title := table.Row{"Time", "Env", "Server", "Branch", "Result", "User"}
-	zodo.PrintTable(title, rows)
+	zodo.PrintTable(&title, rows)
 	return nil
 }
 

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 	zodo "zodo/src"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 const (
@@ -17,34 +19,65 @@ const (
 	stageStatusFailed     = "FAILED"
 )
 
-func Deploy() error {
-	// 检查配置
-	fmt.Println("Check config...")
-	fmt.Printf("Url: %s\n", boolToSymbol(zodo.Config.Jenkins.Url != ""))
+func checkConfig() error {
+	fmt.Printf("%s Check config...\n", getStartArrow())
+	rows := make([]table.Row, 0)
+
 	if zodo.Config.Jenkins.Url == "" {
 		return &zodo.InvalidConfigError{Message: "jenkins.url doesn't exist"}
 	}
-	fmt.Printf("Username: %s\n", boolToSymbol(zodo.Config.Jenkins.Username != ""))
+	rows = append(rows, table.Row{"Url", boolToSymbol(true)})
+
 	if zodo.Config.Jenkins.Username == "" {
 		return &zodo.InvalidConfigError{Message: "jenkins.username doesn't exist"}
 	}
-	fmt.Printf("Password: %s\n", boolToSymbol(zodo.Config.Jenkins.Password != ""))
+	rows = append(rows, table.Row{"Username", boolToSymbol(true)})
+
 	if zodo.Config.Jenkins.Password == "" {
 		return &zodo.InvalidConfigError{Message: "jenkins.password doesn't exist"}
 	}
-	fmt.Println("Check done.")
+	rows = append(rows, table.Row{"Password", boolToSymbol(true)})
 
-	// 检查参数
-	fmt.Println("Check params...")
+	zodo.PrintTable(nil, rows)
+
+	fmt.Printf("%s Check done.\n", getDoneArrow())
+	return nil
+}
+
+func checkParam() (*param, error) {
+	fmt.Printf("%s Check params...\n", getStartArrow())
+	rows := make([]table.Row, 0)
+
 	p, err := GetParam(true)
+	if err != nil {
+		return nil, err
+	}
+
+	rows = append(rows, table.Row{"JOB", p.Job})
+	for k, v := range p.BuildParams {
+		rows = append(rows, table.Row{k, v})
+	}
+
+	zodo.PrintTable(nil, rows)
+
+	fmt.Printf("%s Check done.\n", getDoneArrow())
+	return p, nil
+}
+
+func Deploy() error {
+	// 检查配置
+	err := checkConfig()
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Job: %s\n", p.Job)
-	for k, v := range p.BuildParams {
-		fmt.Printf("%s: %s\n", k, v)
+	fmt.Println()
+
+	// 检查参数
+	p, err := checkParam()
+	if err != nil {
+		return err
 	}
-	fmt.Println("Check done.")
+	fmt.Println()
 
 	// 确认构建
 	fmt.Println("Sure to deploy? [y/n]")

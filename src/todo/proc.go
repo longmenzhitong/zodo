@@ -44,7 +44,7 @@ func List(keyword string, status []string, allStatus bool) {
 		title = append(title, "Deadline")
 		title = append(title, "Remain")
 	}
-	zodo.PrintTable(title, rows)
+	zodo.PrintTable(&title, rows)
 }
 
 func Detail(id int) error {
@@ -71,7 +71,7 @@ func Detail(id int) error {
 	rows = append(rows, table.Row{"CreateTime", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
-	zodo.PrintTable(table.Row{"Item", "Val"}, rows)
+	zodo.PrintTable(&table.Row{"Item", "Val"}, rows)
 	return nil
 }
 
@@ -315,5 +315,5 @@ func Statistics() {
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, "Pending"), pend})
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, "Done"), done})
 	rows = append(rows, table.Row{"NextId", zodo.GetId(zodo.Config.Storage.Type)})
-	zodo.PrintTable(table.Row{"Item", "Value"}, rows)
+	zodo.PrintTable(&table.Row{"Item", "Value"}, rows)
 }

@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const paramFileName = "jenkins_param.yml"
+const paramFileName = ".jenkins_param.yml"
 const templateValPrefix = "$"
 
 type param struct {

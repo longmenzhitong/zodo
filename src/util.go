@@ -41,11 +41,13 @@ func SendEmail(title, text string) error {
 	return d.DialAndSend(m)
 }
 
-func PrintTable(header table.Row, rows []table.Row) {
+func PrintTable(header *table.Row, rows []table.Row) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.SetAllowedRowLength(Config.Todo.TableMaxLength)
-	t.AppendHeader(header)
+	if header != nil {
+		t.AppendHeader(*header)
+	}
 	for _, row := range rows {
 		t.AppendRow(row)
 		t.AppendSeparator()

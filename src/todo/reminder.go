@@ -53,7 +53,7 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 		for i := 0; i < len(loopTypes); i++ {
 			rows = append(rows, table.Row{i, loopTypes[i]})
 		}
-		zodo.PrintTable(table.Row{"Num", "Type"}, rows)
+		zodo.PrintTable(&table.Row{"Num", "Type"}, rows)
 		num, err := zodo.ReadInt(0, len(loopTypes), "Enter number of remind type:")
 		if err != nil {
 			return err
