@@ -25,7 +25,7 @@ const (
 	defaultPollingIntervalSecond = 1
 )
 
-const configFileName = "conf"
+const configFileName = "config.yml"
 
 var Config config
 
