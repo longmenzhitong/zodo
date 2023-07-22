@@ -85,3 +85,13 @@ func WriteLinesToClipboard(lines []string) error {
 func WriteLineToClipboard(line string) error {
 	return WriteLinesToClipboard([]string{line})
 }
+
+func PrintStartMsg(format string, a ...interface{}) {
+	msg := fmt.Sprintf(format, a...)
+	fmt.Printf("%s %s", ColoredString(ColorGreen, "==>"), msg)
+}
+
+func PrintDoneMsg(format string, a ...interface{}) {
+	msg := fmt.Sprintf(format, a...)
+	fmt.Printf("%s %s", ColoredString(ColorBlue, "==>"), msg)
+}

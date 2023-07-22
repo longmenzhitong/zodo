@@ -411,14 +411,22 @@ type TidyCommand struct {
 }
 
 func (c *TidyCommand) Execute([]string) error {
-	count := 0
+	sum := 0
 	if c.All || c.DoneTodo {
-		count += todo.ClearDoneTodo()
+		count := todo.ClearDoneTodo()
+		if count > 0 {
+			zodo.PrintDoneMsg("Clear %d done todos.\n", count)
+			sum += count
+		}
 	}
 	if c.All || c.Id {
-		count += todo.DefragId()
+		count := todo.DefragId()
+		if count > 0 {
+			zodo.PrintDoneMsg("Defrag %d ids.\n", count)
+			sum += count
+		}
 	}
-	if count > 0 {
+	if sum > 0 {
 		todo.Save()
 	}
 	return nil

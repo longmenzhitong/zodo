@@ -20,7 +20,7 @@ const (
 )
 
 func checkConfig() error {
-	fmt.Printf("%s Check config...\n", getStartArrow())
+	zodo.PrintStartMsg("Check config...\n")
 	rows := make([]table.Row, 0)
 
 	if zodo.Config.Jenkins.Url == "" {
@@ -40,12 +40,12 @@ func checkConfig() error {
 
 	zodo.PrintTable(nil, rows)
 
-	fmt.Printf("%s Check done.\n", getDoneArrow())
+	zodo.PrintDoneMsg("Check done.\n")
 	return nil
 }
 
 func checkParam() (*param, error) {
-	fmt.Printf("%s Check params...\n", getStartArrow())
+	zodo.PrintStartMsg("Check params...\n")
 	rows := make([]table.Row, 0)
 
 	p, err := GetParam(true)
@@ -60,7 +60,7 @@ func checkParam() (*param, error) {
 
 	zodo.PrintTable(nil, rows)
 
-	fmt.Printf("%s Check done.\n", getDoneArrow())
+	zodo.PrintDoneMsg("Check  done.\n")
 	return p, nil
 }
 

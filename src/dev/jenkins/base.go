@@ -53,11 +53,3 @@ func boolToSymbol(b bool) string {
 	}
 	return "❌"
 }
-
-func getStartArrow() string {
-	return zodo.ColoredString(zodo.ColorBlue, "==>")
-}
-
-func getDoneArrow() string {
-	return zodo.ColoredString(zodo.ColorGreen, "==>")
-}
