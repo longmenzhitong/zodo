@@ -127,6 +127,8 @@ func Join(toId, fromId int) {
 }
 
 func Remove(ids []int, recursively bool) {
+	zodo.BackupId(zodo.Config.Storage.Type)
+
 	for _, id := range ids {
 		Cache.remove(id, recursively)
 	}

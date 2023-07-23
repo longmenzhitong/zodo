@@ -31,16 +31,7 @@ func GetId(storageType string) int {
 	case StorageTypeFile:
 		return getIdFromPath(idPath)
 	case StorageTypeRedis:
-		cmd := Redis().Get(idRedisKey)
-		idStr, err := cmd.Result()
-		if err != nil {
-			panic(err)
-		}
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			panic(err)
-		}
-		return id
+		return getIdFromRedis()
 	default:
 		panic(&InvalidConfigError{
 			Message: fmt.Sprintf("storage.type: %s", storageType),
@@ -63,12 +54,21 @@ func getIdFromPath(path string) int {
 	return id
 }
 
-func SetId(id int, storageType string) {
-	// backup first
-	curId := GetId(storageType)
-	if curId != id {
-		RewriteLinesToPath(backupPath, []string{strconv.Itoa(curId)})
+func getIdFromRedis() int {
+	cmd := Redis().Get(idRedisKey)
+	idStr, err := cmd.Result()
+	if err != nil {
+		panic(err)
 	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
+func SetId(id int, storageType string) {
+	BackupId(storageType)
 
 	switch storageType {
 	case StorageTypeFile:
@@ -85,6 +85,11 @@ func SetId(id int, storageType string) {
 			Message: fmt.Sprintf("storage.type: %s", storageType),
 		})
 	}
+}
+
+func BackupId(storageType string) {
+	curId := GetId(storageType)
+	RewriteLinesToPath(backupPath, []string{strconv.Itoa(curId)})
 }
 
 func RollbackId(storageType string) {
