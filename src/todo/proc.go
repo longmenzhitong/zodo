@@ -269,23 +269,6 @@ func Rollback() {
 	zodo.Id.Rollback()
 }
 
-// func Transfer() {
-// 	to := zodo.Config.Storage.Type
-// 	var from string
-// 	switch to {
-// 	case zodo.StorageTypeFile:
-// 		from = zodo.StorageTypeRedis
-// 	case zodo.StorageTypeRedis:
-// 		from = zodo.StorageTypeFile
-// 	default:
-// 		panic(&zodo.InvalidConfigError{
-// 			Message: fmt.Sprintf("storage.type: %s", zodo.Config.Storage.Type),
-// 		})
-// 	}
-// 	writeTodoLines(readTodoLines(from), to)
-// 	zodo.SetId(zodo.GetId(from)+1, to)
-// }
-
 func ClearDoneTodo() int {
 	return Cache.clearDoneTodo()
 }
