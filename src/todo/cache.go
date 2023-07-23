@@ -138,8 +138,9 @@ func (c *cache) defragId() int {
 			td.Children = newChildren
 		}
 	}
-	oldNextId := zodo.GetId(zodo.Config.Storage.Type)
+	oldNextId := zodo.Id.GetNext()
 	newNextId := len(c.data) + 1
-	zodo.SetId(newNextId, zodo.Config.Storage.Type)
+	zodo.Id.SetNext(newNextId)
+	// fixme 这里的数量统计好像有问题
 	return oldNextId - newNextId
 }

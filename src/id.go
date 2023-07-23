@@ -10,31 +10,56 @@ const (
 	idRedisKey = "zd:id"
 )
 
-var (
-	idPath     string
-	backupPath string
-)
+var Id id
 
-func init() {
-	idPath = Path(idFileName)
-	backupPath = idPath + ".backup"
+type id struct {
+	storageType string
+	path        string
+	backupPath  string
+
+	next int
 }
 
-func Id(storageType string) int {
-	id := GetId(storageType)
-	SetId(id+1, storageType)
-	return id
+func (i *id) Init() {
+	i.storageType = Config.Storage.Type
+	i.path = Path(idFileName)
+	i.backupPath = i.path + ".backup"
+
+	i.next = i.readNext()
 }
 
-func GetId(storageType string) int {
-	switch storageType {
+func (i *id) SetGetNext() int {
+	i.SetNext(i.next + 1)
+	return i.GetNext()
+}
+
+func (i *id) GetNext() int {
+	return i.next
+}
+
+func (i *id) SetNext(id int) {
+	i.Backup()
+	i.next = id
+	i.writeNext(id)
+}
+
+func (i *id) Backup() {
+	RewriteLinesToPath(i.backupPath, []string{strconv.Itoa(i.GetNext())})
+}
+
+func (i *id) Rollback() {
+	i.writeNext(getIdFromPath(i.backupPath))
+}
+
+func (i *id) readNext() int {
+	switch i.storageType {
 	case StorageTypeFile:
-		return getIdFromPath(idPath)
+		return getIdFromPath(i.path)
 	case StorageTypeRedis:
 		return getIdFromRedis()
 	default:
 		panic(&InvalidConfigError{
-			Message: fmt.Sprintf("storage.type: %s", storageType),
+			Message: fmt.Sprintf("storage.type: %s", i.storageType),
 		})
 	}
 }
@@ -67,31 +92,20 @@ func getIdFromRedis() int {
 	return id
 }
 
-func SetId(id int, storageType string) {
-	BackupId(storageType)
-
-	switch storageType {
+func (i *id) writeNext(id int) {
+	switch i.storageType {
 	case StorageTypeFile:
-		RewriteLinesToPath(idPath, []string{strconv.Itoa(id)})
+		RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
 		return
 	case StorageTypeRedis:
 		Redis().Set(idRedisKey, id, 0)
 		if Config.Storage.Redis.Localize {
-			SetId(id, StorageTypeFile)
+			RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
 		}
 		return
 	default:
 		panic(&InvalidConfigError{
-			Message: fmt.Sprintf("storage.type: %s", storageType),
+			Message: fmt.Sprintf("storage.type: %s", i.storageType),
 		})
 	}
-}
-
-func BackupId(storageType string) {
-	curId := GetId(storageType)
-	RewriteLinesToPath(backupPath, []string{strconv.Itoa(curId)})
-}
-
-func RollbackId(storageType string) {
-	SetId(getIdFromPath(backupPath), storageType)
 }

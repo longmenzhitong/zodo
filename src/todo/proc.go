@@ -81,7 +81,7 @@ func Add(content string) (int, error) {
 			Message: fmt.Sprint("empty content"),
 		}
 	}
-	id := zodo.Id(zodo.Config.Storage.Type)
+	id := zodo.Id.SetGetNext()
 	Cache.add(todo{
 		Id:         id,
 		Content:    content,
@@ -127,7 +127,7 @@ func Join(toId, fromId int) {
 }
 
 func Remove(ids []int, recursively bool) {
-	zodo.BackupId(zodo.Config.Storage.Type)
+	zodo.Id.Backup()
 
 	for _, id := range ids {
 		Cache.remove(id, recursively)
@@ -266,25 +266,25 @@ func padding(level int) string {
 
 func Rollback() {
 	writeTodoLines(zodo.ReadLinesFromPath(backupPath), zodo.Config.Storage.Type)
-	zodo.RollbackId(zodo.Config.Storage.Type)
+	zodo.Id.Rollback()
 }
 
-func Transfer() {
-	to := zodo.Config.Storage.Type
-	var from string
-	switch to {
-	case zodo.StorageTypeFile:
-		from = zodo.StorageTypeRedis
-	case zodo.StorageTypeRedis:
-		from = zodo.StorageTypeFile
-	default:
-		panic(&zodo.InvalidConfigError{
-			Message: fmt.Sprintf("storage.type: %s", zodo.Config.Storage.Type),
-		})
-	}
-	writeTodoLines(readTodoLines(from), to)
-	zodo.SetId(zodo.GetId(from)+1, to)
-}
+// func Transfer() {
+// 	to := zodo.Config.Storage.Type
+// 	var from string
+// 	switch to {
+// 	case zodo.StorageTypeFile:
+// 		from = zodo.StorageTypeRedis
+// 	case zodo.StorageTypeRedis:
+// 		from = zodo.StorageTypeFile
+// 	default:
+// 		panic(&zodo.InvalidConfigError{
+// 			Message: fmt.Sprintf("storage.type: %s", zodo.Config.Storage.Type),
+// 		})
+// 	}
+// 	writeTodoLines(readTodoLines(from), to)
+// 	zodo.SetId(zodo.GetId(from)+1, to)
+// }
 
 func ClearDoneTodo() int {
 	return Cache.clearDoneTodo()
@@ -316,6 +316,6 @@ func Statistics() {
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Processing, "Processing"), proc})
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, "Pending"), pend})
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, "Done"), done})
-	rows = append(rows, table.Row{"NextId", zodo.GetId(zodo.Config.Storage.Type)})
+	rows = append(rows, table.Row{"NextId", zodo.Id.GetNext()})
 	zodo.PrintTable(&table.Row{"Item", "Value"}, rows)
 }

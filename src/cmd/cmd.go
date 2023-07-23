@@ -13,26 +13,26 @@ import (
 )
 
 type Option struct {
-	List             ListCommand             `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] [<keyword>]"`
-	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
-	Add              AddCommand              `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] [-R <remark>] <content>"`
-	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
-	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
-	Remove           RemoveCommand           `command:"rm" description:"Remove todos: rm [-r] <id>..."`
-	SetRemark        SetRemarkCommand        `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
-	SetDeadline      SetDeadlineCommand      `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
-	RemoveDeadline   RemoveDeadlineCommand   `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
-	SetRemind        SetRemindCommand        `command:"rmd" description:"Set remind of todo: rmd [-l] <id> <remind-time>"`
-	RemoveRemind     RemoveRemindCommand     `command:"rmd-" description:"Remove remind of todo: rmd- <id>..."`
-	SetChild         SetChildCommand         `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
-	AddChild         AddChildCommand         `command:"acd" description:"Add child of todo: acd <parent-id> <child-id>..."`
-	SetPending       SetPendingCommand       `command:"pend" description:"Mark todo status as pending: pend <id>..."`
-	SetProcessing    SetProcessingCommand    `command:"proc" description:"Mark todo status as processing: proc <id>..."`
-	SetDone          SetDoneCommand          `command:"done" description:"Mark todo status as done: done <id>..."`
-	SetHiding        SetHidingCommand        `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
-	Server           ServerCommand           `command:"server" description:"Server mode on"`
-	Rollback         RollbackCommand         `command:"rbk" description:"Rollback to last version"`
-	Transfer         TransferCommand         `command:"trans" description:"Transfer between file and redis"`
+	List           ListCommand           `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] [<keyword>]"`
+	Detail         DetailCommand         `command:"cat" description:"Show todo detail: cat <id>..."`
+	Add            AddCommand            `command:"add" description:"Add todo: add [-p <parent-id>] [-d <deadline>] [-r <remind-time>] [-R <remark>] <content>"`
+	Modify         ModifyCommand         `command:"mod" description:"Modify todo: mod <id> <content>"`
+	Join           JoinCommand           `command:"join" description:"Join todos: join <to-id> <from-id>"`
+	Remove         RemoveCommand         `command:"rm" description:"Remove todos: rm [-r] <id>..."`
+	SetRemark      SetRemarkCommand      `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
+	SetDeadline    SetDeadlineCommand    `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
+	RemoveDeadline RemoveDeadlineCommand `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
+	SetRemind      SetRemindCommand      `command:"rmd" description:"Set remind of todo: rmd [-l] <id> <remind-time>"`
+	RemoveRemind   RemoveRemindCommand   `command:"rmd-" description:"Remove remind of todo: rmd- <id>..."`
+	SetChild       SetChildCommand       `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
+	AddChild       AddChildCommand       `command:"acd" description:"Add child of todo: acd <parent-id> <child-id>..."`
+	SetPending     SetPendingCommand     `command:"pend" description:"Mark todo status as pending: pend <id>..."`
+	SetProcessing  SetProcessingCommand  `command:"proc" description:"Mark todo status as processing: proc <id>..."`
+	SetDone        SetDoneCommand        `command:"done" description:"Mark todo status as done: done <id>..."`
+	SetHiding      SetHidingCommand      `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
+	Server         ServerCommand         `command:"server" description:"Server mode on"`
+	Rollback       RollbackCommand       `command:"rbk" description:"Rollback to last version"`
+	// Transfer         TransferCommand         `command:"trans" description:"Transfer between file and redis"`
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config           ConfigCommand           `command:"conf" description:"Show config"`
 	Statistics       StatisticsCommand       `command:"stat" description:"Show statistics of todos"`
@@ -396,13 +396,13 @@ func (c *RollbackCommand) Execute([]string) error {
 	return nil
 }
 
-type TransferCommand struct {
-}
-
-func (c *TransferCommand) Execute([]string) error {
-	todo.Transfer()
-	return nil
-}
+// type TransferCommand struct {
+// }
+//
+// func (c *TransferCommand) Execute([]string) error {
+// 	todo.Transfer()
+// 	return nil
+// }
 
 type TidyCommand struct {
 	All      bool `short:"a" required:"false" description:"Execute all tidy works"`

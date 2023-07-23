@@ -11,6 +11,7 @@ import (
 func main() {
 	zodo.Config.Init()
 	todo.Cache.Init()
+	zodo.Id.Init()
 
 	var opt cmd.Option
 	flags.Parse(&opt)
