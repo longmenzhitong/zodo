@@ -273,7 +273,7 @@ func ClearDoneTodo() int {
 	return Cache.clearDoneTodo()
 }
 
-func DefragId() int {
+func DefragId() (int, int) {
 	return Cache.defragId()
 }
 

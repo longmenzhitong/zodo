@@ -117,7 +117,7 @@ func (c *cache) clearDoneTodo() int {
 	return count
 }
 
-func (c *cache) defragId() int {
+func (c *cache) defragId() (int, int) {
 	sort.Slice(c.data, func(i, j int) bool {
 		return c.data[i].Id < c.data[j].Id
 	})
@@ -141,6 +141,5 @@ func (c *cache) defragId() int {
 	oldNextId := zodo.Id.GetNext()
 	newNextId := len(c.data) + 1
 	zodo.Id.SetNext(newNextId)
-	// fixme 这里的数量统计好像有问题
-	return oldNextId - newNextId
+	return oldNextId, newNextId
 }
