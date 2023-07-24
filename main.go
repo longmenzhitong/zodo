@@ -1,11 +1,9 @@
 package main
 
 import (
+	"zodo/cmd"
 	zodo "zodo/src"
-	"zodo/src/cmd"
 	"zodo/src/todo"
-
-	"github.com/jessevdk/go-flags"
 )
 
 func main() {
@@ -13,6 +11,5 @@ func main() {
 	todo.Cache.Init()
 	zodo.Id.Init()
 
-	var opt cmd.Option
-	flags.Parse(&opt)
+	cmd.Execute()
 }
