@@ -34,7 +34,8 @@ var remark string
 var addCmd = &cobra.Command{
 	Use:   "add <content of new todo>",
 	Short: "Add new todo",
-	Long:  `Add new todo, optionally specify parent ID, deadline, remind time, and remark of new todo.`,
+	Long: `Add new todo, optionally specify parent ID, deadline, remind time, and remark of new todo.
+This command will write the id of new todo into clipboard. You can set the config "todo.copyIdAfterAdd" to false to disable this feature.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, err := todo.Add(argsToStr(args))
 		if err != nil {
