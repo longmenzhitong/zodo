@@ -23,22 +23,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var copyContent bool
+
 // modCmd represents the mod command
 var modCmd = &cobra.Command{
-	Use:   "mod <id> [content]",
-	Short: "Modify content of todo",
-	Long:  `Modify content of todo, will copy content of todo if only id was provided.`,
+	Use:   "mod",
+	Short: "Modify or copy content of todo",
+	Long: `Modify or copy content of todo:
+* Modify content of todo: mod <id> <content of todo>
+* Copy content of todo: mod -c <id>`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 1 {
-			id, err := strconv.Atoi(args[0])
-			if err != nil {
-				return err
-			}
+		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			return err
+		}
 
+		// copy content
+		if copyContent {
 			return todo.CopyContent(id)
 		}
 
-		id, content, err := argsToIdAndStr(args)
+		// modify content
+		_, content, err := argsToIdAndStr(args)
 		if err != nil {
 			return err
 		}
@@ -51,4 +57,6 @@ var modCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(modCmd)
+
+	modCmd.Flags().BoolVarP(&copyContent, "copy", "c", false, "Copy content of todo")
 }
