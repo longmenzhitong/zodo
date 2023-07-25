@@ -193,12 +193,12 @@ func hitKeyword(td *todo, keyword string) bool {
 	return false
 }
 
-func walkTodo(td *todo, tds *[]todo, level int, status []string, allStatus bool) {
+func walkTodo(td *todo, tds *[]todo, level int, allStatus bool) {
 	if td == nil {
 		return
 	}
 
-	if !hitStatus(td, status, allStatus) {
+	if !hitStatus(td, allStatus) {
 		return
 	}
 
@@ -224,37 +224,18 @@ func walkTodo(td *todo, tds *[]todo, level int, status []string, allStatus bool)
 	childList = sortTodo(childList)
 
 	for _, child := range childList {
-		walkTodo(child, tds, level+1, status, allStatus)
+		walkTodo(child, tds, level+1, allStatus)
 	}
 }
 
-func hitStatus(td *todo, status []string, allStatus bool) bool {
+func hitStatus(td *todo, allStatus bool) bool {
 	if td == nil {
 		return false
 	}
 	if allStatus {
 		return true
 	}
-	if len(status) == 0 {
-		return td.isVisible()
-	}
-	if td.hasChildren() {
-		for childId := range td.Children {
-			if hitStatus(Cache.get(childId), status, allStatus) {
-				return true
-			}
-		}
-		return false
-	} else {
-		hit := false
-		for _, s := range status {
-			if strings.HasPrefix(strings.ToLower(td.Status), strings.ToLower(s)) {
-				hit = true
-				break
-			}
-		}
-		return hit
-	}
+	return td.isVisible()
 }
 
 func sortTodo(tds []*todo) []*todo {

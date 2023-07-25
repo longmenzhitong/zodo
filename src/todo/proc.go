@@ -8,10 +8,10 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
-func List(keyword string, status []string, allStatus bool) {
+func List(keyword string, allStatus bool) {
 	rows := make([]table.Row, 0)
 	showDeadline := false
-	for _, td := range Cache.list(keyword, status, allStatus) {
+	for _, td := range Cache.list(keyword, allStatus) {
 		content := td.Content
 		if td.Remark != "" {
 			content += zodo.ColoredString(zodo.ColorBlue, "*")
@@ -223,7 +223,7 @@ func Save() {
 func Report() error {
 	Cache.refresh()
 	var text string
-	for _, td := range Cache.list("", []string{}, false) {
+	for _, td := range Cache.list("", false) {
 		status := td.getStatus(false)
 		ddl, remain := td.getDeadLineAndRemain(false)
 		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {

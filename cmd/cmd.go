@@ -12,7 +12,6 @@ import (
 )
 
 type Option struct {
-	List             ListCommand             `command:"ls" description:"Show todo list: list [-a] [-s <status-prefix>] [<keyword>]"`
 	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
 	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
 	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
@@ -39,16 +38,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type ListCommand struct {
-	AllStatus bool     `short:"a" required:"false" description:"Show all status todos"`
-	Status    []string `short:"s" required:"false" description:"Search by status prefix"`
-}
-
-func (c *ListCommand) Execute(args []string) error {
-	todo.List(argsToStr(args), c.Status, c.AllStatus)
-	return nil
 }
 
 type DetailCommand struct {

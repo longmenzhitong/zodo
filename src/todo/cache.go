@@ -45,11 +45,11 @@ func (c *cache) save() {
 	writeTodoLines(lines, zodo.Config.Storage.Type)
 }
 
-func (c *cache) list(keyword string, status []string, allStatus bool) []todo {
+func (c *cache) list(keyword string, allStatus bool) []todo {
 	tds := make([]todo, 0)
 	for _, td := range sortTodo(c.data) {
 		if td.ParentId == 0 && hitKeyword(td, keyword) {
-			walkTodo(td, &tds, 0, status, allStatus)
+			walkTodo(td, &tds, 0, allStatus)
 		}
 	}
 	return tds
