@@ -12,7 +12,6 @@ import (
 )
 
 type Option struct {
-	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
 	Remove           RemoveCommand           `command:"rm" description:"Remove todos: rm [-r] <id>..."`
 	SetRemark        SetRemarkCommand        `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
 	SetDeadline      SetDeadlineCommand      `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
@@ -36,25 +35,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type JoinCommand struct {
-}
-
-func (c *JoinCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-
-	if len(ids) != 2 {
-		return &zodo.InvalidInputError{
-			Message: "there must be two ids",
-		}
-	}
-	todo.Join(ids[0], ids[1])
-	todo.Save()
-	return nil
 }
 
 type RemoveCommand struct {

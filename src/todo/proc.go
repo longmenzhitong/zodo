@@ -110,22 +110,6 @@ func CopyContent(id int) error {
 	return nil
 }
 
-func Join(toId, fromId int) {
-	to := Cache.get(toId)
-	from := Cache.get(fromId)
-	// 合并内容
-	to.Content = fmt.Sprintf("%s: %s", to.Content, from.Content)
-	// 合并备注
-	if from.Remark != "" {
-		if to.Remark == "" {
-			to.Remark = from.Remark
-		} else {
-			to.Remark = fmt.Sprintf("%s: %s", to.Remark, from.Remark)
-		}
-	}
-	Cache.remove(fromId, true)
-}
-
 func Remove(ids []int, recursively bool) {
 	zodo.Id.Backup()
 
