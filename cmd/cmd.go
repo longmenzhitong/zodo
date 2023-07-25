@@ -12,7 +12,6 @@ import (
 )
 
 type Option struct {
-	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
 	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
 	Remove           RemoveCommand           `command:"rm" description:"Remove todos: rm [-r] <id>..."`
 	SetRemark        SetRemarkCommand        `command:"rmk" description:"Set remark of todo: rmk <id> <remark>"`
@@ -37,29 +36,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type ModifyCommand struct {
-}
-
-func (c *ModifyCommand) Execute(args []string) error {
-	if len(args) == 1 {
-		id, err := strconv.Atoi(args[0])
-		if err != nil {
-			return err
-		}
-
-		return todo.CopyContent(id)
-	}
-
-	id, content, err := argsToIdAndStr(args)
-	if err != nil {
-		return err
-	}
-
-	todo.Modify(id, content)
-	todo.Save()
-	return nil
 }
 
 type JoinCommand struct {
