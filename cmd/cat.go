@@ -17,25 +17,33 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"fmt"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
 )
 
-var all bool
-
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls [keyword of content]",
-	Short: "Show todos list",
-	Long:  `Show todos list, optionally filter by keyword of content, or show todos in all statuses.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		todo.List(argsToStr(args), all)
+// catCmd represents the cat command
+var catCmd = &cobra.Command{
+	Use:   "cat <id>...",
+	Short: "Show todos details",
+	Long:  `Show todos details, which include all fields of todos.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ids, err := argsToIds(args)
+		if err != nil {
+			return err
+		}
+		for _, id := range ids {
+			err = todo.Detail(id)
+			if err != nil {
+				return err
+			}
+			fmt.Println()
+		}
+		return nil
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(lsCmd)
-
-	lsCmd.Flags().BoolVarP(&all, "all", "a", false, "Show todos in all statuses, including done and hiding todos")
+	rootCmd.AddCommand(catCmd)
 }

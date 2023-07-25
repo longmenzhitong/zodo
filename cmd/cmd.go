@@ -12,7 +12,6 @@ import (
 )
 
 type Option struct {
-	Detail           DetailCommand           `command:"cat" description:"Show todo detail: cat <id>..."`
 	Modify           ModifyCommand           `command:"mod" description:"Modify todo: mod <id> <content>"`
 	Join             JoinCommand             `command:"join" description:"Join todos: join <to-id> <from-id>"`
 	Remove           RemoveCommand           `command:"rm" description:"Remove todos: rm [-r] <id>..."`
@@ -38,24 +37,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type DetailCommand struct {
-}
-
-func (c *DetailCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-	for _, id := range ids {
-		err = todo.Detail(id)
-		if err != nil {
-			return err
-		}
-		fmt.Println()
-	}
-	return nil
 }
 
 type ModifyCommand struct {

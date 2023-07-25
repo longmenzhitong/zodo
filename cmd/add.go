@@ -34,7 +34,7 @@ var remark string
 var addCmd = &cobra.Command{
 	Use:   "add <content of new todo>",
 	Short: "Add new todo",
-	Long:  `Add new todo, optionally specify parent ID, deadline, remind time, and remark of new todo`,
+	Long:  `Add new todo, optionally specify parent ID, deadline, remind time, and remark of new todo.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, err := todo.Add(argsToStr(args))
 		if err != nil {
