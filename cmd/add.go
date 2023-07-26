@@ -62,7 +62,7 @@ This command will write the id of new todo into clipboard. You can set the confi
 			if err != nil {
 				return err
 			}
-			err = todo.SetRemind(id, rmd, true)
+			err = todo.SetRemind(id, rmd)
 			if err != nil {
 				return err
 			}

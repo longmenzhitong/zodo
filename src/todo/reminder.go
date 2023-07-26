@@ -39,7 +39,7 @@ var loopTypes = []string{
 	loopPerSunday,
 }
 
-func SetRemind(id int, rmdTime string, loop bool) error {
+func SetRemind(id int, remindTime string) error {
 	td := Cache.get(id)
 	if td == nil {
 		return &zodo.NotFoundError{
@@ -48,24 +48,35 @@ func SetRemind(id int, rmdTime string, loop bool) error {
 		}
 	}
 
-	if loop {
-		rows := make([]table.Row, 0)
-		for i := 0; i < len(loopTypes); i++ {
-			rows = append(rows, table.Row{i, loopTypes[i]})
-		}
-		zodo.PrintTable(&table.Row{"Num", "Type"}, rows)
-		num, err := zodo.ReadInt(0, len(loopTypes), "Enter number of remind type:")
-		if err != nil {
-			return err
-		}
-		td.LoopType = loopTypes[num]
-	} else {
-		td.LoopType = loopOnce
+	td.RemindTime = remindTime
+
+	if remindTime == "" {
+		td.LoopType = ""
+		td.RemindStatus = ""
+		return nil
 	}
 
-	td.RemindTime = rmdTime
+	// select loop type
+	rows := make([]table.Row, 0)
+	for i := 0; i < len(loopTypes); i++ {
+		rows = append(rows, table.Row{i, loopTypes[i]})
+	}
+	zodo.PrintTable(&table.Row{"Num", "Type"}, rows)
+	num, err := zodo.ReadInt(0, len(loopTypes), "Enter number of remind type:")
+	if err != nil {
+		return err
+	}
+	td.LoopType = loopTypes[num]
 	td.RemindStatus = rmdStatusWaiting
 
+	return nil
+}
+
+func CopyRemindTime(id int) error {
+	td := Cache.get(id)
+	if td != nil {
+		return zodo.WriteLineToClipboard(td.RemindTime)
+	}
 	return nil
 }
 

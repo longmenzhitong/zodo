@@ -83,6 +83,9 @@ func WriteLinesToClipboard(lines []string) error {
 }
 
 func WriteLineToClipboard(line string) error {
+	if line == "" {
+		return nil
+	}
 	return WriteLinesToClipboard([]string{line})
 }
 

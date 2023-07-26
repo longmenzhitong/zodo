@@ -11,8 +11,6 @@ import (
 )
 
 type Option struct {
-	SetRemind        SetRemindCommand        `command:"rmd" description:"Set remind of todo: rmd [-l] <id> <remind-time>"`
-	RemoveRemind     RemoveRemindCommand     `command:"rmd-" description:"Remove remind of todo: rmd- <id>..."`
 	SetChild         SetChildCommand         `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
 	AddChild         AddChildCommand         `command:"acd" description:"Add child of todo: acd <parent-id> <child-id>..."`
 	SetPending       SetPendingCommand       `command:"pend" description:"Mark todo status as pending: pend <id>..."`
@@ -30,40 +28,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type SetRemindCommand struct {
-	Loop bool `short:"l" required:"false" description:"Choose loop type"`
-}
-
-func (c *SetRemindCommand) Execute(args []string) error {
-	id, rmd, err := argsToIdAndStr(args)
-	if err != nil {
-		return err
-	}
-	rmd, err = validateRemind(rmd)
-	if err != nil {
-		return err
-	}
-	err = todo.SetRemind(id, rmd, c.Loop)
-	if err != nil {
-		return err
-	}
-	todo.Save()
-	return nil
-}
-
-type RemoveRemindCommand struct {
-}
-
-func (c *RemoveRemindCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-	todo.RemoveRemind(ids)
-	todo.Save()
-	return nil
 }
 
 type SetChildCommand struct {
