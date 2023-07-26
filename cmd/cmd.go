@@ -11,8 +11,6 @@ import (
 )
 
 type Option struct {
-	SetDeadline      SetDeadlineCommand      `command:"ddl" description:"Set deadline of todo: ddl <id> <deadline>"`
-	RemoveDeadline   RemoveDeadlineCommand   `command:"ddl-" description:"Remove deadline of todo: ddl- <id>..."`
 	SetRemind        SetRemindCommand        `command:"rmd" description:"Set remind of todo: rmd [-l] <id> <remind-time>"`
 	RemoveRemind     RemoveRemindCommand     `command:"rmd-" description:"Remove remind of todo: rmd- <id>..."`
 	SetChild         SetChildCommand         `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
@@ -32,40 +30,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type SetDeadlineCommand struct {
-}
-
-func (c *SetDeadlineCommand) Execute(args []string) error {
-	id, ddl, err := argsToIdAndStr(args)
-	if err != nil {
-		return err
-	}
-
-	ddl, err = validateDeadline(ddl)
-	if err != nil {
-		return err
-	}
-
-	todo.SetDeadline(id, ddl)
-	todo.Save()
-	return nil
-}
-
-type RemoveDeadlineCommand struct {
-}
-
-func (c *RemoveDeadlineCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-	for _, id := range ids {
-		todo.SetDeadline(id, "")
-	}
-	todo.Save()
-	return nil
 }
 
 type SetRemindCommand struct {
