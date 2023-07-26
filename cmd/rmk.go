@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"strconv"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
@@ -33,25 +32,13 @@ var rmkCmd = &cobra.Command{
 * Set remark of todo: rmk <id> [remark of todo]
 * Copy remark of todo: rmk -c <id>`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		id, err := strconv.Atoi(args[0])
+		id, remark, err := argsToIdAndOptionalStr(args)
 		if err != nil {
 			return err
 		}
 
-		// copy remark
 		if copyRemark {
 			return todo.CopyRemark(id)
-		}
-
-		// set remark
-		var remark string
-		if len(args) == 1 {
-			remark = ""
-		} else {
-			_, remark, err = argsToIdAndStr(args)
-			if err != nil {
-				return err
-			}
 		}
 
 		todo.SetRemark(id, remark)

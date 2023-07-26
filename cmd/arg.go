@@ -36,7 +36,7 @@ func argsToIds(args []string) (ids []int, err error) {
 func argsToIdAndStr(args []string) (id int, str string, err error) {
 	if len(args) != 2 {
 		err = &zodo.InvalidInputError{
-			Message: fmt.Sprintf("expect: [id] [str], got: %v", args),
+			Message: fmt.Sprintf("expect: <id> <str>, got: %v", args),
 		}
 		return
 	}
@@ -44,6 +44,26 @@ func argsToIdAndStr(args []string) (id int, str string, err error) {
 	if err != nil {
 		return
 	}
+	str = strings.TrimSpace(args[1])
+	return
+}
+
+func argsToIdAndOptionalStr(args []string) (id int, str string, err error) {
+	if len(args) == 0 {
+		err = &zodo.InvalidInputError{
+			Message: "expect: <id> [str], got empty",
+		}
+		return
+	}
+
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return
+	}
+	if len(args) == 1 {
+		return
+	}
+
 	str = strings.TrimSpace(args[1])
 	return
 }
@@ -61,7 +81,7 @@ func validateDeadline(ddl string) (string, error) {
 	}
 
 	return "", &zodo.InvalidInputError{
-		Message: fmt.Sprintf("deadline: %s", ddl),
+		Message: fmt.Sprintf(`expect "yyyy-MM-dd" or "MM-dd", got: %s`, ddl),
 	}
 }
 

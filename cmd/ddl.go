@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"strconv"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
@@ -30,10 +29,10 @@ var ddlCmd = &cobra.Command{
 	Use:   "ddl",
 	Short: "Set or copy deadline of todo",
 	Long: `Set or copy deadline of todo:
-* Set deadline of todo: ddl <id> [deadline of todo], format: yyyy-MM-dd | MM-dd
+* Set deadline of todo: ddl <id> [deadline of todo], accept "yyyy-MM-dd" or "MM-dd" or empty
 * Copy deadline of todo: ddl -c <id>`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		id, err := strconv.Atoi(args[0])
+		id, deadline, err := argsToIdAndOptionalStr(args)
 		if err != nil {
 			return err
 		}
@@ -42,21 +41,14 @@ var ddlCmd = &cobra.Command{
 			return todo.CopyDeadline(id)
 		}
 
-		var ddl string
-		if len(args) == 1 {
-			ddl = ""
-		} else {
-			_, ddl, err = argsToIdAndStr(args)
-			if err != nil {
-				return err
-			}
-			ddl, err = validateDeadline(ddl)
+		if deadline != "" {
+			deadline, err = validateDeadline(deadline)
 			if err != nil {
 				return err
 			}
 		}
 
-		todo.SetDeadline(id, ddl)
+		todo.SetDeadline(id, deadline)
 		todo.Save()
 		return nil
 	},

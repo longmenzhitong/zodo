@@ -89,7 +89,7 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 
 	addCmd.Flags().IntVarP(&parentId, "parent", "p", -1, "Specify parent ID of new todo")
-	addCmd.Flags().StringVarP(&deadline, "deadline", "d", "", "Specify deadline of new todo, format: yyyy-MM-dd | MM-dd")
-	addCmd.Flags().StringVarP(&remindTime, "remind", "r", "", "Specify remind time of new todo, format: yyyy-MM-dd HH:mm | MM-dd HH:mm | HH:mm")
+	addCmd.Flags().StringVarP(&deadline, "deadline", "d", "", `Specify deadline of new todo, accept "yyyy-MM-dd" or "MM-dd"`)
+	addCmd.Flags().StringVarP(&remindTime, "remind", "r", "", `Specify remind time of new todo, accept "yyyy-MM-dd HH:mm" or "MM-dd HH:mm" or "HH:mm"`)
 	addCmd.Flags().StringVarP(&remark, "remark", "R", "", "Specify remark of new todo")
 }
