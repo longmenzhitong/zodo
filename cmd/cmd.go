@@ -3,25 +3,15 @@ package cmd
 import (
 	"zodo/src/dev"
 	"zodo/src/dev/jenkins"
-	"zodo/src/todo"
 )
 
 type Option struct {
-	Statistics       StatisticsCommand       `command:"stat" description:"Show statistics of todos"`
 	JenkinsDeploy    JenkinsDeployCommand    `command:"jd" description:"Jenkins deploy: jd"`
 	JenkinsStatus    JenkinsStatusCommand    `command:"js" description:"Jenkins status: js"`
 	JenkinsHistory   JenkinsHistoryCommand   `command:"jh" description:"Jenkins history: jh [-c <history-count>]"`
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type StatisticsCommand struct {
-}
-
-func (c *StatisticsCommand) Execute([]string) error {
-	todo.Statistics()
-	return nil
 }
 
 type DrawioHelperCommand struct {

@@ -27,13 +27,19 @@ var todoStatus todo.Status
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "Set status of todo",
+	Short: "Show or set status of todo",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {
 			return err
 		}
+
+		if len(ids) == 0 {
+			todo.Statistics()
+			return nil
+		}
+
 		for _, id := range ids {
 			todo.SetStatus(id, todoStatus)
 		}
