@@ -11,6 +11,36 @@ import (
 	"github.com/mozillazg/go-pinyin"
 )
 
+type Status string
+
+const (
+	StatusPending    Status = "Pending"
+	StatusProcessing Status = "Processing"
+	StatusDone       Status = "Done"
+	StatusHiding     Status = "Hiding"
+)
+
+// String is used both by fmt.Print and by Cobra in help text
+func (s *Status) String() string {
+	return string(*s)
+}
+
+// Set must have pointer receiver so it doesn't change the value of a copy
+func (s *Status) Set(v string) error {
+	switch v {
+	case "Pending", "Processing", "Done", "Hiding":
+		*s = Status(v)
+		return nil
+	default:
+		return &zodo.InvalidInputError{Message: `must be one of "Pending", "Processing", "Done", or "Hiding"`}
+	}
+}
+
+// Type is only used in help text
+func (s *Status) Type() string {
+	return "status"
+}
+
 const (
 	statusPending    = "Pending"
 	statusProcessing = "Processing"

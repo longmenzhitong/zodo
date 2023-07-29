@@ -178,23 +178,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 	return nil
 }
 
-func SetPending(id int) {
-	setStatus(id, statusPending)
-}
-
-func SetProcessing(id int) {
-	setStatus(id, statusProcessing)
-}
-
-func SetDone(id int) {
-	setStatus(id, statusDone)
-}
-
-func SetHiding(id int) {
-	setStatus(id, statusHiding)
-}
-
-func setStatus(id int, status string) {
+func SetStatus(id int, status string) {
 	td := Cache.get(id)
 	if td == nil {
 		return
@@ -203,8 +187,9 @@ func setStatus(id int, status string) {
 	if !td.hasChildren() {
 		return
 	}
+	// FIXME: 应该影响子任务的状态吗？
 	for childId := range td.Children {
-		setStatus(childId, status)
+		SetStatus(childId, status)
 	}
 }
 

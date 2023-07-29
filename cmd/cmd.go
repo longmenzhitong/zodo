@@ -11,10 +11,6 @@ import (
 )
 
 type Option struct {
-	SetPending       SetPendingCommand       `command:"pend" description:"Mark todo status as pending: pend <id>..."`
-	SetProcessing    SetProcessingCommand    `command:"proc" description:"Mark todo status as processing: proc <id>..."`
-	SetDone          SetDoneCommand          `command:"done" description:"Mark todo status as done: done <id>..."`
-	SetHiding        SetHidingCommand        `command:"hide" description:"Mark todo status as hiding: hide <id>..."`
 	Server           ServerCommand           `command:"server" description:"Server mode on"`
 	Rollback         RollbackCommand         `command:"rbk" description:"Rollback to last version"`
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
@@ -26,77 +22,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type SetPendingCommand struct {
-}
-
-func (c *SetPendingCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-	for _, id := range ids {
-		todo.SetPending(id)
-	}
-	todo.Save()
-	return nil
-}
-
-type SetProcessingCommand struct {
-}
-
-func (c *SetProcessingCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-	for _, id := range ids {
-		todo.SetProcessing(id)
-	}
-	todo.Save()
-	return nil
-}
-
-type SetDoneCommand struct {
-}
-
-func (c *SetDoneCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err == nil {
-		for _, id := range ids {
-			todo.SetDone(id)
-		}
-		todo.Save()
-		return nil
-	}
-
-	id, remark, err := argsToIdAndStr(args)
-	if err == nil {
-		todo.SetDone(id)
-		todo.SetRemark(id, remark)
-		todo.Save()
-		return nil
-	}
-
-	return &zodo.InvalidInputError{
-		Message: fmt.Sprintf("expect: done [id1] [id2]... or done [id] [remark], got: %v", args),
-	}
-}
-
-type SetHidingCommand struct {
-}
-
-func (c *SetHidingCommand) Execute(args []string) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-	for _, id := range ids {
-		todo.SetHiding(id)
-	}
-	todo.Save()
-	return nil
 }
 
 type ServerCommand struct {

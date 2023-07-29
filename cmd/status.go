@@ -17,33 +17,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"fmt"
-	zodo "zodo/src"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
 )
 
-var overwriteOtherChildren bool
+var todoStatus todo.Status
 
-// childCmd represents the child command
-var childCmd = &cobra.Command{
-	Use:   "child",
-	Short: "Add child of todo",
+// statusCmd represents the status command
+var statusCmd = &cobra.Command{
+	Use:   "status",
+	Short: "Set status of todo",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {
 			return err
 		}
-		if len(ids) < 2 {
-			return &zodo.InvalidInputError{
-				Message: fmt.Sprintf("expect: <parentId> <childId>..., got: %v", args),
-			}
-		}
-		err = todo.SetChild(ids[0], ids[1:], !overwriteOtherChildren)
-		if err != nil {
-			return err
+		for _, id := range ids {
+			todo.SetStatus(id, string(todoStatus))
 		}
 		todo.Save()
 		return nil
@@ -51,7 +43,18 @@ var childCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(childCmd)
+	rootCmd.AddCommand(statusCmd)
 
-	childCmd.Flags().BoolVarP(&overwriteOtherChildren, "overwrite", "o", false, "Overwrite other children of todo")
+	statusCmd.Flags().VarP(&todoStatus, "status", "s", `todo status`)
+	statusCmd.RegisterFlagCompletionFunc("status", todoStatusCompletion)
+}
+
+// todoStatusCompletion should probably live next to the myEnum definition
+func todoStatusCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return []string{
+		"Pending",
+		"Processing",
+		"Done",
+		"Hiding",
+	}, cobra.ShellCompDirectiveDefault
 }
