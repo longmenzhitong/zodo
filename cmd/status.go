@@ -35,7 +35,7 @@ var statusCmd = &cobra.Command{
 			return err
 		}
 		for _, id := range ids {
-			todo.SetStatus(id, string(todoStatus))
+			todo.SetStatus(id, todoStatus)
 		}
 		todo.Save()
 		return nil

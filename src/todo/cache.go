@@ -109,7 +109,7 @@ func (c *cache) remove(id int, recursively bool) {
 func (c *cache) clearDoneTodo() int {
 	count := 0
 	for _, td := range c.data {
-		if td.Status == statusDone {
+		if td.Status == StatusDone {
 			c.remove(td.Id, true)
 			count++
 		}

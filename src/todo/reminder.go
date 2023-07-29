@@ -107,7 +107,7 @@ func Remind() error {
 		text += "\n"
 		if ddl != "" {
 			text += fmt.Sprintf("* %s  %s, deadline %s, remain %s\n", td.Content, td.getStatus(false), ddl, remain)
-		} else if td.Status != statusHiding {
+		} else if td.Status != StatusHiding {
 			text += fmt.Sprintf("* %s  %s\n", td.Content, td.getStatus(false))
 		} else {
 			text += fmt.Sprintf("* %s\n", td.Content)

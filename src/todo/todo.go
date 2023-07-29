@@ -41,24 +41,17 @@ func (s *Status) Type() string {
 	return "status"
 }
 
-const (
-	statusPending    = "Pending"
-	statusProcessing = "Processing"
-	statusDone       = "Done"
-	statusHiding     = "Hiding"
-)
-
-var statusPriority = map[string]int{
-	statusHiding:     -1,
-	statusDone:       0,
-	statusPending:    1,
-	statusProcessing: 2,
+var statusPriority = map[Status]int{
+	StatusHiding:     -1,
+	StatusDone:       0,
+	StatusPending:    1,
+	StatusProcessing: 2,
 }
 
 type todo struct {
 	Id           int
 	Content      string
-	Status       string
+	Status       Status
 	Deadline     string
 	Remark       string
 	RemindTime   string
@@ -72,19 +65,20 @@ type todo struct {
 }
 
 func (t *todo) getStatus(colorful bool) string {
+	status := string(t.Status)
 	if colorful {
 		switch t.Status {
-		case statusPending:
-			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, t.Status)
-		case statusProcessing:
-			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Processing, t.Status)
-		case statusDone:
-			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, t.Status)
-		case statusHiding:
-			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Hiding, t.Status)
+		case StatusPending:
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, status)
+		case StatusProcessing:
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Processing, status)
+		case StatusDone:
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, status)
+		case StatusHiding:
+			return zodo.ColoredString(zodo.Config.Todo.Color.Status.Hiding, status)
 		}
 	}
-	return t.Status
+	return string(t.Status)
 }
 
 func (t *todo) getRemainDays() (natureDays int, workDays int) {
@@ -100,7 +94,7 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 		return "", ""
 	}
 
-	if t.Status == statusDone {
+	if t.Status == StatusDone {
 		return zodo.SimplifyTime(t.Deadline), ""
 	}
 
@@ -115,7 +109,7 @@ func (t *todo) getDeadLineAndRemain(colorful bool) (ddl string, remain string) {
 	nd, wd := t.getRemainDays()
 	remain = fmt.Sprintf("%dnd/%dwd", nd, wd)
 
-	if colorful && (t.Status == statusPending || t.Status == statusProcessing) {
+	if colorful && (t.Status == StatusPending || t.Status == StatusProcessing) {
 		if wd <= 0 && nd <= 0 {
 			ddl = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Overdue, ddl)
 			remain = zodo.ColoredString(zodo.Config.Todo.Color.Deadline.Overdue, remain)
@@ -162,10 +156,10 @@ func (t *todo) hasChildren() bool {
 }
 
 func (t *todo) isVisible() bool {
-	if t.Status == statusHiding {
+	if t.Status == StatusHiding {
 		return false
 	}
-	if t.Status == statusDone && !zodo.Config.Todo.ShowDone {
+	if t.Status == StatusDone && !zodo.Config.Todo.ShowDone {
 		return false
 	}
 	return true
@@ -277,7 +271,7 @@ func sortTodo(tds []*todo) []*todo {
 			return statusPriority[a.Status] > statusPriority[b.Status]
 		}
 
-		if a.Status == statusDone && b.Status == statusDone {
+		if a.Status == StatusDone && b.Status == StatusDone {
 			return a.Id < b.Id
 		}
 

@@ -85,7 +85,7 @@ func Add(content string) (int, error) {
 	Cache.add(todo{
 		Id:         id,
 		Content:    content,
-		Status:     statusPending,
+		Status:     StatusPending,
 		CreateTime: time.Now().Format(zodo.LayoutDateTime),
 	})
 	return id, nil
@@ -178,7 +178,7 @@ func SetChild(parentId int, childIds []int, append bool) error {
 	return nil
 }
 
-func SetStatus(id int, status string) {
+func SetStatus(id int, status Status) {
 	td := Cache.get(id)
 	if td == nil {
 		return
@@ -263,19 +263,19 @@ func Statistics() {
 			continue
 		}
 		switch td.Status {
-		case statusProcessing:
+		case StatusProcessing:
 			proc++
-		case statusPending:
+		case StatusPending:
 			pend++
-		case statusDone:
+		case StatusDone:
 			done++
 		}
 	}
 
 	rows := make([]table.Row, 0)
-	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Processing, "Processing"), proc})
-	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, "Pending"), pend})
-	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, "Done"), done})
+	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Processing, string(StatusProcessing)), proc})
+	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Pending, string(StatusPending)), pend})
+	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, string(StatusDone)), done})
 	rows = append(rows, table.Row{"NextId", zodo.Id.GetNext()})
 	zodo.PrintTable(&table.Row{"Item", "Value"}, rows)
 }

@@ -17,51 +17,51 @@ func Test_sortTodo(t *testing.T) {
 		{
 			name: "_sort_1",
 			args: args{tds: []*todo{
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-09"},
-				{Id: 2, Content: "todo_2", Status: statusPending, Deadline: "2022-11-08"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-09"},
+				{Id: 2, Content: "todo_2", Status: StatusPending, Deadline: "2022-11-08"},
 			}},
 			want: []*todo{
-				{Id: 2, Content: "todo_2", Status: statusPending, Deadline: "2022-11-08"},
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-09"},
+				{Id: 2, Content: "todo_2", Status: StatusPending, Deadline: "2022-11-08"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-09"},
 			},
 		},
 		{
 			name: "_sort_2",
 			args: args{tds: []*todo{
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-09"},
-				{Id: 2, Content: "todo_2", Status: statusProcessing, Deadline: "2022-11-09"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-09"},
+				{Id: 2, Content: "todo_2", Status: StatusProcessing, Deadline: "2022-11-09"},
 			}},
 			want: []*todo{
-				{Id: 2, Content: "todo_2", Status: statusProcessing, Deadline: "2022-11-09"},
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-09"},
+				{Id: 2, Content: "todo_2", Status: StatusProcessing, Deadline: "2022-11-09"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-09"},
 			},
 		},
 		{
 			name: "_sort_3",
 			args: args{tds: []*todo{
-				{Id: 2, Content: "todo_2", Status: statusPending, Deadline: "2022-11-09"},
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-09"},
+				{Id: 2, Content: "todo_2", Status: StatusPending, Deadline: "2022-11-09"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-09"},
 			}},
 			want: []*todo{
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-09"},
-				{Id: 2, Content: "todo_2", Status: statusPending, Deadline: "2022-11-09"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-09"},
+				{Id: 2, Content: "todo_2", Status: StatusPending, Deadline: "2022-11-09"},
 			},
 		},
 		{
 			name: "_sort_4",
 			args: args{tds: []*todo{
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-10"},
-				{Id: 2, Content: "todo_2", Status: statusPending, Deadline: "2022-11-09"},
-				{Id: 3, Content: "todo_3", Status: statusProcessing, Deadline: "2022-11-09"},
-				{Id: 5, Content: "todo_5", Status: statusProcessing, Deadline: "2022-11-09"},
-				{Id: 4, Content: "todo_4", Status: statusProcessing, Deadline: "2022-11-09"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-10"},
+				{Id: 2, Content: "todo_2", Status: StatusPending, Deadline: "2022-11-09"},
+				{Id: 3, Content: "todo_3", Status: StatusProcessing, Deadline: "2022-11-09"},
+				{Id: 5, Content: "todo_5", Status: StatusProcessing, Deadline: "2022-11-09"},
+				{Id: 4, Content: "todo_4", Status: StatusProcessing, Deadline: "2022-11-09"},
 			}},
 			want: []*todo{
-				{Id: 3, Content: "todo_3", Status: statusProcessing, Deadline: "2022-11-09"},
-				{Id: 4, Content: "todo_4", Status: statusProcessing, Deadline: "2022-11-09"},
-				{Id: 5, Content: "todo_5", Status: statusProcessing, Deadline: "2022-11-09"},
-				{Id: 2, Content: "todo_2", Status: statusPending, Deadline: "2022-11-09"},
-				{Id: 1, Content: "todo_1", Status: statusPending, Deadline: "2022-11-10"},
+				{Id: 3, Content: "todo_3", Status: StatusProcessing, Deadline: "2022-11-09"},
+				{Id: 4, Content: "todo_4", Status: StatusProcessing, Deadline: "2022-11-09"},
+				{Id: 5, Content: "todo_5", Status: StatusProcessing, Deadline: "2022-11-09"},
+				{Id: 2, Content: "todo_2", Status: StatusPending, Deadline: "2022-11-09"},
+				{Id: 1, Content: "todo_1", Status: StatusPending, Deadline: "2022-11-10"},
 			},
 		},
 	}
