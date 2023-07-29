@@ -11,8 +11,6 @@ import (
 )
 
 type Option struct {
-	SetChild         SetChildCommand         `command:"scd" description:"Set child of todo: scd <parent-id> <child-id>..."`
-	AddChild         AddChildCommand         `command:"acd" description:"Add child of todo: acd <parent-id> <child-id>..."`
 	SetPending       SetPendingCommand       `command:"pend" description:"Mark todo status as pending: pend <id>..."`
 	SetProcessing    SetProcessingCommand    `command:"proc" description:"Mark todo status as processing: proc <id>..."`
 	SetDone          SetDoneCommand          `command:"done" description:"Mark todo status as done: done <id>..."`
@@ -28,38 +26,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type SetChildCommand struct {
-}
-
-func (c *SetChildCommand) Execute(args []string) error {
-	return setChild(args, false)
-}
-
-type AddChildCommand struct {
-}
-
-func (c *AddChildCommand) Execute(args []string) error {
-	return setChild(args, true)
-}
-
-func setChild(args []string, append bool) error {
-	ids, err := argsToIds(args)
-	if err != nil {
-		return err
-	}
-	if len(ids) < 2 {
-		return &zodo.InvalidInputError{
-			Message: fmt.Sprintf("expect: scd [parentId] [childId], got: %v", args),
-		}
-	}
-	err = todo.SetChild(ids[0], ids[1:], append)
-	if err != nil {
-		return err
-	}
-	todo.Save()
-	return nil
 }
 
 type SetPendingCommand struct {

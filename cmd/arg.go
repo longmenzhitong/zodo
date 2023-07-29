@@ -81,7 +81,7 @@ func validateDeadline(ddl string) (string, error) {
 	}
 
 	return "", &zodo.InvalidInputError{
-		Message: fmt.Sprintf(`expect "yyyy-MM-dd" or "MM-dd", got: %s`, ddl),
+		Message: fmt.Sprintf(`expect: "yyyy-MM-dd" or "MM-dd", got: %s`, ddl),
 	}
 }
 
