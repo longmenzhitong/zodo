@@ -197,38 +197,6 @@ func Save() {
 	Cache.save()
 }
 
-func Report() error {
-	Cache.refresh()
-	var text string
-	for _, td := range Cache.list("", false) {
-		status := td.getStatus(false)
-		ddl, remain := td.getDeadLineAndRemain(false)
-		if td.hasChildren() && !zodo.Config.Todo.ShowParentStatus {
-			status = ""
-			ddl = ""
-			remain = ""
-		}
-		if td.Level == 0 {
-			text += "\n"
-			if ddl != "" {
-				text += fmt.Sprintf("* %s  %s, deadline %s, remain %s\n", td.Content, status, ddl, remain)
-			} else {
-				text += fmt.Sprintf("* %s  %s\n", td.Content, status)
-			}
-		} else {
-			if ddl != "" {
-				text += fmt.Sprintf("%s  |- %s  %s, deadline %s, remain %s\n", padding(td.Level), td.Content, status, ddl, remain)
-			} else {
-				text += fmt.Sprintf("%s  |- %s  %s\n", padding(td.Level), td.Content, status)
-			}
-		}
-	}
-	if text != "" {
-		return zodo.SendEmail("Daily Report", text)
-	}
-	return nil
-}
-
 func padding(level int) string {
 	var p string
 	for i := 0; i < zodo.Config.Todo.Padding; i++ {

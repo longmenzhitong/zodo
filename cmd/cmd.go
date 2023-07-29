@@ -11,7 +11,6 @@ import (
 )
 
 type Option struct {
-	Server           ServerCommand           `command:"server" description:"Server mode on"`
 	Rollback         RollbackCommand         `command:"rbk" description:"Rollback to last version"`
 	Tidy             TidyCommand             `command:"tidy" description:"Tidy data: tidy [-a] [-d] [-i]"`
 	Config           ConfigCommand           `command:"conf" description:"Show config"`
@@ -22,19 +21,6 @@ type Option struct {
 	DrawioHelper     DrawioHelperCommand     `command:"dh" description:"Drawio Helper: simplify sql for Drawio import: dh <sql-file-path>"`
 	MybatisGenerator MybatisGeneratorCommand `command:"mg" description:"MyBatis Generator: generate result map and column: mg <java-file-path>"`
 	ExcelHelper      ExcelHelperCommand      `command:"eh" description:"Excel helper: generate java class from excel template: eh -p <excel-template-path> [-n <java-class-name>] [-i <sheet-index>]"`
-}
-
-type ServerCommand struct {
-}
-
-func (c *ServerCommand) Execute([]string) error {
-	if zodo.Config.DailyReport.Enabled {
-		todo.StartDailyReport()
-	}
-	if zodo.Config.Reminder.Enabled {
-		todo.StartReminder()
-	}
-	select {}
 }
 
 type RollbackCommand struct {

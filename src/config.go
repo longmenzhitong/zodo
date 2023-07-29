@@ -59,10 +59,6 @@ type config struct {
 			Localize bool   `yaml:"localize"`
 		} `yaml:"redis"`
 	} `yaml:"storage"`
-	DailyReport struct {
-		Enabled bool   `yaml:"enabled"`
-		Cron    string `yaml:"cron"`
-	} `yaml:"dailyReport"`
 	Reminder struct {
 		Enabled bool   `yaml:"enabled"`
 		Cron    string `yaml:"cron"`
