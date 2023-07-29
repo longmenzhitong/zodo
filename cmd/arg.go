@@ -49,9 +49,9 @@ func argsToIdAndStr(args []string) (id int, str string, err error) {
 }
 
 func argsToIdAndOptionalStr(args []string) (id int, str string, err error) {
-	if len(args) == 0 {
+	if len(args) != 1 && len(args) != 2 {
 		err = &zodo.InvalidInputError{
-			Message: "expect: <id> [str], got empty",
+			Message: fmt.Sprintf("expect: <id> [str], got: %v", args),
 		}
 		return
 	}

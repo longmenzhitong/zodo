@@ -60,7 +60,7 @@ func checkParam() (*param, error) {
 
 	zodo.PrintTable(nil, rows)
 
-	zodo.PrintDoneMsg("Check  done.\n")
+	zodo.PrintDoneMsg("Check done.\n")
 	return p, nil
 }
 
