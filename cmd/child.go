@@ -28,9 +28,13 @@ var overwriteOtherChildren bool
 
 // childCmd represents the child command
 var childCmd = &cobra.Command{
-	Use:   "child",
+	Use:   "child <parentId> <childId>...",
 	Short: "Add child of todo",
-	Long:  ``,
+	Long: `Add child of todo.
+
+Note:
+  By default, parent todos which have at least one child do not show their status
+  in the list. Set the config "todo.showParentStatus" to "true" to change it.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {

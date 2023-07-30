@@ -26,21 +26,18 @@ var copyRemindTime bool
 
 // rmdCmd represents the rmd command
 var rmdCmd = &cobra.Command{
-	Use:   "rmd",
+	Use:   "rmd <id> [remindTime]",
 	Short: "Set or copy remind time of todo",
-	Long: `Use:
-  * Set remind time of todo: rmd <id> [remind time], accept "yyyy-MM-dd HH:mm" or "MM-dd HH:mm" or "HH:mm" or empty
-  * Copy remind time of todo: rmd -c <id>
+	Long: `Set or copy remind time of todo.
 
-Config:
-  The remind feature requires the following two configurations:
-  * reminder
-  * email
-  Use "conf" command to see the detail of these two configurations.
+Param:
+  [remindTime] can be "yyyy-MM-dd HH:mm" or "MM-dd HH:mm" or "HH:mm" or empty.
 
-Dependency:
-  The remind feature implements by cron job and email. So it depends on "server" command to start the remind cron job.
-  See the help info of "server" command for further understanding.`,
+Need:
+  The remind feature needs:
+  1. Runing ZODO in server mode by using the "server" command;
+  2. Set the config "reminder.enabled" to "true" and set a cron;
+  3. An email server and corresponding config "email".`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, remindTime, err := argsToIdAndOptionalStr(args)
 		if err != nil {

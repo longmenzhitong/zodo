@@ -24,9 +24,13 @@ import (
 
 // hideCmd represents the hide command
 var hideCmd = &cobra.Command{
-	Use:   "hide",
+	Use:   "hide <id>...",
 	Short: `Set todo status to "Hiding"`,
-	Long:  ``,
+	Long: `Set todo status to "Hiding".
+
+Note:
+  Different from "Done" status, only "-a" flag of "list" command 
+  can show the "Hiding" status todos in the list.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {

@@ -25,8 +25,8 @@ import (
 // rbkCmd represents the rbk command
 var rbkCmd = &cobra.Command{
 	Use:   "rbk",
-	Short: "Rollback to last version of todos",
-	Long:  ``,
+	Short: "Rollback everything to last version",
+	Long:  `Rollback everything to last version.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		todo.Rollback()
 	},

@@ -27,11 +27,12 @@ var copyContent bool
 
 // modCmd represents the mod command
 var modCmd = &cobra.Command{
-	Use:   "mod",
+	Use:   "mod <id> [content]",
 	Short: "Modify or copy content of todo",
-	Long: `Modify or copy content of todo:
-* Modify content of todo: mod <id> <content of todo>
-* Copy content of todo: mod -c <id>`,
+	Long: `Modify or copy content of todo.
+
+Param:
+  [content] can be empty only when the "-c" flag is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, err := strconv.Atoi(args[0])
 		if err != nil {

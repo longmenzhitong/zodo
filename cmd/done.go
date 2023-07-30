@@ -26,7 +26,11 @@ import (
 var doneCmd = &cobra.Command{
 	Use:   "done",
 	Short: `Set todo status to "Done"`,
-	Long:  ``,
+	Long: `Set todo status to "Done".
+
+Note:
+  Done todos do not show in the list by default. Set the config
+  "todo.showDone" to "true" to always show done todos in the list.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {

@@ -30,8 +30,8 @@ var tidyFragmentIds bool
 // tidyCmd represents the tidy command
 var tidyCmd = &cobra.Command{
 	Use:   "tidy",
-	Short: "Tidy done todos or fragment ids",
-	Long:  ``,
+	Short: "Do some tidy work",
+	Long:  `Do some tidy work.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		changed := false
 		if tidyAll || tidyDoneTodos {
@@ -58,7 +58,7 @@ var tidyCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(tidyCmd)
 
-	tidyCmd.Flags().BoolVarP(&tidyAll, "all", "a", false, "Do all tidy works")
+	tidyCmd.Flags().BoolVarP(&tidyAll, "all", "a", false, "Do all tidy work")
 	tidyCmd.Flags().BoolVarP(&tidyDoneTodos, "done", "d", false, "Tidy done todos")
 	tidyCmd.Flags().BoolVarP(&tidyFragmentIds, "fragment", "f", false, "Tidy fragment ids")
 }

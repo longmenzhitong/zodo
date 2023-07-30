@@ -24,9 +24,9 @@ import (
 
 // procCmd represents the proc command
 var procCmd = &cobra.Command{
-	Use:   "proc",
+	Use:   "proc <id>...",
 	Short: `Set todo status to "Processing"`,
-	Long:  ``,
+	Long:  `Set todo status to "Processing"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		ids, err := argsToIds(args)

@@ -24,9 +24,9 @@ import (
 
 // pendCmd represents the pend command
 var pendCmd = &cobra.Command{
-	Use:   "pend",
+	Use:   "pend <id>...",
 	Short: `Set todo status to "Pending"`,
-	Long:  ``,
+	Long:  `Set todo status to "Pending".`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {

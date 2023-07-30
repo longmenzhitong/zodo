@@ -26,8 +26,8 @@ import (
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Enter server mode",
-	Long:  ``,
+	Short: "Running in server mode",
+	Long:  `Running in server mode.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if zodo.Config.Reminder.Enabled {
 			todo.StartReminder()

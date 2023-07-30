@@ -27,7 +27,7 @@ import (
 var catCmd = &cobra.Command{
 	Use:   "cat <id>...",
 	Short: "Show todos details",
-	Long:  `Show todos details, which include all fields of todos.`,
+	Long:  `Show todos details.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {

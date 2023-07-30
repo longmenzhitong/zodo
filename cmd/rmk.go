@@ -22,22 +22,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var copyRemark bool
+var rmkCopy bool
 
 // rmkCmd represents the rmk command
 var rmkCmd = &cobra.Command{
-	Use:   "rmk",
+	Use:   "rmk <id> [remark]",
 	Short: "Set or copy remark of todo",
-	Long: `Set or copy remark of todo:
-* Set remark of todo: rmk <id> [remark of todo]
-* Copy remark of todo: rmk -c <id>`,
+	Long:  `Set or copy remark of todo.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, remark, err := argsToIdAndOptionalStr(args)
 		if err != nil {
 			return err
 		}
 
-		if copyRemark {
+		if rmkCopy {
 			return todo.CopyRemark(id)
 		}
 
@@ -50,5 +48,5 @@ var rmkCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(rmkCmd)
 
-	rmkCmd.Flags().BoolVarP(&copyRemark, "copy", "c", false, "Copy remark of todo")
+	rmkCmd.Flags().BoolVarP(&rmkCopy, "copy", "c", false, "Copy remark of todo")
 }

@@ -26,7 +26,7 @@ import (
 var statCmd = &cobra.Command{
 	Use:   "stat",
 	Short: "Show statistics of todos",
-	Long:  ``,
+	Long:  `Show statistics of todos.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		todo.Statistics()
 	},

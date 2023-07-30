@@ -28,7 +28,7 @@ import (
 var confCmd = &cobra.Command{
 	Use:   "conf",
 	Short: "Show configs of ZODO",
-	Long:  ``,
+	Long:  `Show configs of ZODO.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		out, err := yaml.Marshal(zodo.Config)
 		if err != nil {

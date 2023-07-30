@@ -26,11 +26,12 @@ var copyDeadline bool
 
 // ddlCmd represents the ddl command
 var ddlCmd = &cobra.Command{
-	Use:   "ddl",
+	Use:   "ddl <id> [deadline]",
 	Short: "Set or copy deadline of todo",
-	Long: `Set or copy deadline of todo:
-* Set deadline of todo: ddl <id> [deadline of todo], accept "yyyy-MM-dd" or "MM-dd" or empty
-* Copy deadline of todo: ddl -c <id>`,
+	Long: `Set or copy deadline of todo.
+
+Param:
+  [deadline] can be "yyyy-MM-dd" or "MM-dd" or empty.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, deadline, err := argsToIdAndOptionalStr(args)
 		if err != nil {

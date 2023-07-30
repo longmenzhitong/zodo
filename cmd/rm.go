@@ -22,19 +22,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var recursively bool
+var rmRecursively bool
 
 // rmCmd represents the rm command
 var rmCmd = &cobra.Command{
 	Use:   "rm <id>...",
 	Short: "Remove todos",
-	Long:  `Remove todos, non-recursively(the children of removed todos will become children of the parent of removed todos) by default.`,
+	Long: `Remove todos.
+
+Note:
+  There is no "Trash" in ZODO, but you still can use the "rbk"
+  command to undo your last remove action.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
 		if err != nil {
 			return err
 		}
-		todo.Remove(ids, recursively)
+		todo.Remove(ids, rmRecursively)
 		todo.Save()
 		return nil
 	},
@@ -43,5 +47,5 @@ var rmCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(rmCmd)
 
-	rmCmd.Flags().BoolVarP(&recursively, "recursively", "r", false, "Remove todos and their children recursively")
+	rmCmd.Flags().BoolVarP(&rmRecursively, "recursively", "r", false, "Remove todos and their children recursively")
 }

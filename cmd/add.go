@@ -32,17 +32,20 @@ var remark string
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
-	Use:   "add <content of new todo>",
+	Use:   "add <content>",
 	Short: "Add new todo",
-	Long: `Add new todo, optionally specify parent ID, deadline, remind time, and remark of new todo.
-This command will write the id of new todo into clipboard. You can set the config "todo.copyIdAfterAdd" to false to disable this feature.`,
+	Long: `Add new todo.
+
+Note:
+  This command will write the id of new todo into clipboard for further use. 
+  Set the config "todo.copyIdAfterAdd" to "false" to disable this feature.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, err := todo.Add(argsToStr(args))
 		if err != nil {
 			return err
 		}
 
-		if parentId != -1 {
+		if parentId != 0 {
 			err = todo.SetChild(parentId, []int{id}, true)
 			if err != nil {
 				return err
@@ -88,7 +91,7 @@ This command will write the id of new todo into clipboard. You can set the confi
 func init() {
 	rootCmd.AddCommand(addCmd)
 
-	addCmd.Flags().IntVarP(&parentId, "parent", "p", -1, "Specify parent ID of new todo")
+	addCmd.Flags().IntVarP(&parentId, "parent", "p", 0, "Specify parent ID of new todo")
 	addCmd.Flags().StringVarP(&deadline, "deadline", "d", "", `Specify deadline of new todo, accept "yyyy-MM-dd" or "MM-dd"`)
 	addCmd.Flags().StringVarP(&remindTime, "remind", "r", "", `Specify remind time of new todo, accept "yyyy-MM-dd HH:mm" or "MM-dd HH:mm" or "HH:mm"`)
 	addCmd.Flags().StringVarP(&remark, "remark", "R", "", "Specify remark of new todo")
