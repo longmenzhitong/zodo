@@ -13,6 +13,7 @@ const (
 	rmdStatusFinished = "Finished"
 )
 
+// TODO: 是否可以和todo的status一样处理？
 const (
 	loopOnce         = "Once"
 	loopPerDay       = "Per Day"

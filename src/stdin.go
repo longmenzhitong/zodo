@@ -18,7 +18,7 @@ func ReadString() string {
 
 func ReadInt(min int, max int, msg string) (int, error) {
 	if min > max {
-		panic(fmt.Errorf("min [%d] bigger than max [%d]", min, max))
+		panic(fmt.Errorf("min(%d) bigger than max(%d)", min, max))
 	}
 
 	if min == max {

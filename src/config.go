@@ -22,7 +22,6 @@ const (
 	defaultNormalDeadlineColor   = ColorGreen
 	defaultNervousDeadlineColor  = ColorYellow
 	defaultOverdueDeadlineColor  = ColorRed
-	defaultPollingIntervalSecond = 1
 )
 
 const configFileName = "config.yml"
@@ -70,13 +69,6 @@ type config struct {
 		From   string   `yaml:"from"`
 		To     []string `yaml:"to"`
 	} `yaml:"email"`
-	Jenkins struct {
-		Url                   string `yaml:"url"`
-		Username              string `yaml:"username"`
-		Password              string `yaml:"password"`
-		PrintStatus           bool   `yaml:"printStatus"`
-		PollingIntervalSecond int    `yaml:"pollingIntervalSecond"`
-	} `yaml:"jenkins"`
 }
 
 func (c *config) Init() {
@@ -142,9 +134,5 @@ func (c *config) check() {
 
 	if c.Storage.Type == "" {
 		c.Storage.Type = StorageTypeFile
-	}
-
-	if c.Jenkins.PollingIntervalSecond <= 0 {
-		c.Jenkins.PollingIntervalSecond = defaultPollingIntervalSecond
 	}
 }
