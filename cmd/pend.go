@@ -22,12 +22,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var todoStatus todo.Status
-
-// statusCmd represents the status command
-var statusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Show or set status of todo",
+// pendCmd represents the pend command
+var pendCmd = &cobra.Command{
+	Use:   "pend",
+	Short: `Set todo status to "Pending"`,
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ids, err := argsToIds(args)
@@ -35,13 +33,8 @@ var statusCmd = &cobra.Command{
 			return err
 		}
 
-		if len(ids) == 0 {
-			todo.Statistics()
-			return nil
-		}
-
 		for _, id := range ids {
-			todo.SetStatus(id, todoStatus)
+			todo.SetStatus(id, todo.StatusPending)
 		}
 		todo.Save()
 		return nil
@@ -49,18 +42,5 @@ var statusCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(statusCmd)
-
-	statusCmd.Flags().VarP(&todoStatus, "status", "s", `todo status`)
-	statusCmd.RegisterFlagCompletionFunc("status", todoStatusCompletion)
-}
-
-// todoStatusCompletion should probably live next to the myEnum definition
-func todoStatusCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return []string{
-		"Pending",
-		"Processing",
-		"Done",
-		"Hiding",
-	}, cobra.ShellCompDirectiveDefault
+	rootCmd.AddCommand(pendCmd)
 }
