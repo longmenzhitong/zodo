@@ -5,7 +5,7 @@ import (
 	"time"
 	zodo "zodo/src"
 
-	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/AlecAivazis/survey/v2"
 )
 
 const (
@@ -13,7 +13,6 @@ const (
 	rmdStatusFinished = "Finished"
 )
 
-// TODO: 是否可以和todo的status一样处理？
 const (
 	loopOnce         = "Once"
 	loopPerDay       = "Per Day"
@@ -58,16 +57,17 @@ func SetRemind(id int, remindTime string) error {
 	}
 
 	// select loop type
-	rows := make([]table.Row, 0)
-	for i := 0; i < len(loopTypes); i++ {
-		rows = append(rows, table.Row{i, loopTypes[i]})
+	var loopType string
+	prompt := &survey.Select{
+		Message: "Please choose a loop type:",
+		Options: loopTypes,
 	}
-	zodo.PrintTable(&table.Row{"Num", "Type"}, rows)
-	num, err := zodo.ReadInt(0, len(loopTypes), "Enter number of remind type:")
-	if err != nil {
-		return err
+	survey.AskOne(prompt, &loopType)
+	if loopType == "" {
+		return &zodo.InvalidInputError{Message: "loop type must not be empty"}
 	}
-	td.LoopType = loopTypes[num]
+	td.LoopType = loopType
+
 	td.RemindStatus = rmdStatusWaiting
 
 	return nil
