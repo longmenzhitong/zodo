@@ -46,7 +46,7 @@ var rmkCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(rmkCmd)
+	RootCmd.AddCommand(rmkCmd)
 
 	rmkCmd.Flags().BoolVarP(&rmkCopy, "copy", "c", false, "Copy remark of todo")
 }

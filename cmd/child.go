@@ -55,7 +55,7 @@ Note:
 }
 
 func init() {
-	rootCmd.AddCommand(childCmd)
+	RootCmd.AddCommand(childCmd)
 
 	childCmd.Flags().BoolVarP(&overwriteOtherChildren, "overwrite", "o", false, "Overwrite other children of todo")
 }

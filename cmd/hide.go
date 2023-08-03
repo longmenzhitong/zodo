@@ -46,5 +46,5 @@ Note:
 }
 
 func init() {
-	rootCmd.AddCommand(hideCmd)
+	RootCmd.AddCommand(hideCmd)
 }

@@ -35,7 +35,7 @@ var lsCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(lsCmd)
+	RootCmd.AddCommand(lsCmd)
 
 	lsCmd.Flags().BoolVarP(&lsAllStatus, "all", "a", false, "Show todos in all statuses, including done and hiding todos")
 }

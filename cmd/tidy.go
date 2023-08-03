@@ -56,7 +56,7 @@ var tidyCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(tidyCmd)
+	RootCmd.AddCommand(tidyCmd)
 
 	tidyCmd.Flags().BoolVarP(&tidyAll, "all", "a", false, "Do all tidy work")
 	tidyCmd.Flags().BoolVarP(&tidyDoneTodos, "done", "d", false, "Tidy done todos")

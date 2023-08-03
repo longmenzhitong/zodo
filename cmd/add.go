@@ -89,7 +89,7 @@ Note:
 }
 
 func init() {
-	rootCmd.AddCommand(addCmd)
+	RootCmd.AddCommand(addCmd)
 
 	addCmd.Flags().IntVarP(&parentId, "parent", "p", 0, "Specify parent ID of new todo")
 	addCmd.Flags().StringVarP(&deadline, "deadline", "d", "", `Specify deadline of new todo, accept "yyyy-MM-dd" or "MM-dd"`)

@@ -33,5 +33,5 @@ var rbkCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(rbkCmd)
+	RootCmd.AddCommand(rbkCmd)
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"zodo/cmd"
 	zodo "zodo/src"
 	"zodo/src/todo"
@@ -11,5 +13,10 @@ func main() {
 	todo.Cache.Init()
 	zodo.Id.Init()
 
-	cmd.Execute()
+	if err := cmd.RootCmd.Execute(); err != nil {
+		if err != cmd.SilentErr {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		os.Exit(1)
+	}
 }

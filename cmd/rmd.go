@@ -64,7 +64,7 @@ Need:
 }
 
 func init() {
-	rootCmd.AddCommand(rmdCmd)
+	RootCmd.AddCommand(rmdCmd)
 
 	rmdCmd.Flags().BoolVarP(&copyRemindTime, "copy", "c", false, "Copy remind time of todo")
 }

@@ -45,7 +45,7 @@ Note:
 }
 
 func init() {
-	rootCmd.AddCommand(rmCmd)
+	RootCmd.AddCommand(rmCmd)
 
 	rmCmd.Flags().BoolVarP(&rmRecursively, "recursively", "r", false, "Remove todos and their children recursively")
 }

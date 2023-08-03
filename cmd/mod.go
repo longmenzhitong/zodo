@@ -54,7 +54,7 @@ Param:
 }
 
 func init() {
-	rootCmd.AddCommand(modCmd)
+	RootCmd.AddCommand(modCmd)
 
 	modCmd.Flags().BoolVarP(&copyContent, "copy", "c", false, "Copy content of todo")
 }

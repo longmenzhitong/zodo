@@ -17,16 +17,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"errors"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "zodo",
-	Short: "A command line tool for todo mangement",
-	Long:  `A command line tool for todo mangement.`,
+var SilentErr = errors.New("SilentErr")
+
+// RootCmd represents the base command when called without any subcommands
+var RootCmd = &cobra.Command{
+	Use:           "zodo",
+	Short:         "A command line tool for todo mangement",
+	Long:          `A command line tool for todo mangement.`,
+	SilenceErrors: true,
+	SilenceUsage:  true,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -35,7 +40,7 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -50,5 +55,11 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	RootCmd.SetFlagErrorFunc(func(c *cobra.Command, err error) error {
+		c.Println(err)
+		c.Println(c.UsageString())
+		return SilentErr
+	})
 }

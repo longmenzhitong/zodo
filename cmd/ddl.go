@@ -56,7 +56,7 @@ Param:
 }
 
 func init() {
-	rootCmd.AddCommand(ddlCmd)
+	RootCmd.AddCommand(ddlCmd)
 
 	ddlCmd.Flags().BoolVarP(&copyDeadline, "copy", "c", false, "Copy deadline of todo")
 }
