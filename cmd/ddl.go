@@ -22,8 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var copyDeadline bool
-
 // ddlCmd represents the ddl command
 var ddlCmd = &cobra.Command{
 	Use:   "ddl <id> [deadline]",
@@ -38,7 +36,7 @@ Param:
 			return err
 		}
 
-		if copyDeadline {
+		if copy {
 			return todo.CopyDeadline(id)
 		}
 
@@ -58,5 +56,5 @@ Param:
 func init() {
 	RootCmd.AddCommand(ddlCmd)
 
-	ddlCmd.Flags().BoolVarP(&copyDeadline, "copy", "c", false, "Copy deadline of todo")
+	ddlCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy deadline of todo")
 }

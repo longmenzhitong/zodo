@@ -22,20 +22,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var lsAllStatus bool
-
 // lsCmd represents the ls command
 var lsCmd = &cobra.Command{
 	Use:   "ls [keyword]",
 	Short: "Show todos list",
 	Long:  `Show todos list.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		todo.List(argsToStr(args), lsAllStatus)
+		todo.List(argsToStr(args), all)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(lsCmd)
 
-	lsCmd.Flags().BoolVarP(&lsAllStatus, "all", "a", false, "Show todos in all statuses, including done and hiding todos")
+	lsCmd.Flags().BoolVarP(&all, "all", "a", false, "Show todos in all statuses, including done and hiding todos")
 }

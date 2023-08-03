@@ -22,8 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var copyRemindTime bool
-
 // rmdCmd represents the rmd command
 var rmdCmd = &cobra.Command{
 	Use:   "rmd <id> [remindTime]",
@@ -44,7 +42,7 @@ Need:
 			return err
 		}
 
-		if copyRemindTime {
+		if copy {
 			return todo.CopyRemindTime(id)
 		}
 
@@ -66,5 +64,5 @@ Need:
 func init() {
 	RootCmd.AddCommand(rmdCmd)
 
-	rmdCmd.Flags().BoolVarP(&copyRemindTime, "copy", "c", false, "Copy remind time of todo")
+	rmdCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy remind time of todo")
 }

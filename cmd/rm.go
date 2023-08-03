@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rmRecursively bool
+var recursively bool
 
 // rmCmd represents the rm command
 var rmCmd = &cobra.Command{
@@ -38,7 +38,7 @@ Note:
 		if err != nil {
 			return err
 		}
-		todo.Remove(ids, rmRecursively)
+		todo.Remove(ids, recursively)
 		todo.Save()
 		return nil
 	},
@@ -47,5 +47,5 @@ Note:
 func init() {
 	RootCmd.AddCommand(rmCmd)
 
-	rmCmd.Flags().BoolVarP(&rmRecursively, "recursively", "r", false, "Remove todos and their children recursively")
+	rmCmd.Flags().BoolVarP(&recursively, "recursively", "r", false, "Remove todos and their children recursively")
 }

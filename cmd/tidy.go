@@ -23,9 +23,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tidyAll bool
-var tidyDoneTodos bool
-var tidyFragmentIds bool
+var doneTodos bool
+var fragmentIds bool
 
 // tidyCmd represents the tidy command
 var tidyCmd = &cobra.Command{
@@ -34,14 +33,14 @@ var tidyCmd = &cobra.Command{
 	Long:  `Do some tidy work.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		changed := false
-		if tidyAll || tidyDoneTodos {
+		if all || doneTodos {
 			count := todo.ClearDoneTodo()
 			if count > 0 {
 				zodo.PrintDoneMsg("Clear %d done todos.\n", count)
 				changed = true
 			}
 		}
-		if tidyAll || tidyFragmentIds {
+		if all || fragmentIds {
 			from, to := todo.DefragId()
 			if from != to {
 				zodo.PrintDoneMsg("Defrag ids from %d to %d.\n", from, to)
@@ -58,7 +57,7 @@ var tidyCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(tidyCmd)
 
-	tidyCmd.Flags().BoolVarP(&tidyAll, "all", "a", false, "Do all tidy work")
-	tidyCmd.Flags().BoolVarP(&tidyDoneTodos, "done", "d", false, "Tidy done todos")
-	tidyCmd.Flags().BoolVarP(&tidyFragmentIds, "fragment", "f", false, "Tidy fragment ids")
+	tidyCmd.Flags().BoolVarP(&all, "all", "a", false, "Do all tidy work")
+	tidyCmd.Flags().BoolVarP(&doneTodos, "done", "d", false, "Tidy done todos")
+	tidyCmd.Flags().BoolVarP(&fragmentIds, "fragment", "f", false, "Tidy fragment ids")
 }

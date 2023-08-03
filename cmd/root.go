@@ -25,6 +25,12 @@ import (
 
 var SilentErr = errors.New("SilentErr")
 
+// some common params
+var (
+	all  bool
+	copy bool
+)
+
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:           "zodo",

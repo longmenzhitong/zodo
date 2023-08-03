@@ -22,8 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rmkCopy bool
-
 // rmkCmd represents the rmk command
 var rmkCmd = &cobra.Command{
 	Use:   "rmk <id> [remark]",
@@ -35,7 +33,7 @@ var rmkCmd = &cobra.Command{
 			return err
 		}
 
-		if rmkCopy {
+		if copy {
 			return todo.CopyRemark(id)
 		}
 
@@ -48,5 +46,5 @@ var rmkCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(rmkCmd)
 
-	rmkCmd.Flags().BoolVarP(&rmkCopy, "copy", "c", false, "Copy remark of todo")
+	rmkCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy remark of todo")
 }

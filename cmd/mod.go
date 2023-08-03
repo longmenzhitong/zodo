@@ -23,8 +23,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var copyContent bool
-
 // modCmd represents the mod command
 var modCmd = &cobra.Command{
 	Use:   "mod <id> [content]",
@@ -39,7 +37,7 @@ Param:
 			return err
 		}
 
-		if copyContent {
+		if copy {
 			return todo.CopyContent(id)
 		}
 
@@ -56,5 +54,5 @@ Param:
 func init() {
 	RootCmd.AddCommand(modCmd)
 
-	modCmd.Flags().BoolVarP(&copyContent, "copy", "c", false, "Copy content of todo")
+	modCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy content of todo")
 }
