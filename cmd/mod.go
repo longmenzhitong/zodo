@@ -17,7 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"strconv"
+	zodo "zodo/src"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
@@ -34,20 +34,17 @@ var modCmd = &cobra.Command{
 Param:
   [content] can be empty only when the "-c" flag is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		id, err := strconv.Atoi(args[0])
+		id, content, err := argsToIdAndOptionalStr(args)
 		if err != nil {
 			return err
 		}
 
-		// copy content
 		if copyContent {
 			return todo.CopyContent(id)
 		}
 
-		// modify content
-		_, content, err := argsToIdAndStr(args)
-		if err != nil {
-			return err
+		if content == "" {
+			return &zodo.InvalidInputError{Message: "content must not be empty"}
 		}
 
 		todo.Modify(id, content)
