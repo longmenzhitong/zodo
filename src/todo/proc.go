@@ -148,26 +148,44 @@ func CopyRemark(id int) error {
 	return nil
 }
 
-func SetChild(parentId int, childIds []int, append bool) error {
+func SetChild(parentId int, childIds []int, override bool) error {
+	noParent := parentId == 0
+	noChild := len(childIds) == 0
+	if noParent && noChild {
+		return nil
+	}
+
+	if noParent {
+		for _, childId := range childIds {
+			child := Cache.get(childId)
+			if child.ParentId != 0 {
+				parent := Cache.get(child.ParentId)
+				delete(parent.Children, childId)
+				child.ParentId = 0
+			}
+		}
+		return nil
+	}
+
 	parent := Cache.get(parentId)
-	if !append && parent.hasChildren() {
+	if (override || noChild) && parent.hasChildren() {
 		for childId := range parent.Children {
 			Cache.get(childId).ParentId = 0
 		}
 	}
-	if !append || parent.Children == nil {
+	if override || noChild || parent.Children == nil {
 		parent.Children = make(map[int]bool, 0)
 	}
+
 	for _, childId := range childIds {
 		child := Cache.get(childId)
 		if child.ParentId != 0 {
 			delete(Cache.get(child.ParentId).Children, childId)
 		}
-
 		child.ParentId = parentId
 		parent.Children[childId] = true
 
-		// for swap parent and child
+		// 父子任务互相交换的场景
 		if parent.ParentId == childId {
 			parent.ParentId = 0
 		}

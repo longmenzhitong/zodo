@@ -28,9 +28,14 @@ var overwriteOtherChildren bool
 
 // childCmd represents the child command
 var childCmd = &cobra.Command{
-	Use:   "child <parentId> <childId>...",
+	Use:   "child <parentId> [childId]...",
 	Short: "Add child of todo",
 	Long: `Add child of todo.
+
+Param:
+  Number 0 is a special parent ID which means no parent. So "child 0 <childId>..."
+  will unparent the specified child todos. Besides, "child <parentId>" will unchild
+  the specified parent todo.
 
 Note:
   By default, parent todos which have at least one child do not show their status
@@ -40,12 +45,21 @@ Note:
 		if err != nil {
 			return err
 		}
-		if len(ids) < 2 {
+
+		if len(ids) == 0 {
 			return &zodo.InvalidInputError{
-				Message: fmt.Sprintf("expect: <parentId> <childId>..., got: %v", args),
+				Message: fmt.Sprintf("expect: <parentId> [childId]..., got: %v", args),
 			}
 		}
-		err = todo.SetChild(ids[0], ids[1:], !overwriteOtherChildren)
+
+		parentId := ids[0]
+		var childIds []int
+		if len(ids) == 1 {
+			childIds = []int{}
+		} else {
+			childIds = ids[1:]
+		}
+		err = todo.SetChild(parentId, childIds, overwriteOtherChildren)
 		if err != nil {
 			return err
 		}

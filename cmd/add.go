@@ -46,7 +46,7 @@ Note:
 		}
 
 		if parentId != 0 {
-			err = todo.SetChild(parentId, []int{id}, true)
+			err = todo.SetChild(parentId, []int{id}, false)
 			if err != nil {
 				return err
 			}
