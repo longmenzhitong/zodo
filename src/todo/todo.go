@@ -20,13 +20,6 @@ const (
 	StatusHiding     Status = "Hiding"
 )
 
-var statusPriority = map[Status]int{
-	StatusHiding:     -1,
-	StatusDone:       0,
-	StatusPending:    1,
-	StatusProcessing: 2,
-}
-
 type todo struct {
 	Id           int
 	Content      string
@@ -41,6 +34,7 @@ type todo struct {
 	ParentId     int
 	Children     map[int]bool
 	Level        int
+	Priority     int
 }
 
 func (t *todo) getStatus(colorful bool) string {
@@ -246,28 +240,8 @@ func sortTodo(tds []*todo) []*todo {
 		a := tds[i]
 		b := tds[j]
 
-		if a.Status != b.Status {
-			return statusPriority[a.Status] > statusPriority[b.Status]
-		}
-
-		if a.Status == StatusDone && b.Status == StatusDone {
-			return a.Id < b.Id
-		}
-
-		if a.Deadline != b.Deadline {
-			if a.Deadline != "" && b.Deadline != "" {
-				ta, err := time.Parse(zodo.LayoutDate, a.Deadline)
-				if err != nil {
-					panic(err)
-				}
-				tb, err := time.Parse(zodo.LayoutDate, b.Deadline)
-				if err != nil {
-					panic(err)
-				}
-				return ta.Unix() < tb.Unix()
-			} else {
-				return a.Deadline != ""
-			}
+		if a.Priority != b.Priority {
+			return a.Priority > b.Priority
 		}
 
 		return a.Id < b.Id

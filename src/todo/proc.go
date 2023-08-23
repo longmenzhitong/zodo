@@ -71,6 +71,7 @@ func Detail(id int) error {
 	rows = append(rows, table.Row{"CreateTime", td.getCreateTime()})
 	rows = append(rows, table.Row{"Parent", td.getParentId()})
 	rows = append(rows, table.Row{"Children", td.getChildren()})
+	rows = append(rows, table.Row{"Priority", td.Priority})
 	zodo.PrintTable(&table.Row{"Item", "Val"}, rows)
 	return nil
 }
@@ -264,4 +265,11 @@ func Statistics() {
 	rows = append(rows, table.Row{zodo.ColoredString(zodo.Config.Todo.Color.Status.Done, string(StatusDone)), done})
 	rows = append(rows, table.Row{"NextId", zodo.Id.GetNext()})
 	zodo.PrintTable(&table.Row{"Item", "Value"}, rows)
+}
+
+func Urge(id int) {
+	td := Cache.get(id)
+	if td != nil {
+		td.Priority += 1
+	}
 }
