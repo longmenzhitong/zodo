@@ -273,3 +273,10 @@ func AddPriority(id, p int) {
 		td.Priority += p
 	}
 }
+
+func SetPriority(id, p int) {
+	td := Cache.get(id)
+	if td != nil {
+		td.Priority = p
+	}
+}

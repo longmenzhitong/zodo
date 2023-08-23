@@ -23,6 +23,7 @@ import (
 )
 
 var decreasePriority bool
+var restorePriority bool
 
 // urgeCmd represents the urge command
 var urgeCmd = &cobra.Command{
@@ -36,16 +37,20 @@ Todos with higher priority will be at the top of the list.`,
 			return err
 		}
 
-		var p int
-		if decreasePriority {
-			p = -1
-		} else {
-			p = 1
+		for _, id := range ids {
+			if restorePriority {
+				todo.SetPriority(id, 0)
+			} else {
+				var p int
+				if decreasePriority {
+					p = -1
+				} else {
+					p = 1
+				}
+				todo.AddPriority(id, p)
+			}
 		}
 
-		for _, id := range ids {
-			todo.AddPriority(id, p)
-		}
 		todo.Save()
 		return nil
 	},
@@ -55,4 +60,5 @@ func init() {
 	RootCmd.AddCommand(urgeCmd)
 
 	urgeCmd.Flags().BoolVarP(&decreasePriority, "decrease", "d", false, "Decrease the priority of specified todo")
+	urgeCmd.Flags().BoolVarP(&restorePriority, "restore", "r", false, "Restore the priority of specified todo")
 }
