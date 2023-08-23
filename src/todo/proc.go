@@ -267,9 +267,9 @@ func Statistics() {
 	zodo.PrintTable(&table.Row{"Item", "Value"}, rows)
 }
 
-func Urge(id int) {
+func AddPriority(id, p int) {
 	td := Cache.get(id)
 	if td != nil {
-		td.Priority += 1
+		td.Priority += p
 	}
 }

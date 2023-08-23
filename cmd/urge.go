@@ -22,9 +22,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var decreasePriority bool
+
 // urgeCmd represents the urge command
 var urgeCmd = &cobra.Command{
-	Use:   "urge <id>",
+	Use:   "urge <id>...",
 	Short: "Raise the priority of specified todo",
 	Long: `Raise the priority of specified todo. 
 Todos with higher priority will be at the top of the list.`,
@@ -33,7 +35,17 @@ Todos with higher priority will be at the top of the list.`,
 		if err != nil {
 			return err
 		}
-		todo.Urge(ids[0])
+
+		var p int
+		if decreasePriority {
+			p = -1
+		} else {
+			p = 1
+		}
+
+		for _, id := range ids {
+			todo.AddPriority(id, p)
+		}
 		todo.Save()
 		return nil
 	},
@@ -42,13 +54,5 @@ Todos with higher priority will be at the top of the list.`,
 func init() {
 	RootCmd.AddCommand(urgeCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// urgeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// urgeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	urgeCmd.Flags().BoolVarP(&decreasePriority, "decrease", "d", false, "Decrease the priority of specified todo")
 }

@@ -35,6 +35,7 @@ var pendCmd = &cobra.Command{
 
 		for _, id := range ids {
 			todo.SetStatus(id, todo.StatusPending)
+			todo.AddPriority(id, -1)
 		}
 		todo.Save()
 		return nil

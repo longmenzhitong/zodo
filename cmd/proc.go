@@ -36,6 +36,7 @@ var procCmd = &cobra.Command{
 
 		for _, id := range ids {
 			todo.SetStatus(id, todo.StatusProcessing)
+			todo.AddPriority(id, 1)
 		}
 		todo.Save()
 		return nil
