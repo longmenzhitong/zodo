@@ -55,6 +55,10 @@ func List(keyword string, allStatus bool) {
 	zodo.PrintTable(&title, rows)
 }
 
+func Get(id int) *todo {
+	return Cache.get(id)
+}
+
 func Detail(id int) error {
 	td := Cache.get(id)
 	if td == nil {
@@ -109,14 +113,6 @@ func Modify(id int, content string) {
 	if td != nil {
 		td.Content = content
 	}
-}
-
-func CopyContent(id int) error {
-	td := Cache.get(id)
-	if td != nil {
-		return zodo.WriteLineToClipboard(td.Content)
-	}
-	return nil
 }
 
 func Remove(ids []int, recursively bool) {

@@ -98,3 +98,31 @@ func PrintDoneMsg(format string, a ...interface{}) {
 	msg := fmt.Sprintf(format, a...)
 	fmt.Printf("%s %s", ColoredString(ColorBlue, "==>"), msg)
 }
+
+func EditByVim(origin string) (string, error) {
+	path := CurrentPath("vim_tmp")
+	RewriteLinesToPath(path, []string{origin})
+	defer os.Remove(path)
+
+	err := invokeVim(path)
+	if err != nil {
+		return origin, err
+	}
+
+	var edited string
+	lines := ReadLinesFromPath(path)
+	if len(lines) == 0 {
+		edited = ""
+	} else {
+		edited = lines[0]
+	}
+	return edited, nil
+}
+
+func invokeVim(filename string) error {
+	cmd := exec.Command(Config.Todo.Editor, filename)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}

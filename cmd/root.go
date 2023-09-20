@@ -28,7 +28,7 @@ var SilentErr = errors.New("SilentErr")
 // some common params
 var (
 	all  bool
-	copy bool
+	copy bool // TODO 删掉
 )
 
 // RootCmd represents the base command when called without any subcommands

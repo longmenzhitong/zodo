@@ -26,23 +26,23 @@ import (
 // modCmd represents the mod command
 var modCmd = &cobra.Command{
 	Use:   "mod <id> [content]",
-	Short: "Modify or copy content of todo",
-	Long: `Modify or copy content of todo.
-
-Param:
-  [content] can be empty only when the "-c" flag is used.`,
+	Short: "Modify content of todo",
+	Long:  `Modify content of todo.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, content, err := argsToIdAndOptionalStr(args)
 		if err != nil {
 			return err
 		}
 
-		if copy {
-			return todo.CopyContent(id)
-		}
-
 		if content == "" {
-			return &zodo.InvalidInputError{Message: "content must not be empty"}
+			td := todo.Get(id)
+			content, err = zodo.EditByVim(td.Content)
+			if err != nil {
+				return err
+			}
+			if content == "" {
+				return &zodo.InvalidInputError{Message: "content must not be empty"}
+			}
 		}
 
 		todo.Modify(id, content)
@@ -53,6 +53,4 @@ Param:
 
 func init() {
 	RootCmd.AddCommand(modCmd)
-
-	modCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy content of todo")
 }

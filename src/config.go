@@ -22,6 +22,7 @@ const (
 	defaultNormalDeadlineColor   = ColorGreen
 	defaultNervousDeadlineColor  = ColorYellow
 	defaultOverdueDeadlineColor  = ColorRed
+	defaultEditor                = "vim"
 )
 
 const configFileName = "config.yml"
@@ -45,9 +46,10 @@ type config struct {
 				Overdue string `yaml:"overdue"`
 			} `yaml:"deadline"`
 		} `yaml:"color"`
-		ShowDone         bool `yaml:"showDone"`
-		ShowParentStatus bool `yaml:"showParentStatus"`
-		CopyIdAfterAdd   bool `yaml:"copyIdAfterAdd"`
+		ShowDone         bool   `yaml:"showDone"`
+		ShowParentStatus bool   `yaml:"showParentStatus"`
+		CopyIdAfterAdd   bool   `yaml:"copyIdAfterAdd"`
+		Editor           string `yaml:"editor"`
 	} `yaml:"todo"`
 	Storage struct {
 		Type  string `yaml:"type"`
@@ -130,6 +132,10 @@ func (c *config) check() {
 	}
 	if c.Todo.Color.Deadline.Overdue == "" {
 		c.Todo.Color.Deadline.Overdue = defaultOverdueDeadlineColor
+	}
+
+	if c.Todo.Editor == "" {
+		c.Todo.Editor = defaultEditor
 	}
 
 	if c.Storage.Type == "" {
