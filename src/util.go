@@ -78,7 +78,6 @@ func WriteLinesToClipboard(lines []string) error {
 		return err
 	}
 
-	fmt.Println("(Copied.)")
 	return nil
 }
 
