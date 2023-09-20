@@ -8,6 +8,14 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
+type RecurseType int
+
+const (
+	NoRecurse RecurseType = iota
+	RecurseParent
+	RecurseChild
+)
+
 func List(keyword string, allStatus bool) {
 	rows := make([]table.Row, 0)
 	showDeadline := false
@@ -197,18 +205,26 @@ func SetChild(parentId int, childIds []int, override bool) error {
 	return nil
 }
 
-func SetStatus(id int, status Status) {
+func SetStatus(id int, status Status, recurseType RecurseType) {
 	td := Cache.get(id)
 	if td == nil {
 		return
 	}
 	td.Status = status
-	if !td.hasChildren() {
+
+	switch recurseType {
+	case NoRecurse:
 		return
-	}
-	// FIXME: 应该影响子任务的状态吗？
-	for childId := range td.Children {
-		SetStatus(childId, status)
+	case RecurseParent:
+		if td.ParentId != 0 {
+			SetStatus(td.ParentId, status, recurseType)
+		}
+	case RecurseChild:
+		if td.hasChildren() {
+			for childId := range td.Children {
+				SetStatus(childId, status, recurseType)
+			}
+		}
 	}
 }
 

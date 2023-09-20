@@ -38,7 +38,7 @@ Note:
 		}
 
 		for _, id := range ids {
-			todo.SetStatus(id, todo.StatusDone)
+			todo.SetStatus(id, todo.StatusDone, todo.NoRecurse)
 		}
 		todo.Save()
 		return nil
