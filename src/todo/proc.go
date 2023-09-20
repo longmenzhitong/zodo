@@ -130,14 +130,6 @@ func SetDeadline(id int, deadline string) {
 	}
 }
 
-func CopyDeadline(id int) error {
-	td := Cache.get(id)
-	if td != nil {
-		return zodo.WriteLineToClipboard(td.Deadline)
-	}
-	return nil
-}
-
 func SetRemark(id int, remark string) {
 	td := Cache.get(id)
 	if td != nil {

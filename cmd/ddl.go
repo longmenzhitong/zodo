@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	zodo "zodo/src"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
@@ -25,8 +26,8 @@ import (
 // ddlCmd represents the ddl command
 var ddlCmd = &cobra.Command{
 	Use:   "ddl <id> [deadline]",
-	Short: "Set or copy deadline of todo",
-	Long: `Set or copy deadline of todo.
+	Short: "Set deadline of todo",
+	Long: `Set deadline of todo.
 
 Param:
   [deadline] can be "yyyy-MM-dd" or "MM-dd" or empty.`,
@@ -36,8 +37,12 @@ Param:
 			return err
 		}
 
-		if copy {
-			return todo.CopyDeadline(id)
+		if deadline == "" {
+			td := todo.Get(id)
+			deadline, err = zodo.EditByVim(td.Deadline)
+			if err != nil {
+				return err
+			}
 		}
 
 		if deadline != "" {
@@ -55,6 +60,4 @@ Param:
 
 func init() {
 	RootCmd.AddCommand(ddlCmd)
-
-	ddlCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy deadline of todo")
 }
