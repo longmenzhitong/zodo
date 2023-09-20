@@ -40,7 +40,15 @@ Note:
   This command will write the id of new todo into clipboard for further use. 
   Set the config "todo.copyIdAfterAdd" to "false" to disable this feature.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		id, err := todo.Add(argsToStr(args))
+		content := argsToStr(args)
+		if content == "" {
+			c, err := zodo.EditByVim("")
+			if err != nil {
+				return err
+			}
+			content = c
+		}
+		id, err := todo.Add(content)
 		if err != nil {
 			return err
 		}
