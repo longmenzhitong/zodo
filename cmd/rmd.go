@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	zodo "zodo/src"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
@@ -25,8 +26,8 @@ import (
 // rmdCmd represents the rmd command
 var rmdCmd = &cobra.Command{
 	Use:   "rmd <id> [remindTime]",
-	Short: "Set or copy remind time of todo",
-	Long: `Set or copy remind time of todo.
+	Short: "Set remind time of todo",
+	Long: `Set remind time of todo.
 
 Param:
   [remindTime] can be "yyyy-MM-dd HH:mm" or "MM-dd HH:mm" or "HH:mm" or empty.
@@ -42,8 +43,12 @@ Need:
 			return err
 		}
 
-		if copy {
-			return todo.CopyRemindTime(id)
+		if remindTime == "" {
+			td := todo.Get(id)
+			remindTime, err = zodo.EditByVim(td.RemindTime)
+			if err != nil {
+				return err
+			}
 		}
 
 		if remindTime != "" {
@@ -63,6 +68,4 @@ Need:
 
 func init() {
 	RootCmd.AddCommand(rmdCmd)
-
-	rmdCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy remind time of todo")
 }

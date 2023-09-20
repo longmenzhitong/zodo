@@ -73,14 +73,6 @@ func SetRemind(id int, remindTime string) error {
 	return nil
 }
 
-func CopyRemindTime(id int) error {
-	td := Cache.get(id)
-	if td != nil {
-		return zodo.WriteLineToClipboard(td.RemindTime)
-	}
-	return nil
-}
-
 func RemoveRemind(ids []int) {
 	for _, id := range ids {
 		td := Cache.get(id)
