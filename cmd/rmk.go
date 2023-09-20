@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	zodo "zodo/src"
 	"zodo/src/todo"
 
 	"github.com/spf13/cobra"
@@ -25,16 +26,20 @@ import (
 // rmkCmd represents the rmk command
 var rmkCmd = &cobra.Command{
 	Use:   "rmk <id> [remark]",
-	Short: "Set or copy remark of todo",
-	Long:  `Set or copy remark of todo.`,
+	Short: "Set remark of todo",
+	Long:  `Set remark of todo.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, remark, err := argsToIdAndOptionalStr(args)
 		if err != nil {
 			return err
 		}
 
-		if copy {
-			return todo.CopyRemark(id)
+		if remark == "" {
+			td := todo.Get(id)
+			remark, err = zodo.EditByVim(td.Remark)
+			if err != nil {
+				return err
+			}
 		}
 
 		todo.SetRemark(id, remark)
@@ -45,6 +50,4 @@ var rmkCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(rmkCmd)
-
-	rmkCmd.Flags().BoolVarP(&copy, "copy", "c", false, "Copy remark of todo")
 }

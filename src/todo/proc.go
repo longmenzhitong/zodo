@@ -137,14 +137,6 @@ func SetRemark(id int, remark string) {
 	}
 }
 
-func CopyRemark(id int) error {
-	td := Cache.get(id)
-	if td != nil {
-		return zodo.WriteLineToClipboard(td.Remark)
-	}
-	return nil
-}
-
 func SetChild(parentId int, childIds []int, override bool) error {
 	noParent := parentId == 0
 	noChild := len(childIds) == 0
