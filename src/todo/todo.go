@@ -164,6 +164,15 @@ func hitKeyword(td *todo, keyword string) bool {
 	content := strings.ToLower(td.Content)
 	keyword = strings.ToLower(keyword)
 	if strings.Contains(content, keyword) {
+		// 给命中的关键词添加颜色
+		kl := len(keyword)
+		i := strings.Index(content, keyword)
+
+		head := td.Content[:i]
+		coloredKeyword := zodo.ColoredString(zodo.ColorHiYellow, td.Content[i:i+kl])
+		tail := td.Content[i+kl:]
+
+		td.Content = head + coloredKeyword + tail
 		return true
 	}
 
