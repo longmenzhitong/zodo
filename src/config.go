@@ -8,11 +8,6 @@ import (
 )
 
 const (
-	StorageTypeRedis = "redis"
-	StorageTypeFile  = "file"
-)
-
-const (
 	defaultPadding               = 2
 	defaultTableMaxLength        = 200
 	defaultPendingStatusColor    = ColorMagenta
@@ -51,7 +46,8 @@ type config struct {
 		CopyIdAfterAdd   bool   `yaml:"copyIdAfterAdd"`
 		Editor           string `yaml:"editor"`
 	} `yaml:"todo"`
-	Storage struct {
+	Sync struct {
+		Auto  bool   `yaml:"auto"`
 		Type  string `yaml:"type"`
 		Redis struct {
 			Address  string `yaml:"address"`
@@ -59,7 +55,7 @@ type config struct {
 			Db       int    `yaml:"db"`
 			Localize bool   `yaml:"localize"`
 		} `yaml:"redis"`
-	} `yaml:"storage"`
+	} `yaml:"sync"`
 	Reminder struct {
 		Enabled bool   `yaml:"enabled"`
 		Cron    string `yaml:"cron"`
@@ -138,7 +134,4 @@ func (c *config) check() {
 		c.Todo.Editor = defaultEditor
 	}
 
-	if c.Storage.Type == "" {
-		c.Storage.Type = StorageTypeFile
-	}
 }

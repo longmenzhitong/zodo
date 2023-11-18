@@ -1,7 +1,6 @@
 package zodo
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -13,15 +12,13 @@ const (
 var Id id
 
 type id struct {
-	storageType string
-	path        string
-	backupPath  string
+	path       string
+	backupPath string
 
 	next int
 }
 
 func (i *id) Init() {
-	i.storageType = Config.Storage.Type
 	i.path = Path(idFileName)
 	i.backupPath = i.path + ".backup"
 
@@ -52,16 +49,18 @@ func (i *id) Rollback() {
 }
 
 func (i *id) readNext() int {
-	switch i.storageType {
-	case StorageTypeFile:
-		return getIdFromPath(i.path)
-	case StorageTypeRedis:
-		return getIdFromRedis()
-	default:
-		panic(&InvalidConfigError{
-			Message: fmt.Sprintf("storage.type: %s", i.storageType),
-		})
-	}
+	// TODO 自动同步
+	return getIdFromPath(i.path)
+	// switch i.storageType {
+	// case StorageTypeFile:
+	// 	return getIdFromPath(i.path)
+	// case StorageTypeRedis:
+	// 	return getIdFromRedis()
+	// default:
+	// 	panic(&InvalidConfigError{
+	// 		Message: fmt.Sprintf("storage.type: %s", i.storageType),
+	// 	})
+	// }
 }
 
 func getIdFromPath(path string) int {
@@ -93,19 +92,22 @@ func getIdFromRedis() int {
 }
 
 func (i *id) writeNext(id int) {
-	switch i.storageType {
-	case StorageTypeFile:
-		RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
-		return
-	case StorageTypeRedis:
-		Redis().Set(idRedisKey, id, 0)
-		if Config.Storage.Redis.Localize {
-			RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
-		}
-		return
-	default:
-		panic(&InvalidConfigError{
-			Message: fmt.Sprintf("storage.type: %s", i.storageType),
-		})
-	}
+	RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
+	// TODO 自动同步
+	return
+	// switch i.storageType {
+	// case StorageTypeFile:
+	// 	RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
+	// 	return
+	// case StorageTypeRedis:
+	// 	Redis().Set(idRedisKey, id, 0)
+	// 	if Config.Storage.Redis.Localize {
+	// 		RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
+	// 	}
+	// 	return
+	// default:
+	// 	panic(&InvalidConfigError{
+	// 		Message: fmt.Sprintf("storage.type: %s", i.storageType),
+	// 	})
+	// }
 }

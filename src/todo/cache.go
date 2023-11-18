@@ -19,7 +19,7 @@ func (c *cache) Init() {
 
 func (c *cache) refresh() {
 	newData := make([]*todo, 0)
-	for _, line := range readTodoLines(zodo.Config.Storage.Type) {
+	for _, line := range readTodoLines() {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {
@@ -32,7 +32,7 @@ func (c *cache) refresh() {
 
 func (c *cache) save() {
 	// backup first
-	zodo.RewriteLinesToPath(backupPath, readTodoLines(zodo.Config.Storage.Type))
+	zodo.RewriteLinesToPath(backupPath, readTodoLines())
 
 	lines := make([]string, 0)
 	for _, td := range c.data {
@@ -42,7 +42,7 @@ func (c *cache) save() {
 		}
 		lines = append(lines, string(js))
 	}
-	writeTodoLines(lines, zodo.Config.Storage.Type)
+	writeTodoLines(lines)
 }
 
 func (c *cache) list(keyword string, allStatus bool) []todo {

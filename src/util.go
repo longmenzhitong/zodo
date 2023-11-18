@@ -17,9 +17,9 @@ var redisClient *redis.Client
 func Redis() *redis.Client {
 	if redisClient == nil {
 		rc := redis.NewClient(&redis.Options{
-			Addr:     Config.Storage.Redis.Address,
-			Password: Config.Storage.Redis.Password,
-			DB:       Config.Storage.Redis.Db,
+			Addr:     Config.Sync.Redis.Address,
+			Password: Config.Sync.Redis.Password,
+			DB:       Config.Sync.Redis.Db,
 		})
 		_, err := rc.Ping().Result()
 		if err != nil {
