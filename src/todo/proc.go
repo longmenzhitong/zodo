@@ -225,7 +225,7 @@ func padding(level int) string {
 }
 
 func Rollback() {
-	writeTodoLines(zodo.ReadLinesFromPath(backupPath))
+	zodo.RewriteLinesToPath(path, zodo.ReadLinesFromPath(backupPath))
 	zodo.Id.Rollback()
 }
 
