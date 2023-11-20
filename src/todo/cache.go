@@ -18,8 +18,12 @@ func (c *cache) Init() {
 }
 
 func (c *cache) refresh() {
+	c.set(zodo.ReadLinesFromPath(path))
+}
+
+func (c *cache) set(lines []string) {
 	newData := make([]*todo, 0)
-	for _, line := range zodo.ReadLinesFromPath(path) {
+	for _, line := range lines {
 		var td todo
 		err := json.Unmarshal([]byte(line), &td)
 		if err != nil {

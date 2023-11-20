@@ -74,10 +74,9 @@ func Pull() error {
 		}
 	}
 
-	if len(data) > 0 {
-		zodo.RewriteLinesToPath(path, data)
-	}
-	if id > 0 {
+	if len(data) > 0 && id > 0 {
+		Cache.set(data)
+		Cache.save()
 		zodo.Id.SetNext(id)
 	}
 

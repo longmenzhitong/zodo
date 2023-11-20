@@ -94,7 +94,7 @@ func Add(content string) (int, error) {
 			Message: fmt.Sprint("empty content"),
 		}
 	}
-	id := zodo.Id.SetGetNext()
+	id := zodo.Id.GetSetNext()
 	Cache.add(todo{
 		Id:         id,
 		Content:    content,

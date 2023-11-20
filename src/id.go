@@ -24,9 +24,10 @@ func (i *id) Init() {
 	i.next = i.readNext()
 }
 
-func (i *id) SetGetNext() int {
-	i.SetNext(i.next + 1)
-	return i.GetNext()
+func (i *id) GetSetNext() int {
+	next := i.GetNext()
+	i.SetNext(next + 1)
+	return next
 }
 
 func (i *id) GetNext() int {
