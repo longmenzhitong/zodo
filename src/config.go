@@ -53,13 +53,11 @@ type config struct {
 		Editor           string `yaml:"editor"`
 	} `yaml:"todo"`
 	Sync struct {
-		Auto  bool   `yaml:"auto"`
 		Type  string `yaml:"type"`
 		Redis struct {
 			Address  string `yaml:"address"`
 			Password string `yaml:"password"`
 			Db       int    `yaml:"db"`
-			Localize bool   `yaml:"localize"`
 		} `yaml:"redis"`
 	} `yaml:"sync"`
 	Reminder struct {
