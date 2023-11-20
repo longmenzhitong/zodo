@@ -138,10 +138,7 @@ func (t *todo) isVisible() bool {
 	return true
 }
 
-const (
-	fileName = "todo"
-	redisKey = "zd:todo"
-)
+const fileName = "todo"
 
 var (
 	path       string

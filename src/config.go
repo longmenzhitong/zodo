@@ -8,17 +8,23 @@ import (
 )
 
 const (
-	defaultPadding               = 2
-	defaultTableMaxLength        = 200
-	defaultPendingStatusColor    = ColorMagenta
-	defaultProcessingStatusColor = ColorCyan
-	defaultDoneStatusColor       = ColorBlue
-	defaultHidingStatusColor     = ColorBlack
-	defaultNormalDeadlineColor   = ColorGreen
-	defaultNervousDeadlineColor  = ColorYellow
-	defaultOverdueDeadlineColor  = ColorRed
-	defaultEditor                = "vim"
+	defaultPadding        = 2
+	defaultTableMaxLength = 200
 )
+
+const (
+	defaultColorStatusPending    = ColorMagenta
+	defaultColorStatusProcessing = ColorCyan
+	defaultColorStatusDone       = ColorBlue
+	defaultColorStatusHiding     = ColorBlack
+	defaultColorDeadlineNormal   = ColorGreen
+	defaultColorDeadlineNervous  = ColorYellow
+	defaultColorDeadlineOverdue  = ColorRed
+)
+
+const defaultEditor = "vim"
+
+const SyncTypeRedis = "redis"
 
 const configFileName = "config.yml"
 
@@ -109,25 +115,25 @@ func (c *config) check() {
 		c.Todo.TableMaxLength = defaultTableMaxLength
 	}
 	if c.Todo.Color.Status.Pending == "" {
-		c.Todo.Color.Status.Pending = defaultPendingStatusColor
+		c.Todo.Color.Status.Pending = defaultColorStatusPending
 	}
 	if c.Todo.Color.Status.Processing == "" {
-		c.Todo.Color.Status.Processing = defaultProcessingStatusColor
+		c.Todo.Color.Status.Processing = defaultColorStatusProcessing
 	}
 	if c.Todo.Color.Status.Done == "" {
-		c.Todo.Color.Status.Done = defaultDoneStatusColor
+		c.Todo.Color.Status.Done = defaultColorStatusDone
 	}
 	if c.Todo.Color.Status.Hiding == "" {
-		c.Todo.Color.Status.Hiding = defaultHidingStatusColor
+		c.Todo.Color.Status.Hiding = defaultColorStatusHiding
 	}
 	if c.Todo.Color.Deadline.Normal == "" {
-		c.Todo.Color.Deadline.Normal = defaultNormalDeadlineColor
+		c.Todo.Color.Deadline.Normal = defaultColorDeadlineNormal
 	}
 	if c.Todo.Color.Deadline.Nervous == "" {
-		c.Todo.Color.Deadline.Nervous = defaultNervousDeadlineColor
+		c.Todo.Color.Deadline.Nervous = defaultColorDeadlineNervous
 	}
 	if c.Todo.Color.Deadline.Overdue == "" {
-		c.Todo.Color.Deadline.Overdue = defaultOverdueDeadlineColor
+		c.Todo.Color.Deadline.Overdue = defaultColorDeadlineOverdue
 	}
 
 	if c.Todo.Editor == "" {
