@@ -36,7 +36,7 @@ func Push() error {
 		return nil
 	default:
 		return &zodo.InvalidConfigError{
-			Message: fmt.Sprintf("sync.type: %s", zodo.Config.Sync.Type),
+			Message: fmt.Sprintf("sync.type: %s, expect 'redis'", zodo.Config.Sync.Type),
 		}
 	}
 }
@@ -70,7 +70,7 @@ func Pull() error {
 		}
 	default:
 		return &zodo.InvalidConfigError{
-			Message: fmt.Sprintf("sync.type: %s", zodo.Config.Sync.Type),
+			Message: fmt.Sprintf("sync.type: %s, expect 'redis'", zodo.Config.Sync.Type),
 		}
 	}
 
