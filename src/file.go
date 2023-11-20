@@ -47,6 +47,10 @@ func WriteLinesToPath(path string, lines []string, mod int) {
 	if err != nil {
 		panic(err)
 	}
+	defer func() {
+		_ = f.Close()
+	}()
+
 	writeLinesToFile(f, lines)
 }
 

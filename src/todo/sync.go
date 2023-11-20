@@ -53,11 +53,10 @@ func Push() error {
 }
 
 func Pull() error {
-	var data []string
-	var id int
-
 	switch zodo.Config.Sync.Type {
 	case zodo.SyncTypeRedis:
+		var data []string
+		var id int
 		// 拉取数据
 		cmd := zodo.Redis().Get(redisKeyData)
 		dataJson, err := cmd.Result()
@@ -68,7 +67,6 @@ func Pull() error {
 		if err != nil {
 			return err
 		}
-
 		// 拉取ID
 		cmd = zodo.Redis().Get(redisKeyId)
 		idStr, err := cmd.Result()
@@ -79,17 +77,27 @@ func Pull() error {
 		if err != nil {
 			return err
 		}
+		if len(data) > 0 && id > 0 {
+			// 备份并写入数据
+			Cache.set(data)
+			Cache.save()
+			// 备份并写入ID
+			zodo.Id.SetNext(id)
+		}
+		return nil
+	case zodo.SyncTypeS3:
+		// 备份数据
+		Cache.save()
+		// 备份ID
+		zodo.Id.Backup()
+		// 拉取并写入数据
+		zodo.PullFromS3(path, s3ObjectKeyData)
+		// 拉取并写入ID
+		zodo.PullFromS3(zodo.Id.Path, s3ObjectKeyId)
+		return nil
 	default:
 		return invalidSyncTypeConfigError()
 	}
-
-	if len(data) > 0 && id > 0 {
-		Cache.set(data)
-		Cache.save()
-		zodo.Id.SetNext(id)
-	}
-
-	return nil
 }
 
 func invalidSyncTypeConfigError() error {
