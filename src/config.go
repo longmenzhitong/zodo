@@ -24,13 +24,16 @@ const (
 
 const defaultEditor = "vim"
 
-const SyncTypeRedis = "redis"
+const (
+	SyncTypeRedis = "redis"
+	SyncTypeS3    = "s3"
+)
 
 const configFileName = "config.yml"
 
-var Config config
+var Config zdcfg
 
-type config struct {
+type zdcfg struct {
 	Todo struct {
 		Padding        int `yaml:"padding"`
 		TableMaxLength int `yaml:"tableMaxLength"`
@@ -59,6 +62,9 @@ type config struct {
 			Password string `yaml:"password"`
 			Db       int    `yaml:"db"`
 		} `yaml:"redis"`
+		S3 struct {
+			Bucket string `yaml:"bucket"`
+		} `yaml:"s3"`
 	} `yaml:"sync"`
 	Reminder struct {
 		Enabled bool   `yaml:"enabled"`
@@ -73,7 +79,7 @@ type config struct {
 	} `yaml:"email"`
 }
 
-func (c *config) Init() {
+func (c *zdcfg) Init() {
 	dir := ProjectDir()
 	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
 		err = os.Mkdir(dir, os.ModePerm)
@@ -84,7 +90,7 @@ func (c *config) Init() {
 
 	configPath := Path(configFileName)
 	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
-		Config = config{}
+		Config = zdcfg{}
 		Config.check()
 		out, err := yaml.Marshal(Config)
 		if err != nil {
@@ -105,7 +111,7 @@ func (c *config) Init() {
 	c.check()
 }
 
-func (c *config) check() {
+func (c *zdcfg) check() {
 	if c.Todo.Padding <= 0 {
 		c.Todo.Padding = defaultPadding
 	}

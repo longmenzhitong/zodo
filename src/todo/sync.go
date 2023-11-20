@@ -4,40 +4,51 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"time"
 	zodo "zodo/src"
 )
 
 const (
-	redisKeyData      = "zodo:data"
-	redisKeyId        = "zodo:id"
-	redisKeyTimestamp = "zodo:timestamp"
+	redisKeyData = "zodo:data"
+	redisKeyId   = "zodo:id"
+)
+
+const (
+	s3ObjectKeyData = "zodo_data"
+	s3ObjectKeyId   = "zodo_id"
 )
 
 func Push() error {
 	data := zodo.ReadLinesFromPath(path)
 	id := zodo.Id.GetNext()
-	ts := time.Now().Unix()
 
 	switch zodo.Config.Sync.Type {
 	case zodo.SyncTypeRedis:
 		// 推送数据
 		dataJson, err := json.Marshal(data)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		zodo.Redis().Set(redisKeyData, dataJson, 0)
 
 		// 推送ID
 		zodo.Redis().Set(redisKeyId, id, 0)
+		return nil
+	case zodo.SyncTypeS3:
+		// 推送数据
+		err := zodo.PushToS3(path, s3ObjectKeyData)
+		if err != nil {
+			return err
+		}
 
-		// 推送时间戳
-		zodo.Redis().Set(redisKeyTimestamp, ts, 0)
+		// 推送ID
+		err = zodo.PushToS3(zodo.Id.Path, s3ObjectKeyId)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	default:
-		return &zodo.InvalidConfigError{
-			Message: fmt.Sprintf("sync.type: %s, expect 'redis'", zodo.Config.Sync.Type),
-		}
+		return invalidSyncTypeConfigError()
 	}
 }
 
@@ -69,9 +80,7 @@ func Pull() error {
 			return err
 		}
 	default:
-		return &zodo.InvalidConfigError{
-			Message: fmt.Sprintf("sync.type: %s, expect 'redis'", zodo.Config.Sync.Type),
-		}
+		return invalidSyncTypeConfigError()
 	}
 
 	if len(data) > 0 && id > 0 {
@@ -81,4 +90,10 @@ func Pull() error {
 	}
 
 	return nil
+}
+
+func invalidSyncTypeConfigError() error {
+	return &zodo.InvalidConfigError{
+		Message: fmt.Sprintf("sync.type: %s, expect 'redis' or 's3'", zodo.Config.Sync.Type),
+	}
 }

@@ -11,15 +11,15 @@ const (
 var Id id
 
 type id struct {
-	path       string
+	Path       string
 	backupPath string
 
 	next int
 }
 
 func (i *id) Init() {
-	i.path = Path(idFileName)
-	i.backupPath = i.path + ".backup"
+	i.Path = Path(idFileName)
+	i.backupPath = i.Path + ".backup"
 
 	i.next = i.readNext()
 }
@@ -49,7 +49,7 @@ func (i *id) Rollback() {
 }
 
 func (i *id) readNext() int {
-	return getIdFromPath(i.path)
+	return getIdFromPath(i.Path)
 }
 
 func getIdFromPath(path string) int {
@@ -68,6 +68,6 @@ func getIdFromPath(path string) int {
 }
 
 func (i *id) writeNext(id int) {
-	RewriteLinesToPath(i.path, []string{strconv.Itoa(id)})
+	RewriteLinesToPath(i.Path, []string{strconv.Itoa(id)})
 	return
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/atotto/clipboard"
 	"github.com/go-gomail/gomail"
@@ -53,16 +52,6 @@ func PrintTable(header *table.Row, rows []table.Row) {
 		t.AppendSeparator()
 	}
 	t.Render()
-}
-
-func CurrentGitBranch() (string, error) {
-	// 执行 git 命令来获取当前分支名称
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(output)), nil
 }
 
 func WriteLinesToClipboard(lines []string) error {
