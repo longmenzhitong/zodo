@@ -6,7 +6,6 @@ import (
 
 const (
 	idFileName = "id"
-	idRedisKey = "zd:id"
 )
 
 var Id id
@@ -63,19 +62,6 @@ func getIdFromPath(path string) int {
 			panic(err)
 		}
 		id = n
-	}
-	return id
-}
-
-func getIdFromRedis() int {
-	cmd := Redis().Get(idRedisKey)
-	idStr, err := cmd.Result()
-	if err != nil {
-		panic(err)
-	}
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		panic(err)
 	}
 	return id
 }

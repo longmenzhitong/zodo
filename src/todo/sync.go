@@ -3,6 +3,7 @@ package todo
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 	zodo "zodo/src"
 )
@@ -20,17 +21,17 @@ func Push() error {
 
 	switch zodo.Config.Sync.Type {
 	case zodo.SyncTypeRedis:
-		// 同步数据
+		// 推送数据
 		dataJson, err := json.Marshal(data)
 		if err != nil {
 			panic(err)
 		}
 		zodo.Redis().Set(redisKeyData, dataJson, 0)
 
-		// 同步ID
+		// 推送ID
 		zodo.Redis().Set(redisKeyId, id, 0)
 
-		// 同步时间戳
+		// 推送时间戳
 		zodo.Redis().Set(redisKeyTimestamp, ts, 0)
 		return nil
 	default:
@@ -38,4 +39,47 @@ func Push() error {
 			Message: fmt.Sprintf("sync.type: %s", zodo.Config.Sync.Type),
 		}
 	}
+}
+
+func Pull() error {
+	var data []string
+	var id int
+
+	switch zodo.Config.Sync.Type {
+	case zodo.SyncTypeRedis:
+		// 拉取数据
+		cmd := zodo.Redis().Get(redisKeyData)
+		dataJson, err := cmd.Result()
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal([]byte(dataJson), &data)
+		if err != nil {
+			return err
+		}
+
+		// 拉取ID
+		cmd = zodo.Redis().Get(redisKeyId)
+		idStr, err := cmd.Result()
+		if err != nil {
+			return err
+		}
+		id, err = strconv.Atoi(idStr)
+		if err != nil {
+			return err
+		}
+	default:
+		return &zodo.InvalidConfigError{
+			Message: fmt.Sprintf("sync.type: %s", zodo.Config.Sync.Type),
+		}
+	}
+
+	if len(data) > 0 {
+		zodo.RewriteLinesToPath(path, data)
+	}
+	if id > 0 {
+		zodo.Id.SetNext(id)
+	}
+
+	return nil
 }
