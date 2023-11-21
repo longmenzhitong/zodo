@@ -91,9 +91,15 @@ func Pull() error {
 		// 备份ID
 		zodo.Id.Backup()
 		// 拉取并写入数据
-		zodo.PullFromS3(path, s3ObjectKeyData)
+		err := zodo.PullFromS3(path, s3ObjectKeyData)
+		if err != nil {
+			return err
+		}
 		// 拉取并写入ID
-		zodo.PullFromS3(zodo.Id.Path, s3ObjectKeyId)
+		err = zodo.PullFromS3(zodo.Id.Path, s3ObjectKeyId)
+		if err != nil {
+			return err
+		}
 		return nil
 	default:
 		return invalidSyncTypeConfigError()
