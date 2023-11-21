@@ -11,7 +11,6 @@ import (
 )
 
 func s3Client() *s3.Client {
-
 	s3Config, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		panic(err)
