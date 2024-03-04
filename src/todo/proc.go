@@ -55,6 +55,25 @@ func List(keyword string, allStatus bool) {
 	zodo.PrintTable(&title, rows)
 }
 
+func Export(keyword string, allStatus bool) {
+	lines := make([]string, 0)
+	lines = append(lines, "# 待办事项")
+
+	for _, td := range Cache.list(keyword, allStatus) {
+		if td.hasChildren() {
+			content := heading(td.Level) + td.Content
+			lines = append(lines, "")
+			lines = append(lines, content)
+			lines = append(lines, "")
+		} else {
+			content := "- " + td.Content
+			lines = append(lines, content)
+		}
+	}
+
+	zodo.RewriteLinesToPath("zodo.md", lines)
+}
+
 func Get(id int) *todo {
 	return Cache.get(id)
 }
@@ -222,6 +241,15 @@ func padding(level int) string {
 		res += p
 	}
 	return res
+}
+
+func heading(level int) string {
+	var h string
+	for i := 0; i <= level+1; i++ {
+		h += "#"
+	}
+
+	return h + " "
 }
 
 func Rollback() {
