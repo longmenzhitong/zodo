@@ -49,10 +49,10 @@ func (c *cache) save() {
 	zodo.RewriteLinesToPath(path, lines)
 }
 
-func (c *cache) list(keyword string, allStatus bool) []todo {
+func (c *cache) list(keyword string, allStatus, colored bool) []todo {
 	tds := make([]todo, 0)
 	for _, td := range sortTodo(c.data) {
-		if td.ParentId == 0 && hitKeyword(td, keyword) {
+		if td.ParentId == 0 && hitKeyword(td, keyword, colored) {
 			walkTodo(td, &tds, 0, allStatus)
 		}
 	}

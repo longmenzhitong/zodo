@@ -19,7 +19,7 @@ const (
 func List(keyword string, allStatus bool) {
 	rows := make([]table.Row, 0)
 	showDeadline := false
-	for _, td := range Cache.list(keyword, allStatus) {
+	for _, td := range Cache.list(keyword, allStatus, true) {
 		content := td.Content
 		if td.Remark != "" {
 			content += zodo.ColoredString(zodo.ColorBlue, "*")
@@ -59,7 +59,7 @@ func Export(keyword string, allStatus bool) {
 	lines := make([]string, 0)
 	lines = append(lines, "# 待办事项")
 
-	for _, td := range Cache.list(keyword, allStatus) {
+	for _, td := range Cache.list(keyword, allStatus, false) {
 		if td.hasChildren() {
 			content := heading(td.Level) + td.Content
 			lines = append(lines, "")

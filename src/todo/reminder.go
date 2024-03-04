@@ -87,7 +87,7 @@ func RemoveRemind(ids []int) {
 func Remind() error {
 	Cache.refresh()
 	var text string
-	for _, td := range Cache.list("", true) {
+	for _, td := range Cache.list("", true, false) {
 		if !isNeedRemind(td.RemindTime, td.LoopType, td.RemindStatus, time.Now()) {
 			continue
 		}
