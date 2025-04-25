@@ -22,16 +22,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// statCmd represents the stat command
-var statCmd = &cobra.Command{
-	Use:   "stat",
-	Short: "Show statistics of todos",
-	Long:  `Show statistics of todos.`,
+// infoCmd represents the stat command
+var infoCmd = &cobra.Command{
+	Use:   "info",
+	Short: "Show information of todos",
+	Long:  `Show information of todos.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		todo.Statistics()
+		todo.Information()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(statCmd)
+	RootCmd.AddCommand(infoCmd)
 }
